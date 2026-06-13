@@ -285,7 +285,7 @@ async function init() {
   updateStatus();
   renderPointList();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.4').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.5').catch(() => {});
   }
 }
 
@@ -549,7 +549,7 @@ async function savePoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  toast('Cadastro realizado com sucesso.');
+  toast('Local cadastrado com sucesso.');
   hide(els.panel);
 }
 function renderPointList() {
@@ -768,9 +768,14 @@ async function openDetails(point) {
           <span>${escapeHtml(media.name)}</span>
           ${media.aiGenerated ? '<em>Simulação gerada</em>' : ''}
         </button>
-        <button class="media-delete" type="button" data-media-action="delete" data-media-id="${media.id}" data-point-id="${point.id}">
-          Excluir mídia
-        </button>
+        <div class="media-card-actions">
+          <button class="media-share" type="button" data-media-action="share" data-media-id="${media.id}" data-point-id="${point.id}">
+            Compartilhar
+          </button>
+          <button class="media-delete" type="button" data-media-action="delete" data-media-id="${media.id}" data-point-id="${point.id}">
+            Excluir mídia
+          </button>
+        </div>
       </article>
     `);
   }
@@ -790,6 +795,7 @@ async function openDetails(point) {
     <div class="detail-block">
       <div class="action-row">
         <button class="cta-btn ghost" type="button" data-detail-action="route" data-point-id="${point.id}">Rota</button>
+        <button class="cta-btn ghost" type="button" data-detail-action="share-point" data-point-id="${point.id}">Compartilhar local</button>
         <button class="cta-btn ghost" type="button" data-detail-action="simulate" data-point-id="${point.id}">Simular com IA</button>
       </div>
       <div class="action-row">
@@ -814,6 +820,10 @@ function handleDetailsClick(event) {
       const url = buildGoogleMapsRouteUrl(point);
       window.open(url, '_blank');
     }
+    if (action === 'share-point') {
+      sharePoint(point);
+      return;
+    }
     if (action === 'simulate') openAiStudio(point);
     if (action === 'delete') confirm('Excluir local', `Deseja excluir "${point.name}"?`, async () => {
       hide(els.detailsModal);
@@ -834,12 +844,81 @@ function handleDetailsClick(event) {
     return;
   }
 
+  if (mediaAction.dataset.mediaAction === 'share') {
+    shareMediaFromPoint(point, media);
+    return;
+  }
+
   if (mediaAction.dataset.mediaAction === 'delete') {
     confirm('Excluir mídia', `Deseja excluir "${media.name}" da galeria?`, async () => {
       await deleteMediaFromPoint(point.id, media.id);
       const refreshedPoint = state.points.find((item) => item.id === point.id);
       if (refreshedPoint) await openDetails(refreshedPoint);
     });
+  }
+}
+function safeFileName(value, fallback = 'arquivo') {
+  return String(value || fallback)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w.-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80) || fallback;
+}
+async function shareBlobFile(blob, filename, title, text) {
+  const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+  if (navigator.share) {
+    try {
+      if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+        await navigator.share({ title, text, files: [file] });
+        toast('Compartilhamento aberto.');
+        return true;
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return false;
+      console.warn('Falha ao compartilhar arquivo', error);
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Arquivo baixado. Abra-o para compartilhar no WhatsApp.');
+  return false;
+}
+async function shareMediaFromPoint(point, media) {
+  const blob = await getMedia(media.id);
+  if (!blob) return toast('Não foi possível carregar a mídia para compartilhar.');
+  const extension = media.type === 'video' ? 'mp4' : 'png';
+  const filename = safeFileName(media.name || `${point.name}-${media.type}`, `midia-${point.name}.${extension}`);
+  await shareBlobFile(blob, filename, `Mídia do local ${point.name}`, `Mídia do local ${point.name}.`);
+}
+async function sharePoint(point) {
+  const mapsUrl = buildGoogleMapsRouteUrl(point);
+  const text = [
+    `Local: ${point.name}`,
+    point.description ? `Descrição: ${point.description}` : '',
+    `Coordenadas: ${formatLatLng(point.lat)}, ${formatLatLng(point.lng)}`,
+    `Rota: ${mapsUrl}`
+  ].filter(Boolean).join('\n');
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: point.name, text });
+      toast('Compartilhamento do local aberto.');
+      return;
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      console.warn('Falha ao compartilhar local', error);
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('Dados do local copiados.');
+  } catch {
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }
 }
 async function openViewer(media) {
@@ -866,7 +945,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v34_${Date.now()}.json`;
+  a.download = `geovendas_casa_v35_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');
@@ -914,9 +993,9 @@ async function openAiStudio(point) {
   state.aiStudio.pointId = point.id;
   state.aiStudio.resultDataUrl = '';
   state.aiStudio.prompt = '';
-  els.aiStudioTitle.textContent = `Simulação ilustrativa · ${point.name}`;
+  els.aiStudioTitle.textContent = `Simulação por IA · ${point.name}`;
   els.aiResult.className = 'ai-result empty';
-  els.aiResult.textContent = 'Escolha uma foto do lote e gere uma simulação visual para compartilhar. Nesta versão protótipo, o resultado usa sempre a mesma casa-exemplo.';
+  els.aiResult.textContent = 'Escolha uma foto real do lote. As imagens geradas anteriormente não serão usadas como base automaticamente.';
   els.aiPromptBox.classList.add('hidden');
   els.aiPromptBox.textContent = '';
   await usePointPhotoForAi({ silent: true });
@@ -926,20 +1005,27 @@ async function openAiStudio(point) {
 async function usePointPhotoForAi(options = {}) {
   const point = currentAiPoint();
   if (!point) return;
-  const image = point.media.find((item) => item.type === 'image');
+
+  // Nunca use uma imagem gerada por IA como foto-base automática.
+  // Isso evita que uma nova geração seja feita em cima da simulação anterior.
+  const image = point.media.find((item) => item.type === 'image' && !item.aiGenerated);
+
   if (!image) {
-    if (!options.silent) toast('Este ponto ainda não tem foto. Escolha uma imagem do aparelho ou capture a câmera.');
+    if (!options.silent) {
+      toast('Este local não tem foto original do lote. Capture a câmera ou escolha uma foto do aparelho.');
+    }
     clearAiPreview();
     return;
   }
+
   const blob = await getMedia(image.id);
   if (!blob) {
-    if (!options.silent) toast('Não foi possível carregar a foto cadastrada.');
+    if (!options.silent) toast('Não foi possível carregar a foto original cadastrada.');
     clearAiPreview();
     return;
   }
   const dataUrl = await blobToDataUrl(blob);
-  setAiLotPhoto(dataUrl, image.name || 'Foto do lote');
+  setAiLotPhoto(dataUrl, image.name || 'Foto original do lote');
 }
 function clearAiPreview() {
   state.aiStudio.lotPhotoDataUrl = '';
@@ -1101,7 +1187,7 @@ async function saveAiResultToPoint() {
   const point = currentAiPoint();
   if (!point) return;
   if (!state.aiStudio.resultDataUrl) {
-    toast('Gere a simulação antes de salvar no lote.');
+    toast('Gere a imagem antes de salvar no lote.');
     return;
   }
 
@@ -1111,7 +1197,7 @@ async function saveAiResultToPoint() {
 
   point.media.unshift({
     id,
-    name: `Simulação Proto - ${point.name} - ${new Date().toLocaleDateString('pt-BR')}.png`,
+    name: `Simulação IA - ${point.name} - ${new Date().toLocaleDateString('pt-BR')}.png`,
     type: 'image',
     mime: blob.type,
     aiGenerated: true,
@@ -1135,26 +1221,13 @@ async function saveAiResultToPoint() {
 }
 async function shareAiResult() {
   if (!state.aiStudio.resultDataUrl) {
-    toast('Gere a simulação antes de compartilhar.');
+    toast('Gere a imagem antes de compartilhar.');
     return;
   }
   const point = currentAiPoint();
   const blob = dataUrlToBlob(state.aiStudio.resultDataUrl);
-  const file = new File([blob], `simulacao-${(point?.name || 'lote').replace(/\s+/g, '-')}.png`, { type: blob.type });
-  if (navigator.canShare?.({ files: [file] })) {
-    await navigator.share({
-      title: 'Simulação ilustrativa do lote',
-      text: `Simulação ilustrativa para ${point?.name || 'lote'}.`,
-      files: [file]
-    });
-    return;
-  }
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = file.name;
-  a.click();
-  URL.revokeObjectURL(url);
+  const filename = `${safeFileName(`simulacao-${point?.name || 'lote'}`)}.png`;
+  await shareBlobFile(blob, filename, 'Simulação ilustrativa do lote', `Simulação ilustrativa para ${point?.name || 'lote'}.`);
 }
 
 
@@ -1173,7 +1246,7 @@ async function openSimulator(point) {
   revokeTempUrls();
   await prepareSimulator(point);
   renderSimulator();
-  toast('Simulação aberta. Ajuste o lote e escolha o modelo desejado.');
+  toast('Simulação por IA aberta.');
 }
 function closeSimulator() {
   state.simulator.active = false;
