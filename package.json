@@ -1,0 +1,9 @@
+{
+  "name": "geovendas-casa-v3-3",
+  "private": true,
+  "version": "3.3.0",
+  "description": "GeoVendas_Casa com geração real de imagens por OpenAI",
+  "engines": {
+    "node": "18.x"
+  }
+}

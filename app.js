@@ -163,6 +163,14 @@ function formatLatLng(value) { return Number(value).toFixed(6).replace('.', ',')
 function formatDate(value) {
   return new Date(value).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 }
+function buildGoogleMapsRouteUrl(point) {
+  const lat = Number(point.lat).toFixed(6);
+  const lng = Number(point.lng).toFixed(6);
+  // Google Maps não permite nomear um ponto de coordenada pura sem Place ID.
+  // Para evitar "com alfinete", enviamos nome + coordenadas no campo de destino.
+  const destination = `${point.name} ${lat},${lng}`;
+  return `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${encodeURIComponent(destination)}&travelmode=driving&dir_action=navigate`;
+}
 function toast(message) {
   els.toast.textContent = message;
   els.toast.classList.remove('hidden');
@@ -276,9 +284,7 @@ async function init() {
   bindEvents();
   updateStatus();
   renderPointList();
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.0').catch(() => {});
-  }
+  // Service worker disabled in v3.3 to avoid stale mobile cache during API testing.
 }
 
 function bindEvents() {
@@ -330,6 +336,7 @@ function bindEvents() {
   els.aiGenerateBtn.addEventListener('click', generateAiImage);
   els.aiSaveResultBtn.addEventListener('click', saveAiResultToPoint);
   els.aiShareResultBtn.addEventListener('click', shareAiResult);
+  els.aiResult.addEventListener('click', openAiResultViewer);
   els.confirmCancel.addEventListener('click', () => hide(els.confirmModal));
   els.confirmAccept.addEventListener('click', async () => {
     const fn = state.confirmAction;
@@ -560,7 +567,7 @@ function renderPointList() {
         </div>
         <div class="point-actions">
           <button class="mini-btn" data-action="details" data-id="${point.id}">Detalhes</button>
-          <button class="mini-btn" data-action="simulate" data-id="${point.id}">Simular casa</button>
+          <button class="mini-btn" data-action="simulate" data-id="${point.id}">Simular com IA</button>
           <button class="mini-btn" data-action="delete" data-id="${point.id}">Excluir</button>
         </div>
       </article>
@@ -587,6 +594,20 @@ async function deletePoint(pointId) {
   updateNearestPoint();
   renderFloatingPoints();
   toast('Cadastro excluído.');
+}
+async function deleteMediaFromPoint(pointId, mediaId) {
+  const point = state.points.find((item) => item.id === pointId);
+  if (!point) return;
+  const media = point.media.find((item) => item.id === mediaId);
+  if (!media) return;
+  await deleteMedia(mediaId);
+  point.media = point.media.filter((item) => item.id !== mediaId);
+  savePoints();
+  renderPointList();
+  updateStatus();
+  updateNearestPoint();
+  renderFloatingPoints();
+  toast('Mídia excluída da galeria.');
 }
 function confirm(title, message, onAccept) {
   els.confirmTitle.textContent = title;
@@ -716,18 +737,44 @@ async function openDetails(point) {
   revokeTempUrls();
   els.detailsTitle.textContent = point.name;
   const distance = state.currentCoords ? haversine(state.currentCoords.lat, state.currentCoords.lng, point.lat, point.lng) : null;
+
+  const primaryImage = point.media.find((item) => item.type === 'image');
+  let featuredMediaHtml = '';
+  if (primaryImage) {
+    const featuredUrl = await resolveMediaUrl(primaryImage);
+    if (featuredUrl) {
+      featuredMediaHtml = `
+        <div class="detail-block">
+          <h4>Imagem principal</h4>
+          <button class="detail-hero" type="button" data-media-action="open" data-media-id="${primaryImage.id}" data-point-id="${point.id}">
+            <img src="${featuredUrl}" alt="${escapeAttr(primaryImage.name)}" />
+            <span class="detail-hero-caption">Toque para ampliar</span>
+          </button>
+        </div>
+      `;
+    }
+  }
+
   const mediaHtml = [];
   for (const media of point.media) {
     const url = await resolveMediaUrl(media);
     if (!url) continue;
     mediaHtml.push(`
-      <button class="media-tile" type="button" data-media-id="${media.id}" data-media-type="${media.type}" data-point-id="${point.id}" data-media-name="${escapeAttr(media.name)}">
-        ${media.type === 'video' ? `<video src="${url}" muted playsinline></video>` : `<img src="${url}" alt="${escapeAttr(media.name)}" />`}
-        <span>${escapeHtml(media.name)}</span>
-      </button>
+      <article class="media-card">
+        <button class="media-open" type="button" data-media-action="open" data-media-id="${media.id}" data-media-type="${media.type}" data-point-id="${point.id}" data-media-name="${escapeAttr(media.name)}">
+          ${media.type === 'video' ? `<video src="${url}" muted playsinline></video>` : `<img src="${url}" alt="${escapeAttr(media.name)}" />`}
+          <span>${escapeHtml(media.name)}</span>
+          ${media.aiGenerated ? '<em>Simulação gerada</em>' : ''}
+        </button>
+        <button class="media-delete" type="button" data-media-action="delete" data-media-id="${media.id}" data-point-id="${point.id}">
+          Excluir mídia
+        </button>
+      </article>
     `);
   }
+
   els.detailsContent.innerHTML = `
+    ${featuredMediaHtml}
     <div class="detail-block">
       <h4>Descrição</h4>
       <p>${escapeHtml(point.description || 'Sem descrição.')}</p>
@@ -741,10 +788,10 @@ async function openDetails(point) {
     <div class="detail-block">
       <div class="action-row">
         <button class="cta-btn ghost" type="button" data-detail-action="route" data-point-id="${point.id}">Rota</button>
-        <button class="cta-btn ghost" type="button" data-detail-action="simulate" data-point-id="${point.id}">Simular casa</button>
+        <button class="cta-btn ghost" type="button" data-detail-action="simulate" data-point-id="${point.id}">Simular com IA</button>
       </div>
       <div class="action-row">
-        <button class="cta-btn ghost" type="button" data-detail-action="delete" data-point-id="${point.id}">Excluir</button>
+        <button class="cta-btn ghost" type="button" data-detail-action="delete" data-point-id="${point.id}">Excluir local</button>
       </div>
     </div>
     <div class="detail-block">
@@ -762,7 +809,7 @@ function handleDetailsClick(event) {
     if (!point) return;
     const action = actionBtn.dataset.detailAction;
     if (action === 'route') {
-      const url = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${point.lat},${point.lng}&travelmode=driving`;
+      const url = buildGoogleMapsRouteUrl(point);
       window.open(url, '_blank');
     }
     if (action === 'simulate') openAiStudio(point);
@@ -772,13 +819,26 @@ function handleDetailsClick(event) {
     });
     return;
   }
-  const mediaTile = event.target.closest('[data-media-id]');
-  if (!mediaTile) return;
-  const point = state.points.find((item) => item.id === mediaTile.dataset.pointId);
+
+  const mediaAction = event.target.closest('[data-media-action]');
+  if (!mediaAction) return;
+  const point = state.points.find((item) => item.id === mediaAction.dataset.pointId);
   if (!point) return;
-  const media = point.media.find((item) => item.id === mediaTile.dataset.mediaId);
+  const media = point.media.find((item) => item.id === mediaAction.dataset.mediaId);
   if (!media) return;
-  openViewer(media);
+
+  if (mediaAction.dataset.mediaAction === 'open') {
+    openViewer(media);
+    return;
+  }
+
+  if (mediaAction.dataset.mediaAction === 'delete') {
+    confirm('Excluir mídia', `Deseja excluir "${media.name}" da galeria?`, async () => {
+      await deleteMediaFromPoint(point.id, media.id);
+      const refreshedPoint = state.points.find((item) => item.id === point.id);
+      if (refreshedPoint) await openDetails(refreshedPoint);
+    });
+  }
 }
 async function openViewer(media) {
   revokeTempUrls();
@@ -804,7 +864,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v2_${Date.now()}.json`;
+  a.download = `geovendas_casa_v33_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');
@@ -852,9 +912,9 @@ async function openAiStudio(point) {
   state.aiStudio.pointId = point.id;
   state.aiStudio.resultDataUrl = '';
   state.aiStudio.prompt = '';
-  els.aiStudioTitle.textContent = `Simular casa no lote · ${point.name}`;
+  els.aiStudioTitle.textContent = `Simulação ilustrativa · ${point.name}`;
   els.aiResult.className = 'ai-result empty';
-  els.aiResult.textContent = 'Escolha uma foto do lote e gere uma simulação visual para compartilhar.';
+  els.aiResult.textContent = 'Escolha uma foto do lote e gere uma simulação visual para compartilhar. Nesta versão protótipo, o resultado usa sempre a mesma casa-exemplo.';
   els.aiPromptBox.classList.add('hidden');
   els.aiPromptBox.textContent = '';
   await usePointPhotoForAi({ silent: true });
@@ -947,10 +1007,20 @@ function buildAiPrompt() {
   els.aiPromptBox.textContent = prompt;
   return prompt;
 }
-async function imageUrlToDataUrl(url) {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  return await blobToDataUrl(blob);
+async function resizeImageDataUrl(dataUrl, maxWidth = 1400, quality = 0.86) {
+  const img = await new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('Não foi possível preparar a foto do lote.'));
+    image.src = dataUrl;
+  });
+  const scale = Math.min(1, maxWidth / img.width);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/jpeg', quality);
 }
 async function generateAiImage() {
   const point = currentAiPoint();
@@ -964,46 +1034,50 @@ async function generateAiImage() {
   els.aiGenerateBtn.disabled = true;
   els.aiGenerateBtn.textContent = 'Gerando...';
   els.aiResult.className = 'ai-result loading';
-  els.aiResult.textContent = 'Gerando imagem. Isso pode levar até alguns minutos.';
+  els.aiResult.textContent = 'Gerando imagem com IA. Isso pode levar alguns instantes.';
   try {
-    const houseReferenceDataUrl = state.aiStudio.model === 'cleoni'
-      ? await imageUrlToDataUrl('./casa-cleoni-referencia.png')
-      : '';
+    const optimizedLotImage = await resizeImageDataUrl(state.aiStudio.lotPhotoDataUrl);
     const response = await fetch('/api/generate-house-image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         prompt,
-        lotImage: state.aiStudio.lotPhotoDataUrl,
-        houseReference: houseReferenceDataUrl,
+        lotImage: optimizedLotImage,
+        modelStyle: state.aiStudio.model || 'cleoni',
         pointName: point.name
       })
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.image) {
-      throw new Error(data.error || 'A API de geração ainda não está configurada.');
+      throw new Error(data.error || 'Não foi possível gerar a imagem agora.');
     }
     state.aiStudio.resultDataUrl = data.image;
     els.aiResult.className = 'ai-result';
-    els.aiResult.innerHTML = `<img src="${data.image}" alt="Simulação gerada por IA" /><span>Imagem ilustrativa gerada por IA.</span>`;
+    els.aiResult.innerHTML = `<img src="${data.image}" alt="Simulação gerada por IA" /><span>Imagem gerada com IA. Toque para ampliar ou use os botões abaixo para salvar e compartilhar.</span>`;
     toast('Imagem gerada com sucesso.');
   } catch (error) {
     console.error(error);
     state.aiStudio.resultDataUrl = '';
     els.aiResult.className = 'ai-result empty';
     els.aiResult.innerHTML = `
-      <strong>Geração automática indisponível.</strong>
-      <p>${escapeHtml(error.message || 'Configure a API no Vercel para gerar imagens.')}</p>
-      <p>O prompt profissional está pronto para copiar e usar em uma ferramenta de geração de imagem.</p>
+      <strong>Falha na geração automática.</strong>
+      <p>${escapeHtml(error.message || 'Verifique a chave da API e os limites da conta.')}</p>
+      <p>Se o erro persistir, confira se a OPENAI_API_KEY está configurada no Vercel e se a conta possui billing ativo.</p>
     `;
-    els.aiPromptBox.classList.remove('hidden');
-    toast('API indisponível. Prompt pronto para copiar.');
+    toast('Não foi possível gerar a imagem.');
   } finally {
     state.aiStudio.busy = false;
     els.aiGenerateBtn.disabled = false;
     els.aiGenerateBtn.textContent = 'Gerar imagem IA';
   }
 }
+function openAiResultViewer() {
+  if (!state.aiStudio.resultDataUrl) return;
+  els.viewerTitle.textContent = 'Imagem gerada';
+  els.viewerContent.innerHTML = `<img src="${state.aiStudio.resultDataUrl}" alt="Imagem gerada por IA" />`;
+  show(els.viewerModal);
+}
+
 async function copyAiPrompt() {
   const prompt = buildAiPrompt();
   try {
@@ -1025,27 +1099,41 @@ async function saveAiResultToPoint() {
   const point = currentAiPoint();
   if (!point) return;
   if (!state.aiStudio.resultDataUrl) {
-    toast('Gere uma imagem antes de salvar no lote.');
+    toast('Gere a simulação antes de salvar no lote.');
     return;
   }
+
   const id = uid('media');
   const blob = dataUrlToBlob(state.aiStudio.resultDataUrl);
   await putMedia(id, blob);
+
   point.media.unshift({
     id,
-    name: `Simulação IA - ${point.name}.png`,
+    name: `Simulação Proto - ${point.name} - ${new Date().toLocaleDateString('pt-BR')}.png`,
     type: 'image',
     mime: blob.type,
     aiGenerated: true,
+    prompt: state.aiStudio.prompt || buildAiPrompt(),
     createdAt: Date.now()
   });
+
   savePoints();
   renderPointList();
-  toast('Simulação salva na galeria do lote.');
+  updateStatus();
+  updateNearestPoint();
+  renderFloatingPoints();
+
+  els.aiResult.querySelector('.ai-save-confirmation')?.remove();
+  const confirmation = document.createElement('div');
+  confirmation.className = 'ai-save-confirmation';
+  confirmation.textContent = 'Imagem salva com sucesso na galeria do local.';
+  els.aiResult.appendChild(confirmation);
+
+  toast('Imagem salva com sucesso na galeria do local.');
 }
 async function shareAiResult() {
   if (!state.aiStudio.resultDataUrl) {
-    toast('Gere uma imagem antes de compartilhar.');
+    toast('Gere a simulação antes de compartilhar.');
     return;
   }
   const point = currentAiPoint();
@@ -1053,7 +1141,7 @@ async function shareAiResult() {
   const file = new File([blob], `simulacao-${(point?.name || 'lote').replace(/\s+/g, '-')}.png`, { type: blob.type });
   if (navigator.canShare?.({ files: [file] })) {
     await navigator.share({
-      title: 'Simulação de casa no lote',
+      title: 'Simulação ilustrativa do lote',
       text: `Simulação ilustrativa para ${point?.name || 'lote'}.`,
       files: [file]
     });

@@ -1,44 +1,18 @@
-# GeoVendas_Casa v3.0
+# GeoVendas_Casa v3.3
 
-Versão com a nova visão comercial: **simulação de casa no lote por IA**, usando uma foto real do lote como base.
+Versão real com chamada à OpenAI e limpeza agressiva de cache antigo.
 
-## O que mudou
+## Correções
+- mostra claramente `GeoVendas_Casa v3.3` no cabeçalho;
+- desativa service worker para evitar que o celular continue carregando v3.0;
+- apaga caches antigos no primeiro carregamento;
+- mantém a chamada real para `/api/generate-house-image`;
+- envia foto do lote compactada para `gpt-image-1`;
+- mantém salvar, ampliar e compartilhar a imagem gerada.
 
-- Mantém câmera, GPS, bússola, pontos flutuantes, cadastro de locais, fotos, vídeos, detalhes e rota.
-- Substitui a tentativa de AR/casa sobreposta por uma jornada de geração de imagem:
-  1. escolher ou capturar foto do lote;
-  2. escolher modelo/estilo de casa;
-  3. montar prompt profissional;
-  4. gerar imagem por IA;
-  5. salvar na galeria do lote;
-  6. compartilhar com cliente, cônjuge ou família.
+## Vercel
+Configure `OPENAI_API_KEY` em Environment Variables.
 
-## Geração de imagem
+Opcional: `OPENAI_IMAGE_MODEL=gpt-image-1`.
 
-A geração automática usa a função:
-
-`/api/generate-house-image`
-
-Ela precisa da variável de ambiente:
-
-`OPENAI_API_KEY`
-
-Se a chave não estiver configurada, o app ainda funciona e mostra o prompt completo para copiar.
-
-## Publicação no Vercel
-
-Suba a pasta `geovendas-casa-v3-0` no Vercel.
-
-Depois configure:
-
-- Project Settings
-- Environment Variables
-- `OPENAI_API_KEY`
-
-Abra com:
-
-`?v=3.0`
-
-## Observação comercial
-
-Toda simulação é conceitual. Ela não substitui projeto arquitetônico, aprovação legal ou estudo técnico.
+Depois publique a pasta `geovendas-casa-v3-3` e abra com `?v=3.3`.

@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/generate-house-image.js": {
+      "maxDuration": 60
+    }
+  }
+}

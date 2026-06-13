@@ -3,12 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>GeoVendas_Casa 3.0</title>
+  <title>GeoVendas_Casa 3.3</title>
   <meta name="theme-color" content="#071523" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="stylesheet" href="./styles.css?v=3.0" />
+  <link rel="stylesheet" href="./styles.css?v=3.3" />
+
+  <script>
+    (async function clearOldGeoVendasCache(){
+      try {
+        const flag = 'geovendas_casa_v33_cache_cleaned';
+        if (sessionStorage.getItem(flag)) return;
+        sessionStorage.setItem(flag, '1');
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((reg) => reg.unregister()));
+        }
+        if (window.caches) {
+          const keys = await caches.keys();
+          await Promise.all(keys.filter((key) => key.includes('geovendas') || key.includes('gv')).map((key) => caches.delete(key)));
+        }
+        if (!location.search.includes('clean=1')) {
+          const sep = location.search ? '&' : '?';
+          location.replace(location.href + sep + 'clean=1');
+        }
+      } catch (_) {}
+    })();
+  </script>
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -24,7 +46,7 @@
         </div>
         <div>
           <p class="eyebrow">Évora Urbanismo</p>
-          <h1>GeoVendas_Casa <small>v3.0</small></h1>
+          <h1>GeoVendas_Casa <small>v3.3</small></h1>
         </div>
       </div>
       <button id="panelToggle" class="cta-btn ghost" type="button">Painel</button>
@@ -201,7 +223,7 @@
       <div class="modal-card ai-studio-card glass">
         <div class="modal-head sticky">
           <div>
-            <p class="eyebrow">Simulação por IA</p>
+            <p class="eyebrow">Simulação ilustrativa</p>
             <h3 id="aiStudioTitle">Simular com IA no lote</h3>
           </div>
           <button id="closeAiStudio" class="icon-btn small" type="button" aria-label="Fechar simulação por IA">✕</button>
@@ -263,16 +285,16 @@
           <section class="ai-step-card">
             <p class="ai-step">3. Gerar e compartilhar</p>
             <div class="ai-action-row">
-              <button id="aiBuildPromptBtn" class="cta-btn ghost" type="button">Ver prompt</button>
-              <button id="aiGenerateBtn" class="cta-btn" type="button">Gerar imagem IA</button>
+              <button id="aiBuildPromptBtn" class="cta-btn ghost" type="button">Ver prompt base</button>
+              <button id="aiGenerateBtn" class="cta-btn" type="button">Gerar imagem simulada</button>
             </div>
             <pre id="aiPromptBox" class="ai-prompt-box hidden"></pre>
             <div id="aiResult" class="ai-result empty">
-              A imagem gerada aparecerá aqui. Se a API ainda não estiver configurada, o app mostrará o prompt pronto para copiar.
+              A imagem simulada aparecerá aqui. Nesta versão protótipo, o app sempre retorna a mesma casa-exemplo para validar o fluxo comercial.
             </div>
             <div class="ai-result-actions">
               <button id="aiCopyPromptBtn" class="cta-btn ghost" type="button">Copiar prompt</button>
-              <button id="aiSaveResultBtn" class="cta-btn ghost" type="button">Salvar no lote</button>
+              <button id="aiSaveResultBtn" class="cta-btn ghost" type="button">Salvar no local</button>
               <button id="aiShareResultBtn" class="cta-btn ghost" type="button">Compartilhar</button>
             </div>
             <p class="ai-disclaimer">Imagem ilustrativa gerada por IA para simulação conceitual. Não substitui projeto arquitetônico, aprovação legal ou estudo técnico.</p>
@@ -297,7 +319,7 @@
             <span class="sim-divider"></span>
             <div class="sim-brand-right">
               <strong>GeoVendas_Casa</strong>
-              <small>v3.0</small>
+              <small>v3.3</small>
             </div>
           </div>
         </div>
@@ -414,6 +436,6 @@
     </section>
   </div>
 
-  <script src="./app.js?v=3.0"></script>
+  <script src="./app.js?v=3.3"></script>
 </body>
 </html>
