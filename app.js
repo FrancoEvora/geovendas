@@ -284,7 +284,9 @@ async function init() {
   bindEvents();
   updateStatus();
   renderPointList();
-  // Service worker disabled in v3.3 to avoid stale mobile cache during API testing.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js?v=3.4').catch(() => {});
+  }
 }
 
 function bindEvents() {
@@ -864,7 +866,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v33_${Date.now()}.json`;
+  a.download = `geovendas_casa_v34_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');

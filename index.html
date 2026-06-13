@@ -3,34 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>GeoVendas_Casa 3.3</title>
+  <title>GeoVendas_Casa 3.4</title>
   <meta name="theme-color" content="#071523" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="stylesheet" href="./styles.css?v=3.3" />
-
-  <script>
-    (async function clearOldGeoVendasCache(){
-      try {
-        const flag = 'geovendas_casa_v33_cache_cleaned';
-        if (sessionStorage.getItem(flag)) return;
-        sessionStorage.setItem(flag, '1');
-        if ('serviceWorker' in navigator) {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(regs.map((reg) => reg.unregister()));
-        }
-        if (window.caches) {
-          const keys = await caches.keys();
-          await Promise.all(keys.filter((key) => key.includes('geovendas') || key.includes('gv')).map((key) => caches.delete(key)));
-        }
-        if (!location.search.includes('clean=1')) {
-          const sep = location.search ? '&' : '?';
-          location.replace(location.href + sep + 'clean=1');
-        }
-      } catch (_) {}
-    })();
-  </script>
+  <link rel="stylesheet" href="./styles.css?v=3.4" />
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -46,7 +24,7 @@
         </div>
         <div>
           <p class="eyebrow">Évora Urbanismo</p>
-          <h1>GeoVendas_Casa <small>v3.3</small></h1>
+          <h1>GeoVendas_Casa <small>v3.4</small></h1>
         </div>
       </div>
       <button id="panelToggle" class="cta-btn ghost" type="button">Painel</button>
@@ -319,7 +297,7 @@
             <span class="sim-divider"></span>
             <div class="sim-brand-right">
               <strong>GeoVendas_Casa</strong>
-              <small>v3.3</small>
+              <small>v3.4</small>
             </div>
           </div>
         </div>
@@ -436,6 +414,6 @@
     </section>
   </div>
 
-  <script src="./app.js?v=3.3"></script>
+  <script src="./app.js?v=3.4"></script>
 </body>
 </html>

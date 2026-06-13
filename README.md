@@ -1,18 +1,35 @@
-# GeoVendas_Casa v3.3
+# GeoVendas_Casa v3.4
 
-Versão real com chamada à OpenAI e limpeza agressiva de cache antigo.
+Versão com integração real da OpenAI para gerar imagens do lote com uma casa simulada.
 
-## Correções
-- mostra claramente `GeoVendas_Casa v3.3` no cabeçalho;
-- desativa service worker para evitar que o celular continue carregando v3.0;
-- apaga caches antigos no primeiro carregamento;
-- mantém a chamada real para `/api/generate-house-image`;
-- envia foto do lote compactada para `gpt-image-1`;
-- mantém salvar, ampliar e compartilhar a imagem gerada.
+## O que esta versão corrige
 
-## Vercel
-Configure `OPENAI_API_KEY` em Environment Variables.
+- Atualiza a interface para **GeoVendas_Casa v3.4**.
+- Corrige o problema `The string did not match the expected pattern`.
+- Troca o modelo padrão para `gpt-image-1`.
+- Envia a foto do lote como imagem única no endpoint de edição.
+- Comprime a foto antes do envio.
+- Mantém exclusão individual de mídias, ampliação da galeria, salvamento e compartilhamento.
+- Exibe mensagens de erro mais claras.
 
-Opcional: `OPENAI_IMAGE_MODEL=gpt-image-1`.
+## Configuração no Vercel
 
-Depois publique a pasta `geovendas-casa-v3-3` e abra com `?v=3.3`.
+Configure a variável de ambiente:
+
+`OPENAI_API_KEY`
+
+Opcionalmente:
+
+`OPENAI_IMAGE_MODEL=gpt-image-1`
+
+Depois faça novo deploy e abra com:
+
+`?v=3.4`
+
+## Observação
+
+Se ainda aparecer `GeoVendas_Casa v3.0`, é cache ou deploy antigo. Publique a pasta `geovendas-casa-v3-4` e abra com `?v=3.4`.
+
+## Correção da v3.4
+- Atualiza `package.json` para `engines.node = 24.x`, corrigindo falha de build no Vercel por Node 18 descontinuado.
+- Mantém a integração real com `/api/generate-house-image`.
