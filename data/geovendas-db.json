@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-14T17:01:14.066Z",
+  "updatedAt": "2026-06-14T17:01:56.868Z",
   "points": [
+    {
+      "id": "point_tsl3q858mqe17rik",
+      "name": "Cozinha",
+      "description": "",
+      "lat": -18.945237989054327,
+      "lng": -48.27367477780909,
+      "accuracy": 120,
+      "createdAt": 1781456519180,
+      "updatedAt": 1781456519180,
+      "houseSimulation": null,
+      "media": []
+    },
     {
       "id": "point_s4pakdrgmqdz4zvi",
       "name": "Portaria",
