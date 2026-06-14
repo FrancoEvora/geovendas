@@ -1,7 +1,7 @@
 {
-  "name": "GeoVendas_Casa 3.9",
+  "name": "GeoVendas_Casa 3.10",
   "short_name": "GeoVendas_Casa",
-  "start_url": "./?v=3.9",
+  "start_url": "./?v=3.10",
   "display": "standalone",
   "background_color": "#071523",
   "theme_color": "#071523",

@@ -181,11 +181,37 @@ function buildGoogleMapsRouteUrl(point) {
 }
 function buildAppPointUrl(point) {
   const url = new URL(window.location.href);
-  url.searchParams.set('v', '3.9');
+  url.searchParams.set('v', '3.10');
   url.searchParams.set('point', point.id);
   return url.toString();
 }
-function serializePointForRemote(point) {
+async function serializeMediaForRemote(media) {
+  const output = {
+    id: media.id,
+    name: media.name || 'mídia',
+    type: media.type || 'image',
+    mime: media.mime || (media.type === 'video' ? 'video/mp4' : 'image/png'),
+    aiGenerated: !!media.aiGenerated,
+    prompt: media.prompt || '',
+    createdAt: media.createdAt || Date.now()
+  };
+
+  if (media.dataUrl) {
+    output.dataUrl = media.dataUrl;
+    return output;
+  }
+
+  const blob = await getMedia(media.id);
+  if (blob) {
+    output.mime = blob.type || output.mime;
+    output.dataUrl = await blobToDataUrl(blob);
+  }
+  return output;
+}
+async function serializePointForRemote(point) {
+  const media = Array.isArray(point.media)
+    ? await Promise.all(point.media.map(serializeMediaForRemote))
+    : [];
   return {
     id: point.id,
     name: point.name,
@@ -196,9 +222,7 @@ function serializePointForRemote(point) {
     createdAt: point.createdAt || Date.now(),
     updatedAt: point.updatedAt || point.createdAt || Date.now(),
     houseSimulation: point.houseSimulation || null,
-    // Por enquanto o GitHub funciona como banco de dados de pontos.
-    // Mídias ficam no aparelho até criarmos storage próprio.
-    media: []
+    media
   };
 }
 function mergeRemotePoints(remotePoints = []) {
@@ -273,10 +297,11 @@ async function saveRemotePoints(options = {}) {
       await loadRemotePoints({ silent: true });
     }
 
+    const serializedPoints = await Promise.all(state.points.map(serializePointForRemote));
     const payload = {
       action: options.replace ? 'replaceAll' : 'merge',
       replace: !!options.replace,
-      points: state.points.map(serializePointForRemote)
+      points: serializedPoints
     };
     const response = await fetch('/api/db', {
       method: 'POST',
@@ -310,9 +335,10 @@ async function saveRemotePoints(options = {}) {
 async function pushLocalPointsToGitHub(options = {}) {
   try {
     const localCount = state.points.length;
+    const serializedPoints = await Promise.all(state.points.map(serializePointForRemote));
     const payload = {
       action: 'merge',
-      points: state.points.map(serializePointForRemote)
+      points: serializedPoints
     };
     const response = await fetch('/api/db', {
       method: 'POST',
@@ -370,6 +396,7 @@ async function showRemoteDatabaseStatus() {
       `Arquivo: ${data.path || 'não informado'}`,
       `Pontos neste aparelho: ${state.points.length}`,
       `Pontos no banco: ${Array.isArray(data.points) ? data.points.length : 0}`,
+      `Mídias no banco: ${Array.isArray(data.points) ? data.points.reduce((total, point) => total + (Array.isArray(point.media) ? point.media.length : 0), 0) : 0}`,
       `Atualizado em: ${data.updatedAt || 'sem registro'}`
     ];
     alert(lines.join('\n'));
@@ -454,14 +481,14 @@ function blobToDataUrl(blob) {
 }
 async function resolveMediaUrl(media) {
   const blob = await getMedia(media.id);
-  if (!blob) return null;
-  const url = URL.createObjectURL(blob);
-  state.tempUrls.add(url);
-  return url;
-}
-function revokeTempUrls() {
-  for (const url of state.tempUrls) URL.revokeObjectURL(url);
-  state.tempUrls.clear();
+  if (blob) {
+    const url = URL.createObjectURL(blob);
+    state.tempUrls.add(url);
+    return url;
+  }
+  if (media.dataUrl) return media.dataUrl;
+  if (media.url) return media.url;
+  return null;
 }
 function haversine(lat1, lon1, lat2, lon2) {
   const toRad = (n) => (n * Math.PI) / 180;
@@ -508,7 +535,7 @@ async function init() {
   await loadRemotePoints({ silent: true });
   await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.9').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.10').catch(() => {});
   }
 }
 
@@ -786,7 +813,7 @@ async function savePoint() {
   updateNearestPoint();
   renderFloatingPoints();
   const synced = await pushLocalPointsToGitHub();
-  toast(synced ? 'Local cadastrado e enviado ao GitHub com sucesso.' : 'Local cadastrado apenas neste aparelho. Use Enviar locais ao GitHub para ver o erro.');
+  toast(synced ? 'Local cadastrado e enviado ao GitHub com sucesso.' : 'Local cadastrado apenas neste aparelho. Use Enviar locais e mídias para ver o erro.');
   hide(els.panel);
 }
 function renderPointList() {
@@ -1131,7 +1158,8 @@ async function shareBlobFile(blob, filename, title, text) {
   return false;
 }
 async function shareMediaFromPoint(point, media) {
-  const blob = await getMedia(media.id);
+  let blob = await getMedia(media.id);
+  if (!blob && media.dataUrl) blob = dataUrlToBlob(media.dataUrl);
   if (!blob) return toast('Não foi possível carregar a mídia para compartilhar.');
   const extension = media.type === 'video' ? 'mp4' : 'png';
   const filename = safeFileName(media.name || `${point.name}-${media.type}`, `midia-${point.name}.${extension}`);
@@ -1181,7 +1209,7 @@ async function exportJson() {
     const media = [];
     for (const item of point.media) {
       const blob = await getMedia(item.id);
-      media.push({ ...item, dataUrl: blob ? await blobToDataUrl(blob) : null });
+      media.push({ ...item, dataUrl: blob ? await blobToDataUrl(blob) : (item.dataUrl || null) });
     }
     payload.push({ ...point, media });
   }
@@ -1189,7 +1217,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v39_${Date.now()}.json`;
+  a.download = `geovendas_casa_v310_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');

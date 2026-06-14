@@ -1,27 +1,20 @@
-# GeoVendas_Casa v3.9
+# GeoVendas_Casa v3.10
 
-Versão focada em corrigir a situação em que os pontos aparecem apenas no celular onde foram cadastrados.
+Versão de desenvolvimento com pontos e mídias armazenados no GitHub.
 
-## O que mudou
+## O que entrou
 
-- adiciona o botão **Enviar locais deste aparelho**;
-- esse botão força o envio dos pontos locais para o GitHub e mostra uma mensagem detalhada de sucesso ou erro;
-- o botão **Status do banco** agora mostra também quantos pontos existem neste aparelho e quantos existem no banco;
-- ao cadastrar um ponto, o app tenta enviar imediatamente ao GitHub e avisa se ficou apenas local;
-- mantém o botão **Sincronizar banco** para carregar dados do GitHub em outro aparelho;
-- mantém compartilhamento do local com Google Maps e link do app;
-- mantém `?point=<id>` para abrir ponto compartilhado.
+- fotos, vídeos e imagens geradas passam a ser enviados para o arquivo JSON do GitHub em Base64;
+- outros aparelhos conseguem carregar a galeria junto com os pontos;
+- o botão **Enviar locais e mídias** força o envio dos dados locais para o GitHub;
+- o status do banco mostra também a quantidade de mídias no banco;
+- continua usando o GitHub como banco de desenvolvimento.
 
-## Como testar
+## Atenção
 
-1. Cadastre um ponto.
-2. Abra o menu.
-3. Toque em **Enviar locais deste aparelho**.
-4. Depois toque em **Status do banco**.
-5. O campo **Pontos no banco** deve aumentar.
-6. Em outro aparelho, abra o app e toque em **Sincronizar banco**.
+Esta solução é adequada para teste e desenvolvimento. Como as mídias ficam em Base64 dentro do JSON, o arquivo pode crescer rapidamente.
 
-## Variáveis necessárias no Vercel
+## Variáveis necessárias
 
 ```txt
 GITHUB_TOKEN
@@ -29,27 +22,13 @@ GITHUB_REPO
 GITHUB_BRANCH
 GITHUB_DB_PATH
 OPENAI_API_KEY
-OPENAI_IMAGE_MODEL
-```
-
-Exemplo:
-
-```txt
-GITHUB_REPO=FrancoEvora/geovendas
-GITHUB_BRANCH=principal
-GITHUB_DB_PATH=data/geovendas-db.json
+OPENAI_IMAGE_MODEL=gpt-image-1
 ```
 
 ## Publicação
 
-Suba a pasta:
+Suba a pasta `geovendas-casa-v3-10` e abra com:
 
 ```txt
-geovendas-casa-v3-9
-```
-
-Depois abra:
-
-```txt
-?v=3.9
+?v=3.10
 ```
