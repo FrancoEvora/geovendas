@@ -1,39 +1,24 @@
-# GeoVendas_Casa v3.12
+# Futura Casa v7.0 — Realidade Aumentada
 
-Versão focada em resolver divergência entre aparelhos.
+Esta versão mantém os recursos da experiência do comprador e adiciona recursos v7.0 na tela de detalhes do lote.
 
-## O que mudou
+## Novidades
 
-- O GitHub passa a ser tratado como **banco oficial**.
-- O app usa uma nova chave de cache local, separada das versões antigas.
-- Ao abrir o app, ele tenta baixar o banco oficial do GitHub.
-- O botão **Sincronizar banco** baixa o banco oficial.
-- O botão **Baixar banco oficial** limpa o cache local atual e baixa novamente o banco central.
-- O botão **Enviar locais e mídias** envia para o GitHub os pontos que estão no aparelho.
-- O botão **Importar cache antigo** tenta recuperar pontos salvos localmente por versões anteriores.
-- Depois de cadastrar um ponto, o app tenta salvar somente aquele ponto no banco oficial.
-- Depois de excluir um ponto, o app tenta excluir o ponto no banco oficial.
+Na janela de detalhes do lote:
+- Botão **Rota**: solicita permissão de localização do usuário e abre o Google Maps para traçar rota até o lote.
+- Botão **Realidade aumentada**: solicita câmera, localização e bússola/orientação do aparelho para criar uma visualização AR com pontos de referência.
 
-## Como testar
+## Observação importante
 
-1. Publique a pasta `geovendas-casa-v3-12`.
-2. Abra com `?v=3.12`.
-3. Em um aparelho que já tenha pontos antigos, toque em **Importar cache antigo**.
-4. Depois toque em **Enviar locais e mídias**.
-5. Em outro aparelho, toque em **Baixar banco oficial** ou **Sincronizar banco**.
-6. Os aparelhos devem ficar iguais.
+As coordenadas dos lotes estão cadastradas como coordenadas demonstrativas no array `LOTS`.
+Para produção, substitua `coords.lat` e `coords.lng` pelos pontos oficiais de cada lote.
 
-## Variáveis Vercel
+## Publicação
 
-```txt
-GITHUB_TOKEN
-GITHUB_REPO
-GITHUB_BRANCH
-GITHUB_DB_PATH
-OPENAI_API_KEY
-OPENAI_IMAGE_MODEL=gpt-image-1
+Suba tudo na raiz do GitHub/Vercel:
+
+```text
+index.html
+assets/
+README.md
 ```
-
-## Observação
-
-A partir desta versão, o objetivo é parar de depender de caches antigos de cada celular. O GitHub passa a ser a referência principal.

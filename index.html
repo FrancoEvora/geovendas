@@ -1,424 +1,1304 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>GeoVendas_Casa 3.12</title>
-  <meta name="theme-color" content="#071523" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="stylesheet" href="./styles.css?v=3.12" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Futura Casa | v7.0 Realidade Aumentada</title>
+<meta name="theme-color" content="#f5efe7">
+<link rel="icon" type="image/png" href="assets/img/img-001-d63b2218650763a6.png">
+<style>
+:root {
+  --bg:#f5efe7; --paper:#fffdf9; --paper2:#fbf5ed; --ink:#151922; --muted:#697280; --line:#e7dccd;
+  --dark:#111721; --dark2:#192231; --orange:#f36f2f; --orange2:#ff8f50; --green:#25a765; --red:#d95050;
+  --gold:#d8a04f; --shadow:0 18px 54px rgba(16,20,29,.11); --shadow2:0 36px 96px rgba(16,20,29,.18);
+  --radius:28px; --max:1320px;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 10% -10%,rgba(243,111,47,.18),transparent 34rem),radial-gradient(circle at 96% 4%,rgba(17,23,33,.10),transparent 38rem),var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+a{color:inherit;text-decoration:none} button,input,select{font:inherit} button{cursor:pointer}
+.wrap{width:min(100% - 34px,var(--max));margin:auto}
+.top{position:sticky;top:0;z-index:80;background:rgba(17,23,33,.96);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.topin{min-height:124px;padding:26px 0;display:flex;gap:18px;align-items:center} .logo{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;min-width:0}
+.logo img{width:230px;max-width:100%;display:block;height:auto;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,.22))}.brandTag{display:none!important} .logoText{display:none}.logoText small{display:block;color:var(--muted);font-weight:700;margin-top:2px}.lotBrandRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.projectLogo{display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);min-height:74px}.projectLogo img{display:block;height:32px;width:auto;max-width:140px;object-fit:contain}.projectLogo.solaris{padding:14px 18px;min-height:82px}.projectLogo.solaris img{height:52px;max-width:200px}.modalBrand{margin-top:14px}.modalBrand .projectLogo{min-height:92px;padding:16px 20px}.modalBrand .projectLogo img{height:42px;max-width:200px}.modalBrand .projectLogo.solaris img{height:72px;max-width:250px}
+.nav{margin-left:auto;display:flex;gap:4px;align-items:center} .nav a{padding:12px 13px;border-radius:14px;font-weight:850;color:rgba(255,255,255,.76);font-size:14px}
+.nav a:hover,.nav a.active{background:rgba(255,255,255,.08);color:var(--orange);box-shadow:none} .hamb{display:none;margin-left:auto;width:48px;height:48px;border:1px solid rgba(255,255,255,.16);border-radius:16px;background:rgba(255,255,255,.08);color:#fff;box-shadow:none} .mobile{display:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;border:0;border-radius:16px;padding:0 18px;font-weight:950;letter-spacing:-.01em}
+.btn.primary{background:linear-gradient(180deg,var(--orange2),var(--orange));color:#fff} .btn.dark{background:var(--dark);color:#fff} .btn.light{background:#fff;border:1px solid var(--line);color:var(--ink)} .btn.ghost{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff} .btn.small{min-height:42px;padding:0 13px;border-radius:14px;font-size:13px}
+.hero{margin:28px auto 24px;background:linear-gradient(135deg,#10141d 0%,#1b2534 50%,#6c3519 100%);color:#fff;border-radius:38px;overflow:hidden;position:relative;box-shadow:var(--shadow2)}
+.hero:after{content:"";position:absolute;right:-16%;bottom:-42%;width:620px;height:620px;background:radial-gradient(circle,rgba(243,111,47,.42),transparent 62%)}
+.heroGrid{position:relative;z-index:1;padding:48px;display:grid;grid-template-columns:1.08fr .92fr;gap:30px;align-items:end}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:950;color:var(--orange)} .hero h1{font-size:clamp(40px,5.7vw,82px);line-height:.98;letter-spacing:-.075em;margin:10px 0 16px} .hero p{font-size:18px;line-height:1.58;color:rgba(255,255,255,.78);max-width:780px}
+.heroActions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px} .trayHero{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:22px;backdrop-filter:blur(15px)} .trayHero h3{margin:0 0 14px}
+.miniLine{display:flex;justify-content:space-between;gap:14px;padding:14px;border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-bottom:10px} .miniLine small{display:block;color:rgba(255,255,255,.62);margin-top:3px}
+.section{padding:34px 0} .sectionHead{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px} .sectionHead h2,.sectionHead h1{margin:0} .sectionHead p{margin:8px 0 0} .muted{color:var(--muted)}
+.card{background:var(--paper);border:1px solid rgba(16,20,29,.06);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px} .grid2,.grid3,.grid4{display:grid;gap:18px} .grid2{grid-template-columns:repeat(2,minmax(0,1fr))} .grid3{grid-template-columns:repeat(3,minmax(0,1fr))} .grid4{grid-template-columns:repeat(4,minmax(0,1fr))}.journeyCard{width:100%;appearance:none;text-align:left;color:inherit;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.journeyCard:hover{transform:translateY(-3px);border-color:rgba(243,111,47,.35);box-shadow:0 22px 60px rgba(16,20,29,.12)}.journeyCard:focus-visible{outline:3px solid rgba(243,111,47,.35);outline-offset:2px}.journeyCard .journeyHint{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--orange)}.journeyCard .journeyHint b{font-size:16px;line-height:1}
+.modebar{display:flex;gap:8px;flex-wrap:wrap;padding:7px;background:#f7efe5;border:1px solid var(--line);border-radius:20px;width:max-content;max-width:100%} .mode{border:0;background:transparent;color:var(--muted);border-radius:15px;padding:12px 14px;font-weight:950} .mode.active{background:linear-gradient(180deg,var(--orange2),var(--orange));color:#fff}
+.menuCard{overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);position:relative;display:flex;flex-direction:column} .menuCard.selected{outline:3px solid rgba(243,111,47,.32);box-shadow:0 24px 72px rgba(243,111,47,.18)}
+.menuTop{min-height:230px;background:#e9e1d5;position:relative;overflow:hidden} .menuTop:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.10) 0 2px,transparent 2px 44px);pointer-events:none} .menuTop img.lotThumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block} .menuTop .lotShade{position:absolute;inset:auto 0 0 0;height:54%;background:linear-gradient(180deg,rgba(7,19,22,0) 0%,rgba(7,19,22,.10) 42%,rgba(7,19,22,.58) 100%)} .menuTop .lotLabel{position:absolute;left:14px;top:14px;display:flex;flex-direction:column;gap:6px;max-width:65%} .menuTop .lotLabel .chip{display:inline-flex;align-self:flex-start;background:rgba(255,255,255,.92);color:#111827;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase} .menuTop .lotLabel .title{color:#fff;font-size:18px;font-weight:900;line-height:1.08;text-shadow:0 4px 18px rgba(0,0,0,.28)} .menuTop .area{position:absolute;right:14px;bottom:14px;background:#fff;border-radius:18px;padding:12px 16px;font-weight:950;box-shadow:0 16px 40px rgba(16,20,29,.18);font-size:18px}
+.houseImgs{display:grid;grid-template-columns:1fr 1fr;background:#eee2d4} .houseImgs img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.body{padding:18px;display:grid;gap:10px;flex:1} .body h3{margin:0;font-size:22px;letter-spacing:-.03em}
+.tag{display:inline-flex;width:max-content;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(243,111,47,.12);color:var(--orange);font-size:12px;font-weight:950} .price{font-size:22px;font-weight:950;letter-spacing:-.03em}
+.specs{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:13px} .specs span{background:#f7f1e9;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+.cardActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.comboCard{background:linear-gradient(180deg,#fffdf9,#fbf3ea);border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow);padding:20px;display:flex;flex-direction:column} .comboPreview{display:grid;grid-template-columns:1fr 46px 1fr;align-items:center;gap:10px;margin-bottom:16px} .previewBox{border-radius:18px;background:#f1e8dc;border:1px solid var(--line);min-height:112px;overflow:hidden;display:grid;place-items:center;text-align:center;padding:10px} .previewBox img{width:100%;height:112px;object-fit:cover} .plus{width:46px;height:46px;border-radius:16px;background:var(--dark);color:#fff;display:grid;place-items:center;font-weight:950;font-size:26px}.comboPickerGrid{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 16px}.comboPickerField{display:grid;gap:6px}.comboPickerField label{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.comboPickerField select{width:100%;min-height:48px;border:1px solid var(--line);border-radius:14px;padding:0 12px;background:#fff;color:#111;outline:0}.comboCard .price{margin:14px 0 24px}.comboCard .tag{margin-bottom:10px}
+.addon{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 12px 30px rgba(16,20,29,.05)} .addon.active{outline:2px solid rgba(243,111,47,.35)}
+.tray{position:sticky;top:96px;background:linear-gradient(180deg,#121721,#1d2634);color:#fff;border-radius:30px;box-shadow:var(--shadow2);padding:24px} .tray h2{margin:0 0 12px;letter-spacing:-.04em} .tray .muted{color:rgba(255,255,255,.64)} .trayLine{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(255,255,255,.10);padding:12px 0} .trayLine:last-child{border-bottom:0} .total{font-size:34px;font-weight:950;letter-spacing:-.05em;margin:10px 0}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px} .field{display:grid;gap:8px} .field label{color:rgba(255,255,255,.72);font-weight:850;font-size:13px} .field input,.field select,.field textarea{width:100%;min-height:50px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;border-radius:15px;padding:0 12px;outline:0}.field textarea{padding:12px;min-height:82px;resize:vertical} .field option{color:#111} .field input[type=range]{accent-color:var(--orange)} .field.full{grid-column:1/-1}.contactBlock{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12)}.contactBlock h3{margin:0 0 4px}.contactBlock p{margin:0 0 14px;color:rgba(255,255,255,.62);font-size:13px}
+.entryToggle{display:flex;gap:8px;background:rgba(255,255,255,.06);padding:6px;border-radius:15px} .entryToggle button{flex:1;border:0;border-radius:12px;background:transparent;color:rgba(255,255,255,.68);font-weight:900;padding:10px} .entryToggle button.active{background:#fff;color:var(--dark)}
+.resultGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px} .res{padding:14px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.09)} .res small{display:block;color:rgba(255,255,255,.62);margin-bottom:5px} .res b{font-size:18px}
+.note{border:1px solid #ead7be;background:#fff7ec;color:#765733;padding:14px 16px;border-radius:16px} .aiBox{border:1px solid var(--line);border-radius:28px;background:#fff;box-shadow:var(--shadow);overflow:hidden} .thread{padding:18px;background:linear-gradient(180deg,#fffdf9,#f5ede3);display:grid;gap:12px;max-height:370px;overflow:auto} .msg{max-width:84%;padding:14px 16px;border-radius:18px;line-height:1.45} .bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:6px} .user{margin-left:auto;background:var(--dark);color:#fff;border-bottom-right-radius:6px} .chatbar{display:flex;gap:10px;border-top:1px solid var(--line);padding:14px} .chatbar input{flex:1;min-height:52px;border:1px solid var(--line);border-radius:16px;padding:0 14px;outline:0} .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}.actions .btn{flex:1 1 220px;min-width:0;white-space:normal;text-align:center;line-height:1.2;padding-top:12px;padding-bottom:12px}
+.modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(17,23,33,.58);backdrop-filter:blur(8px);z-index:200;padding:18px} .modal.show{display:grid} .modalCard{background:#fff;border-radius:28px;box-shadow:var(--shadow2);width:min(760px,100%);max-height:88vh;overflow:auto} .modalHead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:3} .modalBody{padding:22px;overflow:auto;-webkit-overflow-scrolling:touch} .modalImageGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px} .modalImageGrid img{width:100%;border-radius:18px;aspect-ratio:4/3;object-fit:cover} .featureList{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0} .featureList span{background:#f7f1e9;border:1px solid var(--line);padding:12px;border-radius:15px;font-weight:800}.field input[readonly]{background:rgba(255,255,255,.08);color:#fff;font-weight:700}.galleryShell{position:relative;margin-bottom:16px}.galleryViewport{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;border-radius:22px}.galleryViewport::-webkit-scrollbar{display:none}.gallerySlide{flex:0 0 100%;scroll-snap-align:start}.gallerySlide img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-radius:22px;background:#f3f3f3}.galleryArrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border:0;border-radius:999px;background:rgba(16,20,29,.78);color:#fff;display:grid;place-items:center;font-size:26px;font-weight:900;line-height:1;box-shadow:0 12px 28px rgba(0,0,0,.22);z-index:2}.galleryArrow.prev{left:12px}.galleryArrow.next{right:12px}.comboDetailGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.comboDetailBlock{border:1px solid var(--line);border-radius:22px;padding:16px;background:#fffdf9}.comboDetailBlock h3{margin:8px 0 6px;font-size:22px;letter-spacing:-.03em}.comboDetailBlock p{margin:10px 0 0}.comboDetailTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}.comboDetailTop .miniSelect{min-width:220px;max-width:280px;width:100%;min-height:46px;border:1px solid var(--line);border-radius:14px;padding:0 12px;background:#fff;color:#111;outline:0}.comboMeta{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 0}.comboMeta span{background:#f7f1e9;border:1px solid var(--line);padding:10px 12px;border-radius:999px;font-size:13px;font-weight:800}.comboDetailGrid .modalBrand{margin:0 0 10px}.comboDetailGrid .featureList{grid-template-columns:1fr}.comboDetailActions{margin-top:18px}
+.toast{position:fixed;right:18px;bottom:18px;background:#10141d;color:#fff;border-radius:16px;padding:14px 18px;box-shadow:var(--shadow2);z-index:220;opacity:0;transform:translateY(10px);transition:.22s} .toast.show{opacity:1;transform:translateY(0)}
+
+.modalBody .actions,.comboDetailActions .actions{display:flex;gap:12px;flex-wrap:wrap}.modalFormGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}.modalField{display:grid;gap:8px}.modalField label{font-weight:800;color:var(--text);font-size:13px}.modalField input,.modalField select,.modalField textarea{width:100%;min-height:50px;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:15px;padding:0 12px;outline:0}.modalField textarea{padding:12px;min-height:90px;resize:vertical}.modalField.full{grid-column:1/-1}.modalCaption{margin:0 0 6px;color:var(--muted)}
+@media(max-width:760px){.comboPreview{grid-template-columns:1fr;gap:12px}.plus{margin:0 auto}.comboPickerGrid{grid-template-columns:1fr}.cardActions{grid-template-columns:1fr}.comboCard .price{margin-bottom:18px}}
+@media(max-width:900px){.modal{padding:12px;align-items:flex-start}.modalCard{width:100%;max-height:min(94vh,calc(100dvh - 24px));border-radius:24px}.modalHead,.modalBody{padding:18px}.modalHead{flex-direction:column;align-items:stretch}.modalHead .btn.small{width:100%}.comboDetailGrid,.modalImageGrid,.featureList{grid-template-columns:1fr}.comboDetailBlock{padding:14px}.comboDetailTop{flex-direction:column;align-items:stretch}.comboDetailTop .miniSelect{min-width:0;max-width:none}.gallerySlide img{aspect-ratio:16/11}.galleryArrow{width:42px;height:42px;font-size:24px}.comboMeta span{font-size:12px;padding:9px 11px}.comboDetailActions .actions .btn,.modalBody .actions .btn{flex:1 1 240px}}
+@media(max-width:560px){.modal{padding:8px}.modalCard{max-height:min(96vh,calc(100dvh - 16px));border-radius:22px}.modalHead,.modalBody{padding:14px}.modalHead h2{font-size:24px;line-height:1.05}.modalHead p{font-size:14px}.galleryArrow{width:38px;height:38px;font-size:21px}.comboMeta span,.featureList span{width:100%}.comboDetailActions .actions .btn,.modalBody .actions .btn{width:100%;flex:1 1 100%}.modalFormGrid{grid-template-columns:1fr}}
+@media(max-width:1100px){.nav,.top .btn.primary{display:none}.hamb{display:grid;place-items:center}.mobile.open{display:grid}.mobile{position:fixed;inset:78px 16px auto 16px;background:#10141d;color:#fff;border-radius:24px;padding:16px;z-index:100;box-shadow:0 24px 80px rgba(0,0,0,.28)}.mobile a{padding:14px;border-radius:14px;font-weight:900}.mobile a:hover{background:rgba(255,255,255,.08)}.heroGrid,.grid2{grid-template-columns:1fr}.grid4,.grid3{grid-template-columns:repeat(2,1fr)}.tray{position:relative;top:0}}
+@media(max-width:700px){.wrap{width:min(100% - 24px,var(--max))}.topin{height:70px}.logo img{width:112px}.logoText{display:none}.hero{border-radius:26px;margin-top:18px}.heroGrid{padding:26px}.hero h1{font-size:40px}.hero p{font-size:15px}.heroActions{display:grid}.btn{width:100%}.grid4,.grid3,.grid2,.resultGrid,.fields,.modalFormGrid{grid-template-columns:1fr}.sectionHead{flex-direction:column}.modebar{width:100%;overflow:auto;flex-wrap:nowrap}.mode{white-space:nowrap}.comboPreview{grid-template-columns:1fr}.plus{margin:auto;transform:rotate(90deg)}.chatbar,.cardActions,.actions{grid-template-columns:1fr;display:grid}.actions .btn{flex:1 1 auto}.modalImageGrid,.featureList{grid-template-columns:1fr}.galleryArrow{width:42px;height:42px;font-size:24px}.comboDetailGrid{grid-template-columns:1fr}.comboDetailTop{flex-direction:column}.comboDetailTop .miniSelect{max-width:none}}
+@media (max-width:640px){.logo img{width:168px}.projectLogo{min-height:66px;padding:10px 12px}.projectLogo img{height:28px;max-width:124px}.projectLogo.solaris{min-height:74px;padding:12px 14px}.projectLogo.solaris img{height:40px;max-width:160px}.modalBrand .projectLogo.solaris img{height:56px;max-width:200px}}
+
+.logo{min-width:176px;min-height:62px;display:flex;align-items:center;justify-content:flex-start}
+.logoText{display:none!important}
+.lotBrandRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.projectLogo{display:none}.modalBrand{margin:16px 0 0}.modalBrand .projectLogo{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#071316,#0d2528);border:1px solid rgba(0,172,172,.22);border-radius:22px;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.12);min-height:170px}.modalBrand .projectLogo img{display:block;width:min(360px,80vw);height:auto;max-height:130px;object-fit:contain}.modalBrand .projectLogo.solaris img{width:min(380px,80vw);max-height:150px}.menuTop .lotBrandRow .projectLogo{display:none}.menuTop .area{right:14px!important;bottom:14px!important}.hero{margin-top:28px}
+@media(max-width:640px){.topin{min-height:112px;padding:22px 0}.logo{min-width:150px}.logo img{width:190px!important}.brandTag{display:none!important}.modalBrand .projectLogo{min-height:130px;padding:18px}.modalBrand .projectLogo img,.modalBrand .projectLogo.solaris img{width:min(280px,78vw);max-height:105px}.hero{margin-top:18px}}
+
+@media(max-width:900px){.topin{min-height:116px;padding:24px 0}.logo img{width:206px}.brandTag{display:none!important}}
+
+/* v7.0 — rota e realidade aumentada */
+.arHelpBox{margin:14px 0;padding:14px 16px;border:1px solid #ead7be;background:#fff7ec;color:#765733;border-radius:16px;line-height:1.45}
+.modalCard.arModalCard{width:min(980px,100%);background:#071016;color:#fff;border:1px solid rgba(255,255,255,.10);overflow:hidden}
+.modalCard.arModalCard .modalHead{background:linear-gradient(180deg,rgba(7,16,26,.98),rgba(13,28,43,.98));border-bottom:1px solid rgba(255,255,255,.10);color:#fff}
+.modalCard.arModalCard .modalHead .muted{color:rgba(255,255,255,.70)}
+.modalCard.arModalCard .modalHead .tag{background:rgba(160,220,60,.14);color:#a8df35}
+.arShell{display:grid;gap:14px}
+.arScene{position:relative;min-height:640px;height:min(74vh,760px);border-radius:28px;overflow:hidden;background:linear-gradient(135deg,#0a1520,#121b2a);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)}
+.arScene video,.arFallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.arFallback{display:grid;place-items:center;background:linear-gradient(135deg,#0e1826,#1b2838);overflow:hidden}
+.arFallback img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.45;filter:blur(1px) saturate(.9)}
+.arFallback.hidden{display:none}
+.arFallbackText{position:relative;z-index:2;text-align:center;max-width:420px;padding:22px;background:rgba(7,16,26,.62);border:1px solid rgba(255,255,255,.12);border-radius:22px;backdrop-filter:blur(12px)}
+.arOverlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28),transparent 30%,transparent 60%,rgba(0,0,0,.54));pointer-events:none}
+.arTopPill{position:absolute;left:18px;top:18px;right:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:rgba(10,18,28,.78);border:1px solid rgba(255,255,255,.14);border-radius:22px;backdrop-filter:blur(16px);box-shadow:0 16px 48px rgba(0,0,0,.22)}
+.arBrand{display:flex;flex-direction:column;gap:3px}
+.arBrand small{letter-spacing:.18em;text-transform:uppercase;color:#a8df35;font-weight:950;font-size:11px}
+.arBrand b{font-size:18px}
+.arCloseMini{width:44px;height:44px;border-radius:16px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;font-weight:950}
+.arCompass{position:absolute;left:20px;top:116px;width:88px;height:116px;border-radius:26px;background:rgba(10,18,28,.78);border:1px solid rgba(255,255,255,.14);display:grid;place-items:center;gap:4px;padding:10px;backdrop-filter:blur(16px);box-shadow:0 16px 42px rgba(0,0,0,.22)}
+.arCompassDial{width:62px;height:62px;border-radius:50%;border:2px solid rgba(255,255,255,.20);position:relative;display:grid;place-items:center}
+.arCompassNeedle{width:4px;height:32px;border-radius:999px;background:#a8df35;transform-origin:50% 90%;box-shadow:0 0 16px rgba(168,223,53,.45)}
+.arCompassDial span{position:absolute;top:6px;color:#fff;font-size:12px;font-weight:900;transform:translateY(-2px)}
+.arCompass strong{font-size:18px}
+.arMarker{position:absolute;min-width:132px;max-width:180px;padding:11px 13px;background:rgba(10,18,28,.82);color:#fff;border:1px solid rgba(168,223,53,.38);border-radius:18px;backdrop-filter:blur(14px);box-shadow:0 18px 42px rgba(0,0,0,.25)}
+.arMarker:after{content:"";position:absolute;left:50%;bottom:-34px;width:1px;height:34px;background:rgba(255,255,255,.45)}
+.arMarker .kicker{display:flex;align-items:center;gap:8px;font-weight:950}
+.arMarker .dot{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:#a8df35;color:#12201b;font-size:12px}
+.arMarker small{display:block;margin-top:5px;color:rgba(255,255,255,.72);font-size:14px}
+.arMarker.m1{left:13%;top:42%}
+.arMarker.m2{right:9%;top:33%}
+.arMarker.m3{left:27%;top:58%}
+.arMarker.m4{right:21%;top:55%}
+.arBottomStatus{position:absolute;left:18px;right:18px;bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;background:rgba(7,16,26,.88);border:1px solid rgba(255,255,255,.12);border-radius:26px;backdrop-filter:blur(18px);box-shadow:0 22px 70px rgba(0,0,0,.34)}
+.arStatusIcon{width:74px;height:74px;border-radius:50%;background:rgba(168,223,53,.12);border:1px solid rgba(168,223,53,.35);display:grid;place-items:center;color:#a8df35;font-size:30px}
+.arStatusText{flex:1}
+.arStatusText small{display:block;letter-spacing:.18em;text-transform:uppercase;color:#a8df35;font-weight:950}
+.arStatusText b{display:block;font-size:26px;margin:2px 0 4px}
+.arStatusText span{color:rgba(255,255,255,.72)}
+.arInfoButton{width:58px;height:58px;border-radius:18px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-size:24px;font-weight:900}
+.arActions{display:flex;gap:10px;flex-wrap:wrap}
+.arActions .btn{flex:1 1 190px}
+@media(max-width:700px){
+  .arScene{height:76vh;min-height:590px;border-radius:22px}
+  .arTopPill{left:12px;right:12px;top:12px;padding:12px}
+  .arCompass{left:14px;top:102px;width:78px;height:104px}
+  .arMarker{min-width:120px;padding:10px 12px;font-size:13px}
+  .arMarker.m1{left:9%;top:39%}
+  .arMarker.m2{right:6%;top:31%}
+  .arMarker.m3{left:18%;top:56%}
+  .arMarker.m4{right:10%;top:60%}
+  .arBottomStatus{left:12px;right:12px;bottom:12px;padding:14px}
+  .arStatusIcon{width:58px;height:58px}
+  .arStatusText b{font-size:22px}
+}
+
+</style>
 </head>
 <body>
-  <div id="app" class="app-shell">
-    <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
-    <div class="camera-overlay"></div>
-    <div id="floatingPointsLayer" class="floating-points-layer" aria-live="polite"></div>
-
-    <header class="topbar glass">
-      <button id="menuToggle" class="icon-btn" type="button" aria-label="Abrir menu">☰</button>
-      <div class="brand-lockup">
-        <div class="evora-mark" aria-hidden="true">
-          <span></span><span></span><span></span>
-        </div>
-        <div>
-          <p class="eyebrow">Évora Urbanismo</p>
-          <h1>GeoVendas_Casa <small>v3.12</small></h1>
-        </div>
-      </div>
-      <button id="panelToggle" class="cta-btn ghost" type="button">Painel</button>
-    </header>
-
-    <aside id="menuDrawer" class="menu-drawer glass hidden" aria-hidden="true">
-      <div class="menu-head">
-        <strong>Utilidades</strong>
-        <button id="closeMenu" class="icon-btn small" type="button" aria-label="Fechar menu">✕</button>
-      </div>
-      <div class="menu-actions">
-        <button id="activateBtn" class="cta-btn" type="button">Ativar aplicativo</button>
-        <button id="showLocationsBtn" class="cta-btn ghost" type="button">Locais cadastrados</button>
-        <button id="syncDbBtn" class="cta-btn ghost" type="button">Sincronizar banco</button>
-        <button id="pullOfficialDbBtn" class="cta-btn ghost" type="button">Baixar banco oficial</button>
-        <button id="importLegacyBtn" class="cta-btn ghost" type="button">Importar cache antigo</button>
-        <button id="forcePushDbBtn" class="cta-btn ghost" type="button">Enviar locais e mídias</button>
-        <button id="dbStatusBtn" class="cta-btn ghost" type="button">Status do banco</button>
-        <button id="exportBtn" class="cta-btn ghost" type="button">Exportar JSON</button>
-        <label class="cta-btn ghost file-label" for="importInput">Importar JSON</label>
-        <input id="importInput" type="file" accept="application/json" class="sr-only" />
-        <button id="clearBtn" class="cta-btn danger" type="button">Limpar cadastros</button>
-      </div>
-      <p class="menu-note">Use HTTPS. Em iPhone, permita câmera, localização e orientação.</p>
-    </aside>
-
-    <section id="activationCard" class="activation-card glass" aria-live="polite">
-      <p class="eyebrow">Permissões</p>
-      <h2>Ativar GeoVendas_Casa</h2>
-      <p>Toque para liberar câmera, localização e bússola.</p>
-      <button id="activationStartBtn" class="cta-btn" type="button">Ativar aplicativo</button>
-    </section>
-
-    <section class="floating-widgets">
-      <article class="compass glass">
-        <div id="compassNeedle" class="compass-face">
-          <span class="compass-n">N</span>
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <circle cx="50" cy="50" r="42"></circle>
-            <path d="M50 16 L58 50 L50 84 L42 50 Z"></path>
-            <circle cx="50" cy="50" r="6"></circle>
-          </svg>
-        </div>
-        <strong id="headingValue">0°</strong>
-      </article>
-
-      <article id="currentPlaceCard" class="current-place glass hidden">
-        <div class="current-place-main">
-          <div class="pin-icon" aria-hidden="true">⌖</div>
-          <div>
-            <p class="eyebrow green">VOCÊ ESTÁ EM</p>
-            <h2 id="currentPlaceName">Sem ponto próximo</h2>
-            <p id="currentPlaceMeta">Aproxime-se de um ponto cadastrado.</p>
-          </div>
-        </div>
-        <button id="currentPlaceInfoBtn" class="icon-btn small" type="button" aria-label="Ver detalhes do local">i</button>
-      </article>
-    </section>
-
-    <section id="panel" class="panel glass hidden" aria-hidden="true">
-      <div class="panel-head">
-        <div>
-          <p class="eyebrow">Sistema de geolocalização comercial</p>
-          <h2>Cadastros e simulações</h2>
-        </div>
-        <button id="closePanel" class="icon-btn small" type="button" aria-label="Fechar painel">✕</button>
-      </div>
-
-      <div class="stats-grid">
-        <article class="stat-card"><span>GPS</span><strong id="gpsStatus">aguardando</strong></article>
-        <article class="stat-card"><span>Precisão</span><strong id="accuracyStatus">—</strong></article>
-        <article class="stat-card"><span>Bússola</span><strong id="headingStatus">—</strong></article>
-        <article class="stat-card"><span>Pontos</span><strong id="countStatus">0</strong></article>
-      </div>
-
-      <section class="list-section">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Locais marcados</p>
-            <h3>Cadastros</h3>
-          </div>
-        </div>
-        <div id="pointList" class="point-list empty">Nenhum ponto cadastrado ainda.</div>
-      </section>
-
-      <section class="form-section">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Novo local</p>
-            <h3>Cadastrar ponto</h3>
-          </div>
-        </div>
-
-        <div class="field-grid">
-          <label class="field">
-            <span>Nome do local</span>
-            <input id="pointName" type="text" placeholder="Ex.: Portaria, Lote 12, Praça" maxlength="80" />
-          </label>
-          <label class="field">
-            <span>Como marcar</span>
-            <select id="markMode">
-              <option value="current">Estou exatamente no local</option>
-              <option value="direction">Quero projetar à frente</option>
-            </select>
-          </label>
-        </div>
-
-        <label class="field">
-          <span>Descrição</span>
-          <textarea id="pointDescription" rows="4" placeholder="Ex.: lote com 360 m², boa topografia, ótima vista, condição comercial especial..."></textarea>
-        </label>
-
-        <div class="field-grid two-cols">
-          <div class="field media-field">
-            <span>Mídias do local</span>
-            <div class="media-actions">
-              <label class="cta-btn ghost file-label" for="mediaInput">Adicionar fotos e vídeos</label>
-              <input id="mediaInput" type="file" accept="image/*,video/*" multiple class="sr-only" />
-            </div>
-            <div id="mediaPreview" class="media-preview empty">Nenhum arquivo selecionado.</div>
-          </div>
-          <div class="field tips-card">
-            <span>Dica comercial</span>
-            <p>Cadastre o lote e depois use o botão <strong>Simular com IA</strong> na tela de detalhes.</p>
-          </div>
-        </div>
-
-        <div class="action-row">
-          <button id="savePointBtn" class="cta-btn" type="button">Cadastrar local</button>
-          <button id="refreshGpsBtn" class="cta-btn ghost" type="button">Atualizar GPS</button>
-        </div>
-      </section>
-
-
-    </section>
-
-    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
-
-    <div id="confirmModal" class="modal hidden" aria-hidden="true">
-      <div class="modal-backdrop" data-close="confirm"></div>
-      <div class="modal-card glass small-card">
-        <h3 id="confirmTitle">Confirmar ação</h3>
-        <p id="confirmMessage">Deseja continuar?</p>
-        <div class="modal-actions">
-          <button id="confirmCancel" class="cta-btn ghost" type="button">Cancelar</button>
-          <button id="confirmAccept" class="cta-btn danger" type="button">Confirmar</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="detailsModal" class="modal hidden" aria-hidden="true">
-      <div class="modal-backdrop" data-close="details"></div>
-      <div class="modal-card glass details-card">
-        <div class="modal-head sticky">
-          <div>
-            <p class="eyebrow">Detalhes do local</p>
-            <h3 id="detailsTitle">Local</h3>
-          </div>
-          <button id="closeDetails" class="icon-btn small" type="button" aria-label="Fechar detalhes">✕</button>
-        </div>
-        <div id="detailsContent" class="details-content"></div>
-      </div>
-    </div>
-
-    <div id="viewerModal" class="modal hidden" aria-hidden="true">
-      <div class="modal-backdrop" data-close="viewer"></div>
-      <div class="modal-card viewer-card glass">
-        <div class="modal-head">
-          <h3 id="viewerTitle">Visualização</h3>
-          <button id="closeViewer" class="icon-btn small" type="button" aria-label="Fechar visualização">✕</button>
-        </div>
-        <div id="viewerContent" class="viewer-content"></div>
-      </div>
-    </div>
-
-    
-    <div id="aiStudioModal" class="modal hidden" aria-hidden="true">
-      <div class="modal-backdrop" data-close="aiStudio"></div>
-      <div class="modal-card ai-studio-card glass">
-        <div class="modal-head sticky">
-          <div>
-            <p class="eyebrow">Simulação ilustrativa</p>
-            <h3 id="aiStudioTitle">Simular com IA no lote</h3>
-          </div>
-          <button id="closeAiStudio" class="icon-btn small" type="button" aria-label="Fechar simulação por IA">✕</button>
-        </div>
-
-        <div class="ai-studio-content">
-          <section class="ai-step-card">
-            <p class="ai-step">1. Foto do lote</p>
-            <div class="ai-photo-actions">
-              <button id="aiUsePointPhotoBtn" class="cta-btn ghost" type="button">Usar foto do cadastro</button>
-              <button id="aiCaptureCameraBtn" class="cta-btn ghost" type="button">Capturar câmera</button>
-              <label class="cta-btn ghost file-label" for="aiLotPhotoInput">Escolher foto</label>
-              <input id="aiLotPhotoInput" type="file" accept="image/*" class="sr-only" />
-            </div>
-            <div id="aiLotPreview" class="ai-preview empty">Nenhuma foto do lote selecionada.</div>
-          </section>
-
-          <section class="ai-step-card">
-            <p class="ai-step">2. Casa e estilo</p>
-            <div class="ai-model-grid">
-              <button class="ai-model-card active" type="button" data-ai-model="cleoni">
-                <strong>Casa Cleoni</strong><span>Sobrado contemporâneo</span>
-              </button>
-              <button class="ai-model-card" type="button" data-ai-model="terrea">
-                <strong>Térrea Moderna</strong><span>Compacta e elegante</span>
-              </button>
-              <button class="ai-model-card" type="button" data-ai-model="premium">
-                <strong>Premium</strong><span>Alto padrão</span>
-              </button>
-              <button class="ai-model-card" type="button" data-ai-model="resort">
-                <strong>Resort</strong><span>Lazer e paisagismo</span>
-              </button>
-            </div>
-
-            <div class="field-grid three-cols compact-grid ai-options">
-              <label class="field compact-field"><span>Pavimentos</span>
-                <select id="aiFloors"><option>2 pavimentos</option><option>1 pavimento</option></select>
-              </label>
-              <label class="field compact-field"><span>Horário</span>
-                <select id="aiTime"><option>Entardecer</option><option>Dia claro</option><option>Noite</option></select>
-              </label>
-              <label class="field compact-field"><span>Paisagismo</span>
-                <select id="aiGarden"><option>Premium</option><option>Simples</option><option>Tropical</option></select>
-              </label>
-            </div>
-
-            <div class="ai-checkboxes">
-              <label><input id="aiPool" type="checkbox" /> Piscina</label>
-              <label><input id="aiWall" type="checkbox" /> Muro discreto</label>
-              <label><input id="aiGarage" type="checkbox" checked /> Garagem 2 carros</label>
-            </div>
-
-            <label class="field">
-              <span>Observações para a imagem</span>
-              <textarea id="aiNotes" rows="3" placeholder="Ex.: preservar a posição da rua, criar jardim frontal, casa centralizada no lote..."></textarea>
-            </label>
-          </section>
-
-          <section class="ai-step-card">
-            <p class="ai-step">3. Gerar e compartilhar</p>
-            <div class="ai-action-row">
-              <button id="aiBuildPromptBtn" class="cta-btn ghost" type="button">Ver prompt base</button>
-              <button id="aiGenerateBtn" class="cta-btn" type="button">Gerar imagem simulada</button>
-            </div>
-            <pre id="aiPromptBox" class="ai-prompt-box hidden"></pre>
-            <div id="aiResult" class="ai-result empty">
-              A imagem simulada aparecerá aqui. A imagem gerada pela API aparecerá aqui após o processamento.
-            </div>
-            <div class="ai-result-actions">
-              <button id="aiCopyPromptBtn" class="cta-btn ghost" type="button">Copiar prompt</button>
-              <button id="aiSaveResultBtn" class="cta-btn ghost" type="button">Salvar no local</button>
-              <button id="aiShareResultBtn" class="cta-btn ghost" type="button">Compartilhar</button>
-            </div>
-            <p class="ai-disclaimer">Imagem ilustrativa gerada por IA para simulação conceitual. Não substitui projeto arquitetônico, aprovação legal ou estudo técnico.</p>
-          </section>
-        </div>
-      </div>
-    </div>
-
-<section id="simulatorScreen" class="simulator-screen hidden" aria-hidden="true">
-      <div id="simPhotoLayer" class="sim-photo-layer hidden"><img id="simPhotoPreview" alt="Fundo da simulação" /></div>
-      <div class="sim-overlay"></div>
-
-      <header class="sim-topbar glass">
-        <button id="simMenuBtn" class="icon-btn" type="button" aria-label="Abrir painel da simulação">☰</button>
-        <div class="sim-brand">
-          <div class="evora-mark small-mark" aria-hidden="true"><span></span><span></span><span></span></div>
-          <div class="sim-brand-copy">
-            <div class="sim-brand-left">
-              <strong>ÉVORA</strong>
-              <span>URBANISMO</span>
-            </div>
-            <span class="sim-divider"></span>
-            <div class="sim-brand-right">
-              <strong>GeoVendas_Casa</strong>
-              <small>v3.12</small>
-            </div>
-          </div>
-        </div>
-        <button id="closeSimulator" class="cta-btn ghost" type="button">Fechar ✕</button>
-      </header>
-
-      <aside id="simMenu" class="sim-menu glass hidden" aria-hidden="true">
-        <div class="section-head tight">
-          <div>
-            <p class="eyebrow">Base visual</p>
-            <h3>Fundo da simulação</h3>
-          </div>
-        </div>
-        <div class="action-row two">
-          <button id="simUseCameraBtn" class="cta-btn ghost active-source" type="button">Câmera</button>
-          <button id="simUsePhotoBtn" class="cta-btn ghost" type="button">Foto do aparelho</button>
-          <input id="simPhotoInput" type="file" accept="image/*" class="sr-only" />
-        </div>
-        <div id="simGalleryWrap" class="sim-gallery-wrap hidden">
-          <p class="gallery-label">Fotos do local</p>
-          <div id="simGallery" class="sim-gallery"></div>
-        </div>
-        <div class="section-head tight top-gap">
-          <div>
-            <p class="eyebrow">Lote</p>
-            <h3>Parâmetros</h3>
-          </div>
-        </div>
-        <div class="field-grid three-cols compact-grid">
-          <label class="field compact-field"><span>Frente</span><input id="simLotWidth" type="number" min="5" max="60" step="0.5" value="12" /></label>
-          <label class="field compact-field"><span>Profundidade</span><input id="simLotDepth" type="number" min="8" max="100" step="0.5" value="30" /></label>
-          <label class="field compact-field"><span>Recuo</span><input id="simSetback" type="number" min="0" max="15" step="0.5" value="5" /></label>
-        </div>
-      </aside>
-
-      <article class="sim-compass glass">
-        <div id="simCompassNeedle" class="compass-face small-face">
-          <span class="compass-n">N</span>
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <circle cx="50" cy="50" r="42"></circle>
-            <path d="M50 16 L58 50 L50 84 L42 50 Z"></path>
-            <circle cx="50" cy="50" r="6"></circle>
-          </svg>
-        </div>
-        <strong id="simHeading">0°</strong>
-      </article>
-
-      <article class="sim-ar glass">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l4-4m0 0h5m-5 0v5M21 9l-4-4m0 0h-5m5 0v5M3 15l4 4m0 0h5m-5 0v-5M21 15l-4 4m0 0h-5m5 0v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>AR</span>
-      </article>
-
-      <div id="simStage" class="sim-stage" style="--x:50;--y:44;--scale:1;--rotation:0deg;">
-        <div class="sim-shadow"></div>
-        <div class="lot-plane guide-plane">
-          <div class="lot-grid"></div>
-          <div class="setback setback-front"></div>
-          <div class="setback setback-back"></div>
-          <div class="setback setback-left"></div>
-          <div class="setback setback-right"></div>
-          <div class="guide-boundary">
-            <span class="guide-handle handle-tl"></span>
-            <span class="guide-handle handle-tr"></span>
-            <span class="guide-handle handle-br"></span>
-            <span class="guide-handle handle-bl"></span>
-            <div class="guide-center-badge">
-              <strong id="simModelLabel">Conforto</strong>
-              <span id="simGuideMeta">120 m²</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <article class="lot-card glass">
-        <div class="lot-pin">⌖</div>
-        <div class="lot-copy">
-          <h3 id="simPointName">Lote</h3>
-          <p class="lot-highlight">Simulação de casa</p>
-          <p id="simPointMeta">360 m² • 12 × 30 m</p>
-        </div>
-        <button id="simDetailsBtn" class="icon-btn small" type="button" aria-label="Detalhes do local">i</button>
-      </article>
-
-      <article class="sim-controls glass">
-        <select id="simModelSelect" class="sr-only">
-          <option value="essencial">Essencial</option>
-          <option value="conforto" selected>Conforto</option>
-          <option value="resort">Resort</option>
-          <option value="premium">Premium</option>
-        </select>
-
-        <div id="modelCards" class="model-cards">
-          <button type="button" class="model-card" data-model="essencial"><strong>Essencial</strong><span>80 m²</span></button>
-          <button type="button" class="model-card active" data-model="conforto"><strong>Conforto</strong><span>120 m²</span></button>
-          <button type="button" class="model-card" data-model="resort"><strong>Resort</strong><span>180 m²</span></button>
-          <button type="button" class="model-card" data-model="premium"><strong>Premium</strong><span>250 m²</span></button>
-        </div>
-
-        <div class="tool-grid">
-          <button id="simScaleBtn" type="button" class="tool-btn"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><small>Escala</small></button>
-          <button id="simRotateBtn" type="button" class="tool-btn"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><small>Rotação</small></button>
-          <button id="simFrontBtn" type="button" class="tool-btn"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M6.5 10v9h11v-9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><small>Frente</small></button>
-          <button id="simDepthBtn" type="button" class="tool-btn"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><small>Profundidade</small></button>
-          <button id="simSetbackBtn" type="button" class="tool-btn"><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3 2"/><rect x="8" y="8" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></span><small>Recuo</small></button>
-        </div>
-
-        <div class="action-row two sim-main-actions">
-          <button id="simCenterBtn" class="cta-btn ghost" type="button">Centralizar</button>
-          <button id="simGpsBtn" class="cta-btn ghost" type="button">Usar direção do GPS</button>
-        </div>
-
-        <button id="simSaveBtn" class="save-btn" type="button">Salvar simulação</button>
-      </article>
-    </section>
+<header class="top">
+  <div class="wrap topin">
+    <a class="logo" href="#inicio">
+      <img class="brandMain" src="assets/img/img-002-2bbccd1661190fb9.png" alt="Futura Casa">
+    </a>
+    <nav class="nav">
+      <a href="#lotes" class="active">Lotes</a><a href="#casas">Casas</a><a href="#combos">Combos</a><a href="#adicionais">Adicionais</a><a href="#bandeja">Simulação</a><a href="#atendimento">Atendimento</a>
+    </nav>
+    <a class="btn primary" href="#bandeja">Ver minha escolha</a>
+    <button class="hamb" id="hamb">☰</button>
   </div>
+  <nav class="mobile" id="mobile">
+    <a href="#lotes">Lotes</a><a href="#casas">Casas</a><a href="#combos">Combos</a><a href="#adicionais">Adicionais</a><a href="#bandeja">Simulação</a><a href="#atendimento">Atendimento</a>
+  </nav>
+</header>
 
-  <script src="./app.js?v=3.12"></script>
+<main>
+  <section class="wrap hero" id="inicio">
+    <div class="heroGrid">
+      <div>
+        <div class="eyebrow">Novo conceito de compra</div>
+        <h1>Monte sua casa como quem escolhe um cardápio.</h1>
+        <p>Escolha a base da sua vida — o lote. Depois escolha a casa. Se preferir, monte um combo pronto com adicionais, simulação editável e encaminhamento direto para um consultor.</p>
+        <div class="heroActions"><a class="btn primary" href="#lotes">Começar pelos lotes</a><a class="btn ghost" href="#casas">Ver casas</a><a class="btn ghost" href="#combos">Montar combo</a></div>
+      </div>
+      <aside class="trayHero">
+        <div class="eyebrow">Cardápio Futura Casa</div><h3>Escolha em 4 passos</h3>
+        <div class="miniLine"><div><b>1. Base</b><small>Lote / localização / metragem</small></div><span>🌱</span></div>
+        <div class="miniLine"><div><b>2. Residência</b><small>Modelo de casa e padrão</small></div><span>🏡</span></div>
+        <div class="miniLine"><div><b>3. Combo</b><small>Lote + casa + plano</small></div><span>✨</span></div>
+        <div class="miniLine"><div><b>4. Adicionais</b><small>Paisagismo, solar, gourmet</small></div><span>➕</span></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <div class="grid4">
+      <button class="card journeyCard" type="button" data-journey="lot" aria-label="Selecionar jornada Somente lote"><div class="eyebrow">Entrada</div><h3>Somente lote</h3><p class="muted">Trave localização e decida a casa depois.</p><span class="journeyHint">Selecionar jornada <b>→</b></span></button>
+      <button class="card journeyCard" type="button" data-journey="home" aria-label="Selecionar jornada Somente casa"><div class="eyebrow">Residência</div><h3>Somente casa</h3><p class="muted">Para quem já possui lote ou quer conhecer o custo da construção.</p><span class="journeyHint">Selecionar jornada <b>→</b></span></button>
+      <button class="card journeyCard" type="button" data-journey="combo" aria-label="Selecionar jornada Lote mais casa"><div class="eyebrow">Combo</div><h3>Lote + casa</h3><p class="muted">A experiência completa com previsibilidade de desembolso.</p><span class="journeyHint">Selecionar jornada <b>→</b></span></button>
+      <button class="card journeyCard" type="button" data-journey="future" aria-label="Selecionar jornada Lote agora mais casa depois"><div class="eyebrow">Flexível</div><h3>Lote agora + casa depois</h3><p class="muted">Compra faseada com casa pré-contratada.</p><span class="journeyHint">Selecionar jornada <b>→</b></span></button>
+    </div>
+  </section>
+
+  <section class="wrap section" id="lotes">
+    <div class="sectionHead">
+      <div><div class="eyebrow">1. Escolha sua base</div><h2>Lotes premium disponíveis.</h2><p class="muted">Veja lotes com imagem, metragem, contexto urbano e simulação de valor.</p></div>
+      <div class="modebar"><button class="mode active" data-filter-lot="all">Todos</button><button class="mode" data-filter-lot="Parque das Árvores">Parque das Árvores</button><button class="mode" data-filter-lot="Solaris Residencial Resort">Solaris</button></div>
+    </div>
+    <div class="grid4" id="lotGrid"></div>
+  </section>
+
+  <section class="wrap section" id="casas">
+    <div class="sectionHead">
+      <div><div class="eyebrow">2. Escolha sua residência</div><h2>Casas com fachada, interior e detalhes.</h2><p class="muted">O comprador pode ver detalhes antes de simular ou montar o combo.</p></div>
+      <div class="modebar"><button class="mode active" data-filter-home="all">Todas</button><button class="mode" data-filter-home="entrada">Entrada</button><button class="mode" data-filter-home="premium">Premium</button><button class="mode" data-filter-home="alto">Alto padrão</button></div>
+    </div>
+    <div class="grid3" id="homeGrid"></div>
+  </section>
+
+  <section class="wrap section" id="combos">
+    <div class="sectionHead"><div><div class="eyebrow">3. Combos sugeridos</div><h2>Combinações prontas para facilitar a decisão.</h2><p class="muted">O empreendimento escolhido em Lotes filtra automaticamente os lotes disponíveis nos combos.</p></div></div>
+    <div class="grid3" id="comboGrid"></div>
+  </section>
+
+  <section class="wrap section" id="adicionais">
+    <div class="sectionHead"><div><div class="eyebrow">4. Adicionais</div><h2>Complete sua experiência.</h2><p class="muted">Itens opcionais para conforto, sustentabilidade e lazer.</p></div></div>
+    <div class="grid3" id="addonGrid"></div>
+  </section>
+
+  <section class="wrap section" id="bandeja">
+    <div class="sectionHead"><div><div class="eyebrow">Simulação editável</div><h2>Minha bandeja e proposta.</h2><p class="muted">Valores, entrada, percentual, pagamento da entrada no cartão em 1, 2 ou 3 parcelas, prazo e sistema podem ser ajustados diretamente.</p></div></div>
+    <div class="grid2">
+      <div class="tray">
+        <h2>Minha escolha</h2><p class="muted">Selecione lote, casa e adicionais. Depois ajuste os campos financeiros.</p>
+        <div class="trayLine"><span>Lote</span><b id="trayLot">Nenhum</b></div>
+        <div class="trayLine"><span>Casa</span><b id="trayHome">Nenhuma</b></div>
+        <div class="trayLine"><span>Adicionais</span><b id="trayAddons">R$ 0</b></div>
+        <div class="total" id="trayTotal">R$ 0</div>
+
+        <div class="fields">
+          <div class="field full"><label>Jornada de compra</label><select id="buyMode"><option value="combo">Lote + casa</option><option value="lot">Somente lote</option><option value="home">Somente casa</option><option value="future">Lote agora + casa pré-contratada</option></select></div>
+          <div class="field"><label>Valor do lote</label><input type="number" id="lotPriceInput"></div>
+          <div class="field"><label>Valor da casa</label><input type="number" id="homePriceInput"></div>
+          <div class="field"><label>Entrada em R$</label><input type="number" id="entryValue"></div>
+          <div class="field"><label>Entrada em %</label><input type="number" id="entryPercent" min="0" max="90" value="20"></div>
+          <div class="field"><label>Parcelamento da entrada</label><select id="entryInstallments"><option value="1">1X no cartão</option><option value="2">2X no cartão</option><option value="3" selected>3X no cartão</option></select></div>
+          <div class="field"><label>Valor da parcela da entrada</label><input type="text" id="entryInstallmentField" value="R$ 0" readonly></div>
+          <div class="field"><label>Prazo</label><select id="term"><option value="120">120 meses</option><option value="180">180 meses</option><option value="240" selected>240 meses</option><option value="360">360 meses</option></select></div>
+          <div class="field"><label>Sistema</label><select id="system"><option value="PRICE">PRICE</option><option value="SAC">SAC</option></select></div>
+        </div>
+
+        <div class="contactBlock">
+          <h3>Seus dados para atendimento</h3>
+          <p>Essas informações serão encaminhadas ao consultor junto com a simulação.</p>
+          <div class="fields">
+            <div class="field"><label>Nome completo</label><input type="text" id="buyerName" placeholder="Ex.: Franco Alves"></div>
+            <div class="field"><label>WhatsApp / telefone</label><input type="tel" id="buyerPhone" placeholder="Ex.: (34) 99999-9999"></div>
+            <div class="field"><label>E-mail</label><input type="email" id="buyerEmail" placeholder="Ex.: nome@email.com"></div>
+            <div class="field"><label>Cidade</label><input type="text" id="buyerCity" placeholder="Ex.: Monte Carmelo, MG"></div>
+            <div class="field"><label>Preferência de contato</label><select id="contactPreference"><option>WhatsApp</option><option>Ligação</option><option>E-mail</option><option>Reunião presencial</option></select></div>
+            <div class="field"><label>Melhor horário</label><select id="contactTime"><option>Manhã</option><option>Tarde</option><option>Noite</option><option>Qualquer horário</option></select></div>
+            <div class="field full"><label>Observação para o consultor</label><textarea id="buyerNote" placeholder="Ex.: Gostaria de avaliar entrada menor, prazo maior ou outro lote."></textarea></div>
+          </div>
+        </div>
+
+        <div class="resultGrid">
+          <div class="res"><small>Entrada total</small><b id="resEntry">R$ 0</b></div>
+          <div class="res"><small>Parcela da entrada</small><b id="resEntryInstallment">3X no cartão de R$ 0</b></div>
+          <div class="res"><small>Financiado</small><b id="resFinanced">R$ 0</b></div>
+          <div class="res"><small>Parcela estimada</small><b id="resPayment">R$ 0</b></div>
+          <div class="res"><small>Entrada em %</small><b id="resRatio">0%</b></div>
+          <div class="res"><small>Sistema</small><b id="resSystem">PRICE</b></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="saveChoice">Salvar proposta</button>
+          <button class="btn primary" id="copyChoice">Copiar resumo</button>
+          <button class="btn primary" id="sendConsultant">Enviar proposta ao consultor</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">Diagnóstico</div><h2 id="diagnosisTitle">Escolha seu lote e sua casa.</h2><p class="muted" id="diagnosisText">A simulação permite ajustar valores, percentual de entrada, pagamento da entrada no cartão de crédito e prazo.</p>
+        <div style="height:18px"></div><div class="note"><b>Importante:</b> a proposta enviada ao consultor inclui a composição da bandeja e os parâmetros da simulação para iniciar a negociação.</div>
+        <div style="height:18px"></div>
+        <div class="aiBox"><div class="thread" id="thread"><div class="msg bot">Olá. Posso ajudar a montar um combo mais adequado para seu momento de compra.</div></div><div class="chatbar"><input id="aiInput" placeholder="Ex.: vale mais comprar só o lote agora?"><button class="btn primary" id="aiSend">Perguntar</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" id="atendimento">
+    <div class="card">
+      <div class="sectionHead">
+        <div><div class="eyebrow">Atendimento</div><h2>Pronto para transformar a escolha em negociação?</h2><p class="muted">Depois de montar a bandeja, envie a proposta para um consultor validar disponibilidade, prazo, fluxo e condições.</p></div>
+        <div class="actions"><button class="btn primary" id="sendConsultantBottom">Enviar proposta ao consultor</button><button class="btn primary" id="openScheduleModal">Agendar apresentação</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="detailModal"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const LOTS = [{"id": "par12", "name": "Parque das Árvores • Lote 12", "project": "Parque das Árvores", "area": 300, "dims": "10 x 30 m", "price": 238000, "tag": "entrada inteligente", "taste": "Prático", "details": "Lote com metragem racional, ideal para quem quer iniciar a jornada patrimonial com menor desembolso e boa liquidez futura.", "features": ["300 m²", "Frente funcional", "Vocação residencial", "Boa relação valor/m²"], "thumb": "assets/img/lot-par12-premium.png", "coords": {"lat": -18.72512, "lng": -47.49792}, "arPoints": [{"label": "Portaria", "distance": 95, "bearing": 318}, {"label": "Área verde", "distance": 42, "bearing": 71}, {"label": "Acesso", "distance": 14, "bearing": 23}, {"label": "Lote 12", "distance": 6, "bearing": 0}]}, {"id": "par26", "name": "Parque das Árvores • Lote 26", "project": "Parque das Árvores", "area": 347, "dims": "11,5 x 30 m", "price": 279000, "tag": "boa metragem", "taste": "Equilibrado", "details": "Lote intermediário para quem busca equilíbrio entre área, custo de implantação e flexibilidade de projeto.", "features": ["347 m²", "Frente ampliada", "Projeto térreo possível", "Bom equilíbrio"], "thumb": "assets/img/lot-par26-premium.png", "coords": {"lat": -18.72545, "lng": -47.49735}, "arPoints": [{"label": "Portaria", "distance": 120, "bearing": 309}, {"label": "Praça", "distance": 58, "bearing": 77}, {"label": "Acesso", "distance": 18, "bearing": 25}, {"label": "Lote 26", "distance": 6, "bearing": 0}]}, {"id": "sol45", "name": "Solaris • Lote 45", "project": "Solaris Residencial Resort", "area": 360, "dims": "12 x 30 m", "price": 438000, "tag": "resort living", "taste": "Premium", "details": "Base premium para uma casa de presença, conectada ao conceito de lazer, segurança e experiência residencial elevada.", "features": ["360 m²", "12m de frente", "Condomínio resort", "Perfil premium"], "thumb": "assets/img/lot-sol45-premium.png", "coords": {"lat": -18.73162, "lng": -47.4928}, "arPoints": [{"label": "Clube", "distance": 70, "bearing": 196}, {"label": "Portaria", "distance": 210, "bearing": 312}, {"label": "Lazer", "distance": 25, "bearing": 197}, {"label": "Lote 45", "distance": 6, "bearing": 0}]}, {"id": "sol81", "name": "Solaris • Lote 81", "project": "Solaris Residencial Resort", "area": 420, "dims": "14 x 30 m", "price": 525000, "tag": "frente ampla", "taste": "Especial", "details": "Lote com frente generosa, indicado para projetos mais autorais, fachadas imponentes e melhor implantação de garagem/lazer.", "features": ["420 m²", "14m de frente", "Mais liberdade arquitetônica", "Alto padrão"], "thumb": "assets/img/lot-sol81-premium.png", "coords": {"lat": -18.73218, "lng": -47.49348}, "arPoints": [{"label": "Lazer", "distance": 42, "bearing": 205}, {"label": "Portaria", "distance": 260, "bearing": 320}, {"label": "Boulevard", "distance": 35, "bearing": 88}, {"label": "Lote 81", "distance": 6, "bearing": 0}]}];
+const HOMES = [{"id": "compacta", "name": "Casa Compacta Smart", "style": "Entrada premium", "tier": "entrada", "area": 124, "rooms": 3, "suites": 1, "price": 490000, "ideal": "primeira casa com padrão superior", "details": "Modelo eficiente, com boa leitura comercial para quem quer entrar na jornada da casa pronta sem carregar um projeto grande demais.", "features": ["124 m²", "3 quartos", "1 suíte", "2 vagas"], "ext": "assets/img/img-003-490a84c40ff07f65.png", "int": "assets/img/img-004-defd92dc229dfda6.png"}, {"id": "armonia", "name": "Casa Armonia", "style": "Térrea premium", "tier": "premium", "area": 198, "rooms": 3, "suites": 3, "price": 790000, "ideal": "família que quer conforto e praticidade", "details": "Casa térrea com distribuição equilibrada, boa fluidez de uso e apelo para famílias que valorizam conforto sem excesso.", "features": ["198 m²", "3 suítes", "Ambientes integrados", "Perfil familiar"], "ext": "assets/img/img-003-490a84c40ff07f65.png", "int": "assets/img/img-005-3f83fe1450cb2af1.png"}, {"id": "essenza", "name": "Casa Essenza", "style": "Contemporânea", "tier": "premium", "area": 248, "rooms": 4, "suites": 4, "price": 990000, "ideal": "vida social, sofisticação e integração", "details": "Modelo de forte apelo visual, pensado para unir fachada contemporânea, integração social e sensação de casa de alto padrão.", "features": ["248 m²", "4 suítes", "Área gourmet", "Arquitetura contemporânea"], "ext": "assets/img/img-006-1d9abc304d3e4261.png", "int": "assets/img/img-007-ccd7bec2a86b1756.png"}, {"id": "horizonti", "name": "Casa Horizonti", "style": "Alto padrão", "tier": "alto", "area": 312, "rooms": 4, "suites": 4, "price": 1480000, "ideal": "projeto marcante em lote amplo", "details": "Casa com leitura arquitetônica mais forte, adequada para compradores que querem presença, amplitude e maior sofisticação.", "features": ["312 m²", "4 suítes", "Implantação ampla", "Alto padrão"], "ext": "assets/img/img-008-fd44f1d797f665ab.png", "int": "assets/img/img-009-c32ed0c9e12cd012.png"}, {"id": "villa", "name": "Casa Villa Bella", "style": "Clássica sofisticada", "tier": "alto", "area": 340, "rooms": 5, "suites": 4, "price": 1680000, "ideal": "presença, tradição e alto padrão", "details": "Modelo de maior presença e linguagem mais clássica, voltado a famílias que valorizam imponência e acabamento sofisticado.", "features": ["340 m²", "5 quartos", "4 suítes", "Linguagem clássica"], "ext": "assets/img/img-010-ac16c63511a91557.png", "int": "assets/img/img-011-81099445fe09c4fd.png"}];
+const ADDONS = [{"id": "solar", "name": "Energia solar", "price": 16900, "tag": "eficiência"}, {"id": "paisagismo", "name": "Paisagismo completo", "price": 9500, "tag": "biofilia"}, {"id": "seguranca", "name": "Automação e segurança", "price": 7200, "tag": "proteção"}, {"id": "gourmet", "name": "Espaço gourmet", "price": 21400, "tag": "convivência"}, {"id": "piscina", "name": "Piscina compacta", "price": 39800, "tag": "lazer"}, {"id": "moveis", "name": "Mobiliário essencial", "price": 57800, "tag": "interiores"}];
+
+function makeSvgDataUri(title, subtitle, c1, c2){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+    <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs>
+    <rect width="1200" height="800" fill="url(#g)"/>
+    <circle cx="980" cy="140" r="120" fill="rgba(255,255,255,.18)"/>
+    <circle cx="180" cy="690" r="160" fill="rgba(255,255,255,.10)"/>
+    <rect x="70" y="90" width="1060" height="620" rx="34" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.28)"/>
+    <text x="110" y="200" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">${title}</text>
+    <text x="110" y="265" fill="rgba(255,255,255,.82)" font-family="Arial, Helvetica, sans-serif" font-size="28">${subtitle}</text>
+  </svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+}
+function lotGallery(l){
+  return [
+    l.thumb || makeSvgDataUri(l.name, 'Vista geral do lote e contexto urbano', '#466a43', '#c2ca8e'),
+    makeSvgDataUri(l.project, 'Perspectiva de implantação e frente do lote', '#5f7c4c', '#d6a76e'),
+    makeSvgDataUri(l.area + ' m²', 'Leitura de potencial construtivo e posição', '#2a4e5f', '#7fa5b8')
+  ];
+}
+function homeGallery(h){
+  const arr = [];
+  if(h.ext) arr.push(h.ext);
+  if(h.int) arr.push(h.int);
+  arr.push(makeSvgDataUri(h.name, 'Ambiente complementar / conceito do modelo', '#5d4636', '#c79d73'));
+  return arr;
+}
+function renderGallery(images, galleryId='galleryViewport'){
+  return `
+    <div class="galleryShell">
+      <button class="galleryArrow prev" type="button" data-gallery-nav="prev" data-gallery-target="${galleryId}" aria-label="Imagem anterior">‹</button>
+      <div class="galleryViewport" id="${galleryId}">
+        ${images.map((src,i)=>`<div class="gallerySlide"><img src="${src}" alt="Imagem ${i+1}"></div>`).join('')}
+      </div>
+      <button class="galleryArrow next" type="button" data-gallery-nav="next" data-gallery-target="${galleryId}" aria-label="Próxima imagem">›</button>
+    </div>
+  `;
+}
+
+const fmt = v => new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(Math.round(v || 0));
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+const state = {
+  lot: LOTS[2],
+  home: HOMES[2],
+  addons: [],
+  mode: 'combo',
+  entryMode: 'percent',
+  customLotPrice: LOTS[2].price,
+  customHomePrice: HOMES[2].price
+};
+
+const comboSelections = {};
+
+function resolveComboChoice(index, combos = getSuggestedCombos()){
+  const base = combos[Number(index)] || combos[0];
+  const saved = comboSelections[index] || {};
+  const availableLots = typeof filteredComboLots === 'function' ? filteredComboLots() : LOTS;
+  const lot = availableLots.find(item => item.id === saved.lotId) || availableLots.find(item => item.id === base.lot.id) || availableLots[0] || base.lot;
+  const home = HOMES.find(item => item.id === saved.homeId) || base.home;
+  comboSelections[index] = { lotId: lot.id, homeId: home.id };
+  return { base, lot, home };
+}
+
+function applyComboChoice(index,{scroll=true,toastMessage='Combo configurado e enviado para a simulação.'} = {}){
+  const { lot, home } = resolveComboChoice(index);
+  state.lot = lot;
+  state.home = home;
+  state.customLotPrice = lot.price;
+  state.customHomePrice = home.price;
+  state.mode = 'combo';
+  if($('#buyMode')) $('#buyMode').value = 'combo';
+  syncPriceInputs();
+  renderAll();
+  if(toastMessage) toast(toastMessage);
+  if(scroll) document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'});
+}
+
+function toast(text){
+  const el = $('#toast');
+  el.textContent = text;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+function activateJourney(mode){
+  const labels = { lot:'Somente lote', home:'Somente casa', combo:'Lote + casa', future:'Lote agora + casa depois' };
+  const targets = { lot:'#lotes', home:'#casas', combo:'#combos', future:'#bandeja' };
+  state.mode = mode;
+  if($('#buyMode')) $('#buyMode').value = mode;
+  syncPriceInputs();
+  renderAll();
+  toast(labels[mode] + ' selecionado.');
+  const target = document.querySelector(targets[mode]);
+  if(target) target.scrollIntoView({behavior:'smooth'});
+}
+
+function syncPriceInputs(){
+  if($('#lotPriceInput')) $('#lotPriceInput').value = Math.round(state.customLotPrice || state.lot?.price || 0);
+  if($('#homePriceInput')) $('#homePriceInput').value = Math.round(state.customHomePrice || state.home?.price || 0);
+  const mode = $('#buyMode')?.value || state.mode;
+  if(mode === 'lot' && $('#homePriceInput')) $('#homePriceInput').value = 0;
+  if(mode === 'home' && $('#lotPriceInput')) $('#lotPriceInput').value = 0;
+}
+
+function getProjectLogo(project){
+  if((project||'').toLowerCase().includes('solaris')){
+    return `<span class="projectLogo solaris"><img src="assets/img/img-012-b433f95ad146a0f7.png" alt="Solaris Residencial Resort"></span>`;
+  }
+  return '';
+}
+
+function renderLots(filter='all'){
+  $('#lotGrid').innerHTML = LOTS.filter(l => filter === 'all' || l.project === filter).map(l => `
+    <article class="menuCard ${state.lot?.id === l.id ? 'selected' : ''}">
+      <div class="menuTop">
+        <img class="lotThumb" src="${l.thumb}" alt="${l.name}">
+        <div class="lotShade"></div>
+        <div class="lotLabel"><span class="chip">${l.project}</span><span class="title">${l.name}</span></div>
+        <span class="area">${l.area} m²</span>
+      </div>
+      <div class="body">
+        <span class="tag">${l.taste} • ${l.tag}</span>
+        <h3>${l.name}</h3>
+        <div class="specs"><span>${l.dims}</span><span>${l.project}</span></div>
+        <div class="price">${fmt(l.price)}</div>
+        <p class="muted">${l.details}</p>
+        <div class="cardActions">
+          <button class="btn primary small" data-detail-lot="${l.id}">Detalhes</button>
+          <button class="btn primary small" data-sim-lot="${l.id}">Simular valor</button>
+          <button class="btn dark small" data-combo-lot="${l.id}">Usar no combo</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+  $$('[data-detail-lot]').forEach(btn => btn.onclick = () => openLotDetails(btn.dataset.detailLot));
+  $$('[data-sim-lot]').forEach(btn => btn.onclick = () => {
+    state.lot = LOTS.find(l => l.id === btn.dataset.simLot);
+    state.customLotPrice = state.lot.price;
+    state.mode = 'lot';
+    $('#buyMode').value = 'lot';
+    syncPriceInputs();
+    renderAll();
+    toast('Lote selecionado para simular valor.');
+    document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'});
+  });
+  $$('[data-combo-lot]').forEach(btn => btn.onclick = () => {
+    state.lot = LOTS.find(l => l.id === btn.dataset.comboLot);
+    state.customLotPrice = state.lot.price;
+    state.mode = 'combo';
+    $('#buyMode').value = 'combo';
+    syncPriceInputs();
+    renderAll();
+    toast('Lote adicionado ao combo.');
+    document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'});
+  });
+}
+
+function renderHomes(filter='all'){
+  $('#homeGrid').innerHTML = HOMES.filter(h => filter === 'all' || h.tier === filter).map(h => `
+    <article class="menuCard ${state.home?.id === h.id ? 'selected' : ''}">
+      <div class="houseImgs"><img src="${h.ext}" alt="${h.name} fachada"><img src="${h.int}" alt="${h.name} interior"></div>
+      <div class="body">
+        <span class="tag">${h.style}</span>
+        <h3>${h.name}</h3>
+        <div class="specs"><span>${h.area} m²</span><span>${h.rooms} quartos</span><span>${h.suites} suítes</span></div>
+        <p class="muted">Ideal para ${h.ideal}.</p>
+        <div class="price">${fmt(h.price)}</div>
+        <div class="cardActions">
+          <button class="btn primary small" data-detail-home="${h.id}">Detalhes</button>
+          <button class="btn primary small" data-sim-home="${h.id}">Simular valor</button>
+          <button class="btn dark small" data-combo-home="${h.id}">Usar no combo</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+  $$('[data-detail-home]').forEach(btn => btn.onclick = () => openHomeDetails(btn.dataset.detailHome));
+  $$('[data-sim-home]').forEach(btn => btn.onclick = () => {
+    state.home = HOMES.find(h => h.id === btn.dataset.simHome);
+    state.customHomePrice = state.home.price;
+    state.mode = 'home';
+    $('#buyMode').value = 'home';
+    syncPriceInputs();
+    renderAll();
+    toast('Casa selecionada para simular valor.');
+    document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'});
+  });
+  $$('[data-combo-home]').forEach(btn => btn.onclick = () => {
+    state.home = HOMES.find(h => h.id === btn.dataset.comboHome);
+    state.customHomePrice = state.home.price;
+    state.mode = 'combo';
+    $('#buyMode').value = 'combo';
+    syncPriceInputs();
+    renderAll();
+    toast('Casa adicionada ao combo.');
+    document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'});
+  });
+}
+
+function getSuggestedCombos(){
+  return [
+    {name:'Combo Inteligente', lot:LOTS[0], home:HOMES[0], desc:'Menor desembolso para começar com padrão superior.'},
+    {name:'Combo Família Premium', lot:LOTS[2], home:HOMES[2], desc:'Equilíbrio entre resort living, espaço e presença.'},
+    {name:'Combo Alto Padrão', lot:LOTS[3], home:HOMES[3], desc:'Lote amplo, casa sofisticada e posicionamento premium.'}
+  ];
+}
+
+function filteredComboLots(){
+  return currentLotFilter === 'all'
+    ? LOTS
+    : LOTS.filter(item => item.project === currentLotFilter);
+}
+
+function ensureComboLotMatchesFilter(index){
+  const availableLots = filteredComboLots();
+  if(!availableLots.length) return;
+  const saved = comboSelections[index] || {};
+  const selected = availableLots.find(item => item.id === saved.lotId);
+  if(!selected){
+    comboSelections[index] = { ...(comboSelections[index] || {}), lotId: availableLots[0].id };
+  }
+}
+
+function renderCombos(){
+  const combos = getSuggestedCombos();
+  const availableLots = filteredComboLots();
+
+  $('#comboGrid').innerHTML = combos.map((c,idx) => {
+    ensureComboLotMatchesFilter(idx);
+    const choice = resolveComboChoice(idx, combos);
+    const lot = availableLots.find(item => item.id === choice.lot.id) || availableLots[0] || choice.lot;
+    const home = choice.home;
+
+    if(lot && lot.id !== choice.lot.id){
+      comboSelections[idx] = { ...(comboSelections[idx] || {}), lotId: lot.id, homeId: home.id };
+    }
+
+    return `
+    <article class="comboCard">
+      <div class="comboPreview">
+        <div class="previewBox"><img src="${lot.thumb}" alt="${lot.name}"><b>${lot.area} m²</b><small class="muted">${lot.project}</small></div>
+        <div class="plus">+</div>
+        <div class="previewBox"><img src="${home.ext}" alt="${home.name}"></div>
+      </div>
+      <div class="comboPickerGrid">
+        <div class="comboPickerField">
+          <label>Lote do combo</label>
+          <select data-combo-lot-select="${idx}">
+            ${availableLots.map(item=>`<option value="${item.id}" ${item.id===lot.id?'selected':''}>${item.name} — ${item.project}</option>`).join('')}
+          </select>
+        </div>
+        <div class="comboPickerField">
+          <label>Casa do combo</label>
+          <select data-combo-home-select="${idx}">
+            ${HOMES.map(item=>`<option value="${item.id}" ${item.id===home.id?'selected':''}>${item.name}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <span class="tag">Combo sugerido</span>
+      <h3>${c.name}</h3>
+      <p class="muted">${c.desc}</p>
+      <div class="price">${fmt(lot.price + home.price)}</div>
+      <div class="cardActions">
+        <button class="btn primary" data-combo="${idx}">Escolher combo</button>
+        <button class="btn primary" data-combo-details="${idx}">Detalhes</button>
+      </div>
+    </article>
+  `}).join('');
+
+  $$('[data-combo-lot-select]').forEach(sel => sel.onchange = () => {
+    const idx = Number(sel.dataset.comboLotSelect);
+    comboSelections[idx] = { ...(comboSelections[idx] || {}), lotId: sel.value };
+    renderCombos();
+  });
+
+  $$('[data-combo-home-select]').forEach(sel => sel.onchange = () => {
+    const idx = Number(sel.dataset.comboHomeSelect);
+    comboSelections[idx] = { ...(comboSelections[idx] || {}), homeId: sel.value };
+    renderCombos();
+  });
+
+  $$('[data-combo]').forEach(btn => btn.onclick = () => {
+    applyComboChoice(Number(btn.dataset.combo));
+  });
+
+  $$('[data-combo-details]').forEach(btn => btn.onclick = () => {
+    const idx = Number(btn.dataset.comboDetails);
+    ensureComboLotMatchesFilter(idx);
+    const choice = resolveComboChoice(idx, combos);
+    openComboDetails(idx, choice.lot.id, choice.home.id);
+  });
+}
+
+function renderAddons(){
+  $('#addonGrid').innerHTML = ADDONS.map(a => `
+    <div class="addon ${state.addons.some(x=>x.id===a.id) ? 'active' : ''}">
+      <div><span class="tag">${a.tag}</span><h3>${a.name}</h3><div class="muted">${fmt(a.price)}</div></div>
+      <button class="btn light" data-addon="${a.id}">${state.addons.some(x=>x.id===a.id) ? 'Remover' : 'Adicionar'}</button>
+    </div>
+  `).join('');
+  $$('[data-addon]').forEach(btn => btn.onclick = () => {
+    const item = ADDONS.find(a => a.id === btn.dataset.addon);
+    const exists = state.addons.some(a => a.id === item.id);
+    state.addons = exists ? state.addons.filter(a => a.id !== item.id) : [...state.addons, item];
+    renderAll();
+    toast(exists ? 'Adicional removido.' : 'Adicional incluído.');
+  });
+}
+
+function baseTotalWithoutEntry(){
+  const mode = $('#buyMode')?.value || state.mode;
+  state.mode = mode;
+  const addons = state.addons.reduce((sum,a)=>sum+a.price,0);
+  const lot = Number($('#lotPriceInput')?.value || state.customLotPrice || state.lot?.price || 0);
+  const home = Number($('#homePriceInput')?.value || state.customHomePrice || state.home?.price || 0);
+  state.customLotPrice = lot; state.customHomePrice = home;
+  let total = 0;
+  if(mode === 'lot') total = lot;
+  if(mode === 'home') total = home;
+  if(mode === 'combo') total = lot + home;
+  if(mode === 'future') total = lot + home * 0.15;
+  return {mode, addons, lot, home, total: total + addons};
+}
+
+function getTotals(changedField=''){
+  const mode = $('#buyMode')?.value || state.mode;
+  state.mode = mode;
+
+  let lot = Number($('#lotPriceInput')?.value || 0);
+  let home = Number($('#homePriceInput')?.value || 0);
+
+  if(mode === 'lot'){
+    home = 0;
+  } else if(mode === 'home'){
+    lot = 0;
+  }
+
+  if(mode !== 'home') state.customLotPrice = lot || state.customLotPrice;
+  if(mode !== 'lot') state.customHomePrice = home || state.customHomePrice;
+
+  const addons = state.addons.reduce((sum,a)=>sum+a.price,0);
+  let total = 0;
+  if(mode === 'lot') total = lot;
+  if(mode === 'home') total = home;
+  if(mode === 'combo') total = lot + home;
+  if(mode === 'future') total = lot + home * 0.15;
+  total += addons;
+
+  let entryPercent = Number($('#entryPercent')?.value || 0);
+  let entryValue = Number($('#entryValue')?.value || 0);
+
+  if(changedField === 'entryValue') {
+    entryPercent = total ? (entryValue / total) * 100 : 0;
+    $('#entryPercent').value = entryPercent.toFixed(2);
+  } else {
+    entryValue = total * entryPercent / 100;
+    $('#entryValue').value = Math.round(entryValue);
+  }
+
+  const installments = Number($('#entryInstallments')?.value || 1);
+  const entryInstallment = installments ? entryValue / installments : entryValue;
+  const financed = Math.max(total - entryValue,0);
+  const term = Number($('#term')?.value || 240);
+  const system = $('#system')?.value || 'PRICE';
+  const r = mode === 'lot' ? 0.009 : mode === 'home' ? 0.0105 : 0.0098;
+  const payment = system === 'PRICE' ? financed * (r / (1 - Math.pow(1+r,-term))) : (financed / term) + financed * r;
+  return {mode,addons,lot,home,total,entryPercent,entryValue,installments,entryInstallment,financed,payment,system,term};
+}
+
+function renderTray(changedField=''){
+  const mode = $('#buyMode')?.value || state.mode;
+  state.mode = mode;
+
+  const lotInput = $('#lotPriceInput');
+  const homeInput = $('#homePriceInput');
+
+  if(mode === 'lot'){
+    lotInput.disabled = false;
+    homeInput.disabled = true;
+    homeInput.value = 0;
+  } else if(mode === 'home'){
+    lotInput.disabled = true;
+    lotInput.value = 0;
+    homeInput.disabled = false;
+  } else if(mode === 'future'){
+    lotInput.disabled = false;
+    homeInput.disabled = false;
+    if(!Number(lotInput.value) && state.customLotPrice) lotInput.value = Math.round(state.customLotPrice);
+    if(!Number(homeInput.value) && state.customHomePrice) homeInput.value = Math.round(state.customHomePrice);
+  } else {
+    lotInput.disabled = false;
+    homeInput.disabled = false;
+    if(!Number(lotInput.value) && state.customLotPrice) lotInput.value = Math.round(state.customLotPrice);
+    if(!Number(homeInput.value) && state.customHomePrice) homeInput.value = Math.round(state.customHomePrice);
+  }
+
+  const t = getTotals(changedField);
+
+  $('#trayLot').textContent = state.lot ? state.lot.name : 'Nenhum';
+  $('#trayHome').textContent = state.home ? state.home.name : 'Nenhuma';
+  $('#trayAddons').textContent = fmt(t.addons);
+  $('#trayTotal').textContent = fmt(t.total);
+  $('#resEntry').textContent = fmt(t.entryValue);
+  $('#resEntryInstallment').textContent = `${t.installments}X no cartão de ${fmt(t.entryInstallment)}`;
+  if($('#entryInstallmentField')) $('#entryInstallmentField').value = fmt(t.entryInstallment);
+  $('#resFinanced').textContent = fmt(t.financed);
+  $('#resPayment').textContent = fmt(t.payment);
+  $('#resRatio').textContent = t.entryPercent.toFixed(1).replace('.',',') + '%';
+  $('#resSystem').textContent = t.system;
+
+  const healthy = t.entryPercent >= 30;
+  const attention = t.entryPercent >= 20 && t.entryPercent < 30;
+  $('#diagnosisTitle').textContent = healthy ? 'Entrada forte para avançar.' : attention ? 'Composição equilibrada para negociar.' : 'Vale reforçar a entrada ou ajustar a composição.';
+  $('#diagnosisText').textContent = healthy ? 'A entrada está robusta e cria uma base confortável para a conversa comercial.' : attention ? 'A configuração está funcional e pode ser refinada no prazo, na entrada ou na composição do combo.' : 'Uma boa alternativa é elevar a entrada, reduzir a composição ou considerar lote agora + casa em etapa seguinte.';
+}
+
+function renderAll(){
+  renderLots(currentLotFilter); renderHomes(currentHomeFilter); renderCombos(); renderAddons(); renderTray();
+}
+
+function openComboDetails(index, selectedLotId='', selectedHomeId=''){
+  const combos = getSuggestedCombos();
+  const base = combos[Number(index)] || combos[0];
+  const lot = LOTS.find(x=>x.id === (selectedLotId || base.lot.id)) || base.lot;
+  const home = HOMES.find(x=>x.id === (selectedHomeId || base.home.id)) || base.home;
+  comboSelections[index] = { lotId: lot.id, homeId: home.id };
+  const lotImages = lotGallery(lot);
+  const homeImages = homeGallery(home);
+  const total = lot.price + home.price;
+  openModal(`
+    <div class="modalHead"><div><span class="tag">Combo sugerido</span><h2>${base.name}</h2><p class="muted">${base.desc}</p></div><button class="btn light small" data-close-modal>Fechar</button></div>
+    <div class="modalBody">
+      <div class="comboDetailGrid">
+        <section class="comboDetailBlock">
+          <div class="comboDetailTop">
+            <div>
+              <span class="tag">Lote</span>
+              <h3>${lot.name}</h3>
+              <div class="modalBrand">${getProjectLogo(lot.project)}</div>
+            </div>
+            <select class="miniSelect" id="comboLotSelect" data-combo-detail-select="lot" data-combo-index="${index}">
+              ${LOTS.map(item=>`<option value="${item.id}" ${item.id===lot.id?'selected':''}>${item.name} — ${item.project}</option>`).join('')}
+            </select>
+          </div>
+          ${renderGallery(lotImages,'comboLotGallery')}
+          <p class="muted">${lot.details}</p>
+          <div class="comboMeta"><span>${lot.area} m²</span><span>${lot.dims}</span><span>${fmt(lot.price)}</span></div>
+          <div class="featureList">${lot.features.map(f=>`<span>${f}</span>`).join('')}</div>
+        </section>
+        <section class="comboDetailBlock">
+          <div class="comboDetailTop">
+            <div>
+              <span class="tag">Casa</span>
+              <h3>${home.name}</h3>
+              <p class="muted">${home.style}</p>
+            </div>
+            <select class="miniSelect" id="comboHomeSelect" data-combo-detail-select="home" data-combo-index="${index}">
+              ${HOMES.map(item=>`<option value="${item.id}" ${item.id===home.id?'selected':''}>${item.name}</option>`).join('')}
+            </select>
+          </div>
+          ${renderGallery(homeImages,'comboHomeGallery')}
+          <p class="muted">${home.details}</p>
+          <div class="comboMeta"><span>${home.area} m²</span><span>${home.style}</span><span>${fmt(home.price)}</span></div>
+          <div class="featureList">${home.features.map(f=>`<span>${f}</span>`).join('')}</div>
+        </section>
+      </div>
+      <div class="comboDetailActions">
+        <p><b>Total estimado do combo:</b> ${fmt(total)}</p>
+        <div class="actions"><button class="btn primary" data-apply-combo-details="${index}">Atualizar combo e abrir simulação</button><button class="btn light" data-close-modal>Fechar</button></div>
+      </div>
+    </div>
+  `);
+}
+
+function openLotDetails(id){
+  const l = LOTS.find(x=>x.id===id);
+  const images = lotGallery(l);
+  openModal(`
+    <div class="modalHead"><div><span class="tag">${l.project}</span><h2>${l.name}</h2><div class="modalBrand">${getProjectLogo(l.project)}</div><p class="muted">${l.details}</p></div><button class="btn light small" data-close-modal>Fechar</button></div>
+    <div class="modalBody">
+      ${renderGallery(images,'lotGalleryViewport')}
+      <div class="featureList">${l.features.map(f=>`<span>${f}</span>`).join('')}</div>
+      <p><b>Valor estimado:</b> ${fmt(l.price)}<br><b>Dimensões:</b> ${l.dims}<br><b>Perfil:</b> ${l.taste} • ${l.tag}</p>
+      <div class="arHelpBox"><b>Recursos v7.0:</b> use <b>Rota</b> para abrir o Google Maps até este lote ou <b>Realidade aumentada</b> para visualizar pontos de referência próximos usando câmera, localização e bússola do dispositivo.</div>
+      <div class="actions">
+        <button class="btn primary" data-route-lot="${l.id}">Rota</button>
+        <button class="btn primary" data-ar-lot="${l.id}">Realidade aumentada</button>
+        <button class="btn primary" data-modal-sim-lot="${l.id}">Simular valor</button>
+        <button class="btn dark" data-modal-combo-lot="${l.id}">Usar no combo</button>
+      </div>
+    </div>
+  `);
+}
+
+function openHomeDetails(id){
+  const h = HOMES.find(x=>x.id===id);
+  const images = homeGallery(h);
+  openModal(`
+    <div class="modalHead"><div><span class="tag">${h.style}</span><h2>${h.name}</h2><p class="muted">${h.details}</p></div><button class="btn light small" data-close-modal>Fechar</button></div>
+    <div class="modalBody">
+      ${renderGallery(images,'lotGalleryViewport')}
+      <div class="featureList">${h.features.map(f=>`<span>${f}</span>`).join('')}</div>
+      <p><b>Valor estimado:</b> ${fmt(h.price)}<br><b>Perfil:</b> ${h.ideal}</p>
+      <div class="actions"><button class="btn primary" data-modal-sim-home="${h.id}">Simular valor</button><button class="btn dark" data-modal-combo-home="${h.id}">Usar no combo</button></div>
+    </div>
+  `);
+}
+
+function openModal(content, extraClass=''){
+  const modal = $('#detailModal');
+  modal.innerHTML = `<div class="modalCard ${extraClass}">${content}</div>`;
+  modal.classList.add('show');
+  bindModalActions();
+}
+
+function closeModal(){ stopARResources(); $('#detailModal').classList.remove('show'); $('#detailModal').innerHTML=''; }
+
+function bindModalActions(){
+  $$('[data-close-modal]').forEach(b=>b.onclick=closeModal);
+  $$('[data-modal-sim-lot]').forEach(b=>b.onclick=()=>{ state.lot=LOTS.find(l=>l.id===b.dataset.modalSimLot); state.customLotPrice=state.lot.price; $('#buyMode').value='lot'; closeModal(); syncPriceInputs(); renderAll(); document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'}); });
+  $$('[data-modal-combo-lot]').forEach(b=>b.onclick=()=>{ state.lot=LOTS.find(l=>l.id===b.dataset.modalComboLot); state.customLotPrice=state.lot.price; $('#buyMode').value='combo'; closeModal(); syncPriceInputs(); renderAll(); document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'}); });
+  $$('[data-modal-sim-home]').forEach(b=>b.onclick=()=>{ state.home=HOMES.find(h=>h.id===b.dataset.modalSimHome); state.customHomePrice=state.home.price; $('#buyMode').value='home'; closeModal(); syncPriceInputs(); renderAll(); document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'}); });
+  $$('[data-modal-combo-home]').forEach(b=>b.onclick=()=>{ state.home=HOMES.find(h=>h.id===b.dataset.modalComboHome); state.customHomePrice=state.home.price; $('#buyMode').value='combo'; closeModal(); syncPriceInputs(); renderAll(); document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'}); });
+  $$('[data-gallery-nav]').forEach(btn=>btn.onclick=()=>{
+    const targetId = btn.dataset.galleryTarget || 'galleryViewport';
+    const viewport = document.getElementById(targetId);
+    if(!viewport) return;
+    const step = viewport.clientWidth + 12;
+    viewport.scrollBy({left: btn.dataset.galleryNav === 'next' ? step : -step, behavior:'smooth'});
+  });
+  $$('[data-combo-detail-select]').forEach(sel=>sel.onchange=()=>{
+    const comboIndex = Number(sel.dataset.comboIndex);
+    const lotId = document.getElementById('comboLotSelect')?.value || '';
+    const homeId = document.getElementById('comboHomeSelect')?.value || '';
+    comboSelections[comboIndex] = { lotId, homeId };
+    openComboDetails(comboIndex, lotId, homeId);
+  });
+  $$('[data-apply-combo-details]').forEach(btn=>btn.onclick=()=>{
+    const comboIndex = Number(btn.dataset.applyComboDetails);
+    const lotId = document.getElementById('comboLotSelect')?.value;
+    const homeId = document.getElementById('comboHomeSelect')?.value;
+    comboSelections[comboIndex] = { lotId, homeId };
+    closeModal();
+    applyComboChoice(comboIndex,{scroll:true,toastMessage:'Combo atualizado e enviado para a simulação.'});
+  });
+  $$('[data-route-lot]').forEach(btn=>btn.onclick=()=>openRouteToLot(btn.dataset.routeLot));
+  $$('[data-ar-lot]').forEach(btn=>btn.onclick=()=>openARView(btn.dataset.arLot));
+  if($('#scheduleSubmit')) $('#scheduleSubmit').onclick = submitSchedule;
+}
+
+
+let arCameraStream = null;
+let arWatchId = null;
+let arOrientationHandler = null;
+
+function lotDestination(lot){
+  return lot?.coords || {lat:-18.725, lng:-47.497};
+}
+
+function mapsDirectionsUrl(lot, origin=null){
+  const dest = lotDestination(lot);
+  const params = new URLSearchParams({
+    api: '1',
+    destination: `${dest.lat},${dest.lng}`,
+    travelmode: 'driving'
+  });
+  if(origin) params.set('origin', `${origin.lat},${origin.lng}`);
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}
+
+function openRouteToLot(id){
+  const lot = LOTS.find(x=>x.id===id);
+  if(!lot) return;
+  const win = window.open('', '_blank');
+  const openUrl = (url) => {
+    if(win) win.location.href = url;
+    else window.open(url, '_blank');
+  };
+  if(!navigator.geolocation){
+    openUrl(mapsDirectionsUrl(lot));
+    toast('Abrindo rota no Google Maps.');
+    return;
+  }
+  toast('Autorize sua localização para traçar a rota até o lote.');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const origin = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+      openUrl(mapsDirectionsUrl(lot, origin));
+    },
+    () => {
+      openUrl(mapsDirectionsUrl(lot));
+      toast('Não foi possível acessar sua localização. Abrindo rota pelo destino.');
+    },
+    {enableHighAccuracy:true, timeout:10000, maximumAge:30000}
+  );
+}
+
+function stopARResources(){
+  if(arCameraStream){
+    arCameraStream.getTracks().forEach(track=>track.stop());
+    arCameraStream = null;
+  }
+  if(arWatchId !== null && navigator.geolocation){
+    navigator.geolocation.clearWatch(arWatchId);
+    arWatchId = null;
+  }
+  if(arOrientationHandler){
+    window.removeEventListener('deviceorientation', arOrientationHandler, true);
+    arOrientationHandler = null;
+  }
+}
+
+function metersBetween(a,b){
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(b.lat-a.lat);
+  const dLng = toRad(b.lng-a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+  return Math.round(2 * R * Math.atan2(Math.sqrt(h), Math.sqrt(1-h)));
+}
+
+function arMarkerHtml(points=[]){
+  const fallback = [
+    {label:'Portaria', distance:49, bearing:309},
+    {label:'Lazer', distance:25, bearing:197},
+    {label:'Garagem', distance:62, bearing:284},
+    {label:'Lote', distance:6, bearing:0}
+  ];
+  const finalPoints = points.length ? points : fallback;
+  return finalPoints.slice(0,4).map((p,i)=>`
+    <div class="arMarker m${i+1}">
+      <div class="kicker"><span class="dot">›</span><span>${p.label}</span></div>
+      <small>${p.distance} m · ${p.bearing}°</small>
+    </div>
+  `).join('');
+}
+
+function openARView(id){
+  const lot = LOTS.find(x=>x.id===id);
+  if(!lot) return;
+  const image = lot.thumb || 'assets/img/lot-sol45-premium.png';
+  openModal(`
+    <div class="modalHead"><div><span class="tag">Realidade aumentada</span><h2>${lot.name}</h2><p class="muted">Autorize câmera, localização e bússola para visualizar pontos próximos ao lote.</p></div><button class="btn light small" data-close-modal>Fechar</button></div>
+    <div class="modalBody">
+      <div class="arShell">
+        <div class="arScene">
+          <video id="arVideo" autoplay playsinline muted></video>
+          <div class="arFallback" id="arFallback">
+            <img src="${image}" alt="${lot.name}">
+            <div class="arFallbackText"><b>Prévia de realidade aumentada</b><br><span>Se a câmera não estiver disponível, esta visualização usa a imagem do lote como fundo.</span></div>
+          </div>
+          <div class="arOverlay"></div>
+          <div class="arTopPill">
+            <div class="arBrand"><small>Futura Casa AR v7.0</small><b>${lot.project}</b></div>
+            <button class="arCloseMini" data-close-modal>×</button>
+          </div>
+          <div class="arCompass">
+            <div class="arCompassDial"><span>N</span><div class="arCompassNeedle" id="arNeedle"></div></div>
+            <strong id="arHeading">--°</strong>
+          </div>
+          ${arMarkerHtml(lot.arPoints)}
+          <div class="arBottomStatus">
+            <div class="arStatusIcon">⌖</div>
+            <div class="arStatusText"><small>Você está em</small><b id="arCurrentPoint">Localizando...</b><span id="arAccuracy">Solicitando GPS...</span></div>
+            <button class="arInfoButton" type="button" title="Informações">i</button>
+          </div>
+        </div>
+        <div class="arActions">
+          <button class="btn primary" data-route-lot="${lot.id}">Abrir rota</button>
+          <button class="btn light" id="arCompassPermission">Ativar bússola</button>
+          <button class="btn light" data-close-modal>Fechar AR</button>
+        </div>
+      </div>
+    </div>
+  `, 'arModalCard');
+  setTimeout(()=>initARExperience(lot.id), 50);
+}
+
+function initARExperience(lotId){
+  const lot = LOTS.find(x=>x.id===lotId);
+  if(!lot) return;
+  startARCamera();
+  startARLocation(lot);
+  setupAROrientation();
+}
+
+function startARCamera(){
+  const video = $('#arVideo');
+  const fallback = $('#arFallback');
+  if(!video || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    if(fallback) fallback.classList.remove('hidden');
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}, audio:false})
+    .then(stream=>{
+      arCameraStream = stream;
+      video.srcObject = stream;
+      video.play().catch(()=>{});
+      if(fallback) fallback.classList.add('hidden');
+    })
+    .catch(()=>{
+      if(fallback) fallback.classList.remove('hidden');
+      toast('Câmera não autorizada. Exibindo prévia do lote.');
+    });
+}
+
+function startARLocation(lot){
+  if(!navigator.geolocation){
+    $('#arCurrentPoint').textContent = lot.name;
+    $('#arAccuracy').textContent = 'GPS indisponível neste navegador.';
+    return;
+  }
+  toast('Autorize sua localização para ativar os pontos em AR.');
+  const destination = lotDestination(lot);
+  arWatchId = navigator.geolocation.watchPosition(
+    pos=>{
+      const current = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+      const distance = metersBetween(current, destination);
+      $('#arCurrentPoint').textContent = distance <= 18 ? lot.name : 'Próximo ao lote';
+      $('#arAccuracy').textContent = `${distance} m do ponto · GPS ± ${Math.round(pos.coords.accuracy || 0)} m`;
+    },
+    ()=>{
+      $('#arCurrentPoint').textContent = lot.name;
+      $('#arAccuracy').textContent = 'Permita a localização para medir distância real.';
+    },
+    {enableHighAccuracy:true, maximumAge:5000, timeout:10000}
+  );
+}
+
+function updateARHeading(heading){
+  if(heading == null || Number.isNaN(heading)) return;
+  const value = Math.round((heading + 360) % 360);
+  const headingEl = $('#arHeading');
+  const needle = $('#arNeedle');
+  if(headingEl) headingEl.textContent = `${value}°`;
+  if(needle) needle.style.transform = `rotate(${value}deg)`;
+}
+
+function setupAROrientation(){
+  const button = $('#arCompassPermission');
+  const handler = (event) => {
+    const heading = event.webkitCompassHeading != null
+      ? event.webkitCompassHeading
+      : (event.alpha != null ? 360 - event.alpha : null);
+    updateARHeading(heading);
+  };
+  arOrientationHandler = handler;
+  if(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function'){
+    if(button){
+      button.style.display = 'inline-flex';
+      button.onclick = async () => {
+        try{
+          const result = await DeviceOrientationEvent.requestPermission();
+          if(result === 'granted'){
+            window.addEventListener('deviceorientation', handler, true);
+            button.textContent = 'Bússola ativa';
+            toast('Bússola ativada.');
+          }else{
+            toast('Permissão da bússola não autorizada.');
+          }
+        }catch(e){
+          toast('Não foi possível ativar a bússola.');
+        }
+      };
+    }
+  }else if(window.DeviceOrientationEvent){
+    if(button) button.style.display = 'none';
+    window.addEventListener('deviceorientation', handler, true);
+  }else{
+    if(button) button.style.display = 'none';
+    updateARHeading(23);
+  }
+}
+
+function buyerData(){
+  return {
+    name: ($('#buyerName')?.value || '').trim(),
+    phone: ($('#buyerPhone')?.value || '').trim(),
+    email: ($('#buyerEmail')?.value || '').trim(),
+    city: ($('#buyerCity')?.value || '').trim(),
+    preference: ($('#contactPreference')?.value || '').trim(),
+    time: ($('#contactTime')?.value || '').trim(),
+    note: ($('#buyerNote')?.value || '').trim()
+  };
+}
+
+function esc(value=''){
+  return String(value)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function dateToDisplay(value=''){
+  if(!value) return '-';
+  const parts = value.split('-');
+  return parts.length===3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : value;
+}
+
+function openScheduleModal(){
+  const b = buyerData();
+  const minDate = new Date().toISOString().split('T')[0];
+  const suggestedDate = minDate;
+  openModal(`
+    <div class="modalHead"><div><span class="tag">Atendimento</span><h2>Agendar apresentação</h2><p class="muted">Preencha os dados de contato, a data e o horário desejados para o atendimento.</p></div><button class="btn light small" data-close-modal>Fechar</button></div>
+    <div class="modalBody">
+      <p class="modalCaption">Se você já preencheu os dados na simulação, eles aparecem aqui automaticamente para conferência.</p>
+      <div class="modalFormGrid">
+        <div class="modalField"><label>Nome completo</label><input type="text" id="scheduleName" value="${esc(b.name)}" placeholder="Ex.: Franco Alves"></div>
+        <div class="modalField"><label>WhatsApp / telefone</label><input type="tel" id="schedulePhone" value="${esc(b.phone)}" placeholder="Ex.: (34) 99999-9999"></div>
+        <div class="modalField"><label>E-mail</label><input type="email" id="scheduleEmail" value="${esc(b.email)}" placeholder="Ex.: nome@email.com"></div>
+        <div class="modalField"><label>Cidade</label><input type="text" id="scheduleCity" value="${esc(b.city)}" placeholder="Ex.: Monte Carmelo, MG"></div>
+        <div class="modalField"><label>Preferência de contato</label><select id="schedulePreference"><option ${b.preference==='WhatsApp'?'selected':''}>WhatsApp</option><option ${b.preference==='Ligação'?'selected':''}>Ligação</option><option ${b.preference==='E-mail'?'selected':''}>E-mail</option><option ${b.preference==='Reunião presencial'?'selected':''}>Reunião presencial</option><option ${b.preference==='Videochamada'?'selected':''}>Videochamada</option></select></div>
+        <div class="modalField"><label>Data desejada</label><input type="date" id="scheduleDate" min="${minDate}" value="${suggestedDate}"></div>
+        <div class="modalField"><label>Horário desejado</label><input type="time" id="scheduleHour" value="09:00"></div>
+        <div class="modalField"><label>Formato do atendimento</label><select id="scheduleFormat"><option>Apresentação comercial</option><option>Atendimento por WhatsApp</option><option>Ligação</option><option>Reunião presencial</option><option>Videochamada</option></select></div>
+        <div class="modalField full"><label>Observação</label><textarea id="scheduleNote" placeholder="Ex.: Gostaria de entender condições do lote + casa e comparar prazos.">${esc(b.note)}</textarea></div>
+      </div>
+      <div class="actions"><button class="btn primary" id="scheduleSubmit">Agendar</button><button class="btn light" data-close-modal>Fechar</button></div>
+    </div>
+  `);
+}
+
+function scheduleFormData(){
+  return {
+    name: ($('#scheduleName')?.value || '').trim(),
+    phone: ($('#schedulePhone')?.value || '').trim(),
+    email: ($('#scheduleEmail')?.value || '').trim(),
+    city: ($('#scheduleCity')?.value || '').trim(),
+    preference: ($('#schedulePreference')?.value || '').trim(),
+    date: ($('#scheduleDate')?.value || '').trim(),
+    hour: ($('#scheduleHour')?.value || '').trim(),
+    format: ($('#scheduleFormat')?.value || '').trim(),
+    note: ($('#scheduleNote')?.value || '').trim()
+  };
+}
+
+function syncBuyerFromSchedule(data){
+  if($('#buyerName')) $('#buyerName').value = data.name || '';
+  if($('#buyerPhone')) $('#buyerPhone').value = data.phone || '';
+  if($('#buyerEmail')) $('#buyerEmail').value = data.email || '';
+  if($('#buyerCity')) $('#buyerCity').value = data.city || '';
+  if($('#contactPreference')) $('#contactPreference').value = data.preference || 'WhatsApp';
+  if($('#buyerNote')) $('#buyerNote').value = data.note || '';
+  localStorage.setItem('fc_buyer_data', JSON.stringify({
+    name: data.name || '',
+    phone: data.phone || '',
+    email: data.email || '',
+    city: data.city || '',
+    preference: data.preference || 'WhatsApp',
+    time: data.hour || '',
+    note: data.note || ''
+  }));
+}
+
+function scheduleText(data){
+  const t = getTotals();
+  const modeLabel = t.mode === 'lot' ? 'Somente lote' : t.mode === 'home' ? 'Somente casa' : t.mode === 'future' ? 'Lote agora + casa pré-contratada' : 'Lote + casa';
+  return `Futura Casa | Agendamento de apresentação
+
+DADOS DO INTERESSADO
+Nome: ${data.name || '-'}
+WhatsApp/telefone: ${data.phone || '-'}
+E-mail: ${data.email || '-'}
+Cidade: ${data.city || '-'}
+Preferência de contato: ${data.preference || '-'}
+
+AGENDAMENTO
+Data desejada: ${dateToDisplay(data.date)}
+Horário desejado: ${data.hour || '-'}
+Formato do atendimento: ${data.format || '-'}
+Observação: ${data.note || '-'}
+
+ESCOLHA ATUAL
+Jornada: ${modeLabel}
+Lote: ${state.lot?.name || '-'}
+Casa: ${state.home?.name || '-'}
+Adicionais: ${state.addons.map(a=>a.name).join(', ') || '-'}
+Valor total estimado: ${fmt(t.total)}
+Entrada total: ${fmt(t.entryValue)}
+Parcela estimada: ${fmt(t.payment)}
+
+Solicito agendamento de apresentação comercial.`;
+}
+
+function submitSchedule(){
+  const data = scheduleFormData();
+  if(!data.name){ toast('Informe o nome do interessado.'); $('#scheduleName')?.focus(); return; }
+  if(!data.phone){ toast('Informe o WhatsApp ou telefone.'); $('#schedulePhone')?.focus(); return; }
+  if(!data.date){ toast('Informe a data desejada.'); $('#scheduleDate')?.focus(); return; }
+  if(!data.hour){ toast('Informe o horário desejado.'); $('#scheduleHour')?.focus(); return; }
+  syncBuyerFromSchedule(data);
+  const text = scheduleText(data);
+  localStorage.setItem('fc_schedule_request', text);
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+  closeModal();
+  toast('Agendamento preparado para envio.');
+}
+
+function validateBuyerData(){
+  const b = buyerData();
+  if(!b.name){
+    toast('Informe o nome do comprador.');
+    $('#buyerName')?.focus();
+    document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'});
+    return false;
+  }
+  if(!b.phone){
+    toast('Informe o WhatsApp ou telefone.');
+    $('#buyerPhone')?.focus();
+    document.querySelector('#bandeja').scrollIntoView({behavior:'smooth'});
+    return false;
+  }
+  return true;
+}
+
+function proposalText(){
+  const t = getTotals();
+  const b = buyerData();
+  const modeLabel = t.mode === 'lot' ? 'Somente lote' : t.mode === 'home' ? 'Somente casa' : t.mode === 'future' ? 'Lote agora + casa pré-contratada' : 'Lote + casa';
+  return `Futura Casa | Proposta para negociação
+
+DADOS DO INTERESSADO
+Nome: ${b.name || '-'}
+WhatsApp/telefone: ${b.phone || '-'}
+E-mail: ${b.email || '-'}
+Cidade: ${b.city || '-'}
+Preferência de contato: ${b.preference || '-'}
+Melhor horário: ${b.time || '-'}
+Observação: ${b.note || '-'}
+
+ESCOLHA DO CLIENTE
+Jornada: ${modeLabel}
+Lote: ${state.lot?.name || '-'}
+Casa: ${state.home?.name || '-'}
+Adicionais: ${state.addons.map(a=>a.name).join(', ') || '-'}
+
+SIMULAÇÃO
+Valor total estimado: ${fmt(t.total)}
+Entrada total: ${fmt(t.entryValue)}
+Parcelamento da entrada: ${t.installments}X no cartão de ${fmt(t.entryInstallment)}
+Valor financiado: ${fmt(t.financed)}
+Prazo: ${t.term} meses
+Sistema: ${t.system}
+Parcela estimada: ${fmt(t.payment)}
+Entrada em %: ${t.entryPercent.toFixed(1)}%
+
+Solicito contato de um consultor para iniciar a negociação.`;
+}
+
+function sendToConsultant(){
+  if(!validateBuyerData()) return;
+  const text = proposalText();
+  localStorage.setItem('fc_consultant_proposal', text);
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+  toast('Proposta com dados do comprador preparada para o consultor.');
+}
+
+let currentLotFilter='all', currentHomeFilter='all';
+$$('[data-filter-lot]').forEach(btn => btn.onclick=()=>{
+  currentLotFilter=btn.dataset.filterLot;
+  $$('[data-filter-lot]').forEach(b=>b.classList.toggle('active',b===btn));
+  const availableLots = filteredComboLots();
+  if(availableLots.length){
+    Object.keys(comboSelections).forEach(key=>{
+      if(!availableLots.some(item=>item.id===comboSelections[key].lotId)){
+        comboSelections[key] = { ...(comboSelections[key] || {}), lotId: availableLots[0].id };
+      }
+    });
+  }
+  renderLots(currentLotFilter);
+  renderCombos();
+});
+$$('[data-filter-home]').forEach(btn => btn.onclick=()=>{currentHomeFilter=btn.dataset.filterHome;$$('[data-filter-home]').forEach(b=>b.classList.toggle('active',b===btn));renderHomes(currentHomeFilter);});
+
+$$('[data-journey]').forEach(card=>{
+  card.addEventListener('click',()=>activateJourney(card.dataset.journey));
+});
+
+['buyMode','entryPercent','entryInstallments','term','system','lotPriceInput','homePriceInput'].forEach(id=>{
+  const el=$('#'+id);
+  if(el){
+    el.addEventListener('input',()=>renderTray(id));
+    el.addEventListener('change',()=>renderTray(id));
+  }
+});
+$('#entryValue').addEventListener('input',()=>renderTray('entryValue')); $('#entryValue').addEventListener('change',()=>renderTray('entryValue'));
+$('#saveChoice').onclick=()=>{localStorage.setItem('fc_menu_choice_v5', proposalText()); localStorage.setItem('fc_buyer_data', JSON.stringify(buyerData())); toast('Proposta salva.');};
+$('#copyChoice').onclick=()=>{navigator.clipboard?.writeText(proposalText()); toast('Resumo copiado.');};
+$('#sendConsultant').onclick=sendToConsultant;
+$('#sendConsultantBottom').onclick=sendToConsultant;
+$('#openScheduleModal').onclick=openScheduleModal;
+
+function aiAnswer(q){
+  const t=q.toLowerCase(); const totals=getTotals();
+  if(t.includes('entrada')) return 'Você pode editar a entrada em valor ou percentual. A entrada pode ser paga no cartão de crédito em 1, 2 ou 3 parcelas, e a simulação mostra o valor de cada parcela.';
+  if(t.includes('lote')) return 'Para simular apenas o lote, clique em “Simular valor” no card ou selecione “Somente lote” na bandeja.';
+  if(t.includes('casa')) return 'Para simular apenas a casa, clique em “Simular valor” no card ou selecione “Somente casa” na bandeja.';
+  if(t.includes('consultor')) return 'Após montar a bandeja, use o botão “Enviar ao consultor”. Ele prepara a proposta com lote, casa, adicionais e condições simuladas.';
+  return totals.entryPercent>=30?'Sua bandeja parece bem estruturada para iniciar a negociação.':'Teste aumentar a entrada, ampliar o prazo ou usar lote agora + casa pré-contratada.';
+}
+
+$('#aiSend').onclick=()=>{const input=$('#aiInput');const q=input.value.trim();if(!q)return;$('#thread').insertAdjacentHTML('beforeend',`<div class="msg user">${q}</div><div class="msg bot">${aiAnswer(q)}</div>`);input.value='';$('#thread').scrollTop=$('#thread').scrollHeight;};
+$('#hamb').onclick=()=>$('#mobile').classList.toggle('open');
+$$('#mobile a').forEach(a=>a.onclick=()=>$('#mobile').classList.remove('open'));
+$('#detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal')closeModal();});
+
+syncPriceInputs();
+
+const savedBuyer = JSON.parse(localStorage.getItem('fc_buyer_data') || 'null');
+if(savedBuyer){
+  if($('#buyerName')) $('#buyerName').value = savedBuyer.name || '';
+  if($('#buyerPhone')) $('#buyerPhone').value = savedBuyer.phone || '';
+  if($('#buyerEmail')) $('#buyerEmail').value = savedBuyer.email || '';
+  if($('#buyerCity')) $('#buyerCity').value = savedBuyer.city || '';
+  if($('#contactPreference')) $('#contactPreference').value = savedBuyer.preference || 'WhatsApp';
+  if($('#contactTime')) { const timeOptions = Array.from($('#contactTime').options).map(o=>o.value); $('#contactTime').value = timeOptions.includes(savedBuyer.time) ? savedBuyer.time : 'Manhã'; }
+  if($('#buyerNote')) $('#buyerNote').value = savedBuyer.note || '';
+}
+
+renderAll();
+</script>
 </body>
 </html>

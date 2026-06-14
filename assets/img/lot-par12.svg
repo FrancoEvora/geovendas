@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="Parque das Árvores Lote 12">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cde8f5"/>
+      <stop offset="100%" stop-color="#f5efe6"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7ea86c"/>
+      <stop offset="100%" stop-color="#d7d39f"/>
+    </linearGradient>
+    <linearGradient id="lane" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d5d0c8"/>
+      <stop offset="100%" stop-color="#c3beb6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#sky)"/>
+  <rect y="350" width="1200" height="370" fill="url(#ground)"/>
+  <rect y="500" width="1200" height="90" fill="url(#lane)"/>
+  <rect y="539" width="1200" height="10" fill="#f7f3ec" opacity="0.9"/>
+  <rect x="135" y="150" width="930" height="320" rx="18" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.55)" stroke-width="3"/>
+  <rect x="245" y="165" width="710" height="290" rx="12" fill="rgba(255,255,255,.10)" stroke="white" stroke-width="5" stroke-dasharray="14 12"/>
+  <line x1="255" y1="310" x2="945" y2="310" stroke="rgba(255,255,255,.70)" stroke-width="2" stroke-dasharray="10 8"/>
+  <line x1="475" y1="175" x2="475" y2="445" stroke="rgba(255,255,255,.60)" stroke-width="2" stroke-dasharray="10 8"/>
+  <line x1="725" y1="175" x2="725" y2="445" stroke="rgba(255,255,255,.60)" stroke-width="2" stroke-dasharray="10 8"/>
+  <circle cx="160" cy="560" r="34" fill="#ffffff" opacity="0.55"/>
+  <circle cx="1030" cy="140" r="76" fill="#fff" opacity="0.18"/>
+  <g transform="translate(95,88)">
+    <rect width="300" height="106" rx="22" fill="rgba(10,17,22,.74)"/>
+    <text x="26" y="42" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700">Parque das Árvores</text>
+    <text x="26" y="78" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800">Lote 12</text>
+  </g>
+  <g transform="translate(95,592)">
+    <rect width="460" height="68" rx="18" fill="rgba(10,17,22,.82)"/>
+    <text x="26" y="44" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">300 m² • 10 x 30 m</text>
+  </g>
+  <g transform="translate(860,596)">
+    <rect width="240" height="62" rx="18" fill="rgba(255,255,255,.85)"/>
+    <text x="120" y="39" text-anchor="middle" fill="#557a49" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800">Base para projeto</text>
+  </g>
+</svg>
