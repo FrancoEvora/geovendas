@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-14T18:05:21.070Z",
+  "updatedAt": "2026-06-14T18:09:15.537Z",
   "points": [
+    {
+      "id": "point_2wgo1dv9mqe3m9d0",
+      "name": "Entrada principal",
+      "description": "Portão branco",
+      "lat": -18.945467635928754,
+      "lng": -48.27327939862924,
+      "accuracy": 7,
+      "createdAt": 1781460554724,
+      "updatedAt": 1781460554724,
+      "houseSimulation": null,
+      "media": []
+    },
     {
       "id": "point_xk15z48zmqe3h8qi",
       "name": "Lazer",
