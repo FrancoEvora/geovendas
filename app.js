@@ -17,6 +17,7 @@ const els = {
   activationStartBtn: document.getElementById('activationStartBtn'),
   showLocationsBtn: document.getElementById('showLocationsBtn'),
   syncDbBtn: document.getElementById('syncDbBtn'),
+  pushDbBtn: document.getElementById('forcePushDbBtn'),
   dbStatusBtn: document.getElementById('dbStatusBtn'),
   exportBtn: document.getElementById('exportBtn'),
   importInput: document.getElementById('importInput'),
@@ -180,7 +181,7 @@ function buildGoogleMapsRouteUrl(point) {
 }
 function buildAppPointUrl(point) {
   const url = new URL(window.location.href);
-  url.searchParams.set('v', '3.8');
+  url.searchParams.set('v', '3.9');
   url.searchParams.set('point', point.id);
   return url.toString();
 }
@@ -306,6 +307,35 @@ async function saveRemotePoints(options = {}) {
     state.remoteDb.loading = false;
   }
 }
+async function pushLocalPointsToGitHub(options = {}) {
+  try {
+    const localCount = state.points.length;
+    const payload = {
+      action: 'merge',
+      points: state.points.map(serializePointForRemote)
+    };
+    const response = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const message = data.error || data.message || 'Falha ao gravar no GitHub.';
+      alert(`Falha ao enviar para o GitHub:\n\n${message}\n\nLocal no aparelho: ${localCount} ponto(s).`);
+      return false;
+    }
+
+    state.remoteDb.enabled = true;
+    state.remoteDb.lastSyncAt = Date.now();
+    alert(`Banco GitHub atualizado com sucesso.\n\nPontos no aparelho: ${localCount}\nPontos no banco: ${data.count ?? 'não informado'}\nArquivo atualizado: ${data.updatedAt || 'sim'}`);
+    return true;
+  } catch (error) {
+    alert('Falha ao enviar para o GitHub: ' + (error.message || 'erro desconhecido'));
+    return false;
+  }
+}
 async function syncRemoteDatabase(options = {}) {
   const before = state.points.length;
   const loaded = await loadRemotePoints({ silent: false });
@@ -338,6 +368,7 @@ async function showRemoteDatabaseStatus() {
       `Repositório: ${data.repo || 'não informado'}`,
       `Branch: ${data.branch || 'não informada'}`,
       `Arquivo: ${data.path || 'não informado'}`,
+      `Pontos neste aparelho: ${state.points.length}`,
       `Pontos no banco: ${Array.isArray(data.points) ? data.points.length : 0}`,
       `Atualizado em: ${data.updatedAt || 'sem registro'}`
     ];
@@ -477,7 +508,7 @@ async function init() {
   await loadRemotePoints({ silent: true });
   await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.8').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.9').catch(() => {});
   }
 }
 
@@ -496,6 +527,10 @@ function bindEvents() {
   els.syncDbBtn?.addEventListener('click', async () => {
     hide(els.menuDrawer);
     await syncRemoteDatabase({ manual: true });
+  });
+  els.pushDbBtn?.addEventListener('click', async () => {
+    hide(els.menuDrawer);
+    await pushLocalPointsToGitHub({ manual: true });
   });
   els.dbStatusBtn?.addEventListener('click', async () => {
     hide(els.menuDrawer);
@@ -750,8 +785,8 @@ async function savePoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  const synced = await saveRemotePoints({ silent: false });
-  toast(synced ? 'Local cadastrado e sincronizado com sucesso.' : 'Local cadastrado apenas neste aparelho. Verifique o banco GitHub.');
+  const synced = await pushLocalPointsToGitHub();
+  toast(synced ? 'Local cadastrado e enviado ao GitHub com sucesso.' : 'Local cadastrado apenas neste aparelho. Use Enviar locais ao GitHub para ver o erro.');
   hide(els.panel);
 }
 function renderPointList() {
@@ -937,7 +972,7 @@ function handleFloatingPointClick(event) {
   if (point) openDetails(point);
 }
 function pinSvg() {
-  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.89 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-3.89-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.99 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.9 18.5 9c0-3.99-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
 }
 async function openDetails(point) {
   hide(els.panel);
@@ -1154,7 +1189,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v38_${Date.now()}.json`;
+  a.download = `geovendas_casa_v39_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');

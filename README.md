@@ -1,21 +1,25 @@
-# GeoVendas_Casa v3.8
+# GeoVendas_Casa v3.9
 
-Versão focada em diagnóstico e correção da sincronização com GitHub.
+Versão focada em corrigir a situação em que os pontos aparecem apenas no celular onde foram cadastrados.
 
-## Correção principal
+## O que mudou
 
-A v3.8 melhora a sincronização dos pontos entre aparelhos.
-
-## Novidades
-
-- adiciona botão **Status do banco** no menu;
-- mostra repositório, branch, arquivo e quantidade de pontos no GitHub;
-- adiciona mensagens mais claras quando a sincronização falha;
-- remove o bloqueio permanente do banco quando uma leitura falha;
-- o botão **Sincronizar banco** agora carrega e salva explicitamente;
-- o app envia `replace=true` quando precisa substituir o banco remoto, como em exclusões;
-- mantém compartilhamento do local com link Google Maps e link do app;
+- adiciona o botão **Enviar locais deste aparelho**;
+- esse botão força o envio dos pontos locais para o GitHub e mostra uma mensagem detalhada de sucesso ou erro;
+- o botão **Status do banco** agora mostra também quantos pontos existem neste aparelho e quantos existem no banco;
+- ao cadastrar um ponto, o app tenta enviar imediatamente ao GitHub e avisa se ficou apenas local;
+- mantém o botão **Sincronizar banco** para carregar dados do GitHub em outro aparelho;
+- mantém compartilhamento do local com Google Maps e link do app;
 - mantém `?point=<id>` para abrir ponto compartilhado.
+
+## Como testar
+
+1. Cadastre um ponto.
+2. Abra o menu.
+3. Toque em **Enviar locais deste aparelho**.
+4. Depois toque em **Status do banco**.
+5. O campo **Pontos no banco** deve aumentar.
+6. Em outro aparelho, abra o app e toque em **Sincronizar banco**.
 
 ## Variáveis necessárias no Vercel
 
@@ -28,7 +32,7 @@ OPENAI_API_KEY
 OPENAI_IMAGE_MODEL
 ```
 
-Exemplo do banco:
+Exemplo:
 
 ```txt
 GITHUB_REPO=FrancoEvora/geovendas
@@ -41,20 +45,11 @@ GITHUB_DB_PATH=data/geovendas-db.json
 Suba a pasta:
 
 ```txt
-geovendas-casa-v3-8
+geovendas-casa-v3-9
 ```
 
 Depois abra:
 
 ```txt
-?v=3.8
+?v=3.9
 ```
-
-## Teste
-
-1. Abra o menu.
-2. Toque em **Status do banco**.
-3. Confirme se mostra o repositório e a quantidade de pontos.
-4. Cadastre um ponto.
-5. Toque em **Sincronizar banco**.
-6. Abra outro aparelho e toque em **Sincronizar banco**.
