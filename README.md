@@ -1,20 +1,27 @@
-# GeoVendas_Casa v3.10
+# GeoVendas_Casa v3.11
 
-Versão de desenvolvimento com pontos e mídias armazenados no GitHub.
+Versão focada em corrigir a sensação de “um banco por sessão/usuário”.
 
-## O que entrou
+## O que mudou
 
-- fotos, vídeos e imagens geradas passam a ser enviados para o arquivo JSON do GitHub em Base64;
-- outros aparelhos conseguem carregar a galeria junto com os pontos;
-- o botão **Enviar locais e mídias** força o envio dos dados locais para o GitHub;
-- o status do banco mostra também a quantidade de mídias no banco;
-- continua usando o GitHub como banco de desenvolvimento.
+- O GitHub passa a ser tratado como **banco oficial**.
+- Ao abrir o app, ele tenta carregar o banco oficial do GitHub.
+- Ao tocar em **Sincronizar banco**, o app carrega o banco oficial, em vez de regravar a cópia local por cima.
+- O botão **Enviar locais e mídias** continua existindo para enviar dados que ficaram apenas neste aparelho.
+- Depois de enviar dados ao GitHub, o app atualiza a tela com o retorno oficial do banco.
+- Se o banco oficial estiver vazio e o aparelho tiver pontos locais, o app não apaga automaticamente esses pontos; ele orienta a enviar os dados locais.
+- Mídias em Base64 no JSON continuam disponíveis para desenvolvimento e teste.
 
-## Atenção
+## Como testar
 
-Esta solução é adequada para teste e desenvolvimento. Como as mídias ficam em Base64 dentro do JSON, o arquivo pode crescer rapidamente.
+1. Cadastre um ponto no aparelho A.
+2. Toque em **Enviar locais e mídias**.
+3. Verifique se o GitHub mostra o ponto no arquivo JSON.
+4. Abra o app no aparelho B.
+5. Toque em **Sincronizar banco**.
+6. O ponto deve aparecer no aparelho B.
 
-## Variáveis necessárias
+## Variáveis Vercel
 
 ```txt
 GITHUB_TOKEN
@@ -27,8 +34,14 @@ OPENAI_IMAGE_MODEL=gpt-image-1
 
 ## Publicação
 
-Suba a pasta `geovendas-casa-v3-10` e abra com:
+Suba a pasta:
 
 ```txt
-?v=3.10
+geovendas-casa-v3-11
+```
+
+Depois abra:
+
+```txt
+?v=3.11
 ```

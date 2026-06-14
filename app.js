@@ -181,7 +181,7 @@ function buildGoogleMapsRouteUrl(point) {
 }
 function buildAppPointUrl(point) {
   const url = new URL(window.location.href);
-  url.searchParams.set('v', '3.10');
+  url.searchParams.set('v', '3.11');
   url.searchParams.set('point', point.id);
   return url.toString();
 }
@@ -225,34 +225,34 @@ async function serializePointForRemote(point) {
     media
   };
 }
-function mergeRemotePoints(remotePoints = []) {
-  if (!Array.isArray(remotePoints) || !remotePoints.length) return false;
-  const localById = new Map(state.points.map((point) => [point.id, point]));
-  let changed = false;
-
-  for (const remotePoint of remotePoints) {
-    if (!remotePoint?.id) continue;
-    const localPoint = localById.get(remotePoint.id);
-    if (!localPoint) {
-      state.points.push({ ...remotePoint, media: remotePoint.media || [] });
-      changed = true;
-      continue;
-    }
-
-    const localTime = Number(localPoint.updatedAt || localPoint.createdAt || 0);
-    const remoteTime = Number(remotePoint.updatedAt || remotePoint.createdAt || 0);
-    if (remoteTime > localTime) {
-      const localMedia = Array.isArray(localPoint.media) && localPoint.media.length ? localPoint.media : (remotePoint.media || []);
-      Object.assign(localPoint, remotePoint, { media: localMedia });
-      changed = true;
-    }
-  }
-
-  if (changed) {
-    state.points.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
-    savePoints();
-  }
+function normalizeRemotePoint(point) {
+  return {
+    ...point,
+    media: Array.isArray(point.media) ? point.media : [],
+    houseSimulation: point.houseSimulation || null
+  };
+}
+function samePointsSnapshot(a = [], b = []) {
+  return JSON.stringify(a.map((p) => ({ id: p.id, updatedAt: p.updatedAt, mediaCount: Array.isArray(p.media) ? p.media.length : 0 }))) ===
+    JSON.stringify(b.map((p) => ({ id: p.id, updatedAt: p.updatedAt, mediaCount: Array.isArray(p.media) ? p.media.length : 0 })));
+}
+function setLocalPointsFromRemote(remotePoints = []) {
+  const normalized = Array.isArray(remotePoints)
+    ? remotePoints.filter((point) => point && point.id).map(normalizeRemotePoint)
+    : [];
+  normalized.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+  const changed = !samePointsSnapshot(state.points, normalized) || state.points.length !== normalized.length;
+  state.points = normalized;
+  savePoints();
+  renderPointList();
+  updateStatus();
+  updateNearestPoint();
+  renderFloatingPoints();
   return changed;
+}
+function mergeRemotePoints(remotePoints = []) {
+  // Mantido para compatibilidade, mas a v3.11 usa o GitHub como fonte oficial.
+  return setLocalPointsFromRemote(remotePoints);
 }
 async function loadRemotePoints(options = {}) {
   try {
@@ -271,15 +271,16 @@ async function loadRemotePoints(options = {}) {
     }
 
     state.remoteDb.enabled = true;
-    const changed = mergeRemotePoints(data.points || []);
-    state.remoteDb.lastSyncAt = Date.now();
-    if (changed) {
-      renderPointList();
-      updateStatus();
-      updateNearestPoint();
-      renderFloatingPoints();
+    const remotePoints = data.points || [];
+    let changed = false;
+    if (remotePoints.length || !state.points.length || options.forceReplace) {
+      changed = setLocalPointsFromRemote(remotePoints);
+    } else if (!options.silent) {
+      toast('Banco oficial está vazio. Os pontos deste aparelho ainda não foram enviados.');
     }
-    return { ok: true, configured: true, changed, count: (data.points || []).length, updatedAt: data.updatedAt || null };
+    state.remoteDb.lastSyncAt = Date.now();
+
+    return { ok: true, configured: true, changed, count: remotePoints.length, updatedAt: data.updatedAt || null };
   } catch (error) {
     console.warn('GitHub DB leitura indisponível', error);
     if (!options.silent) toast('Banco GitHub indisponível: ' + (error.message || 'erro desconhecido'));
@@ -291,11 +292,6 @@ async function loadRemotePoints(options = {}) {
 async function saveRemotePoints(options = {}) {
   try {
     state.remoteDb.loading = true;
-    // Para cadastro/atualização, puxa o banco remoto antes de salvar,
-    // evitando que um aparelho apague pontos criados em outro.
-    if (!options.replace) {
-      await loadRemotePoints({ silent: true });
-    }
 
     const serializedPoints = await Promise.all(state.points.map(serializePointForRemote));
     const payload = {
@@ -322,7 +318,12 @@ async function saveRemotePoints(options = {}) {
 
     state.remoteDb.enabled = true;
     state.remoteDb.lastSyncAt = Date.now();
-    if (!options.silent) toast(`Banco GitHub sincronizado com ${payload.points.length} ponto(s).`);
+    if (Array.isArray(data.points)) {
+      setLocalPointsFromRemote(data.points);
+    } else {
+      await loadRemotePoints({ silent: true });
+    }
+    if (!options.silent) toast(`Banco GitHub sincronizado com ${data.count ?? state.points.length} ponto(s).`);
     return true;
   } catch (error) {
     console.warn('GitHub DB gravação indisponível', error);
@@ -355,7 +356,12 @@ async function pushLocalPointsToGitHub(options = {}) {
 
     state.remoteDb.enabled = true;
     state.remoteDb.lastSyncAt = Date.now();
-    alert(`Banco GitHub atualizado com sucesso.\n\nPontos no aparelho: ${localCount}\nPontos no banco: ${data.count ?? 'não informado'}\nArquivo atualizado: ${data.updatedAt || 'sim'}`);
+    if (Array.isArray(data.points)) {
+      setLocalPointsFromRemote(data.points);
+    } else {
+      await loadRemotePoints({ silent: true });
+    }
+    alert(`Banco GitHub atualizado com sucesso.\n\nPontos enviados deste aparelho: ${localCount}\nPontos no banco oficial: ${data.count ?? state.points.length}\nArquivo atualizado: ${data.updatedAt || 'sim'}`);
     return true;
   } catch (error) {
     alert('Falha ao enviar para o GitHub: ' + (error.message || 'erro desconhecido'));
@@ -363,18 +369,10 @@ async function pushLocalPointsToGitHub(options = {}) {
   }
 }
 async function syncRemoteDatabase(options = {}) {
-  const before = state.points.length;
   const loaded = await loadRemotePoints({ silent: false });
-  const saved = await saveRemotePoints({ silent: true });
-  renderPointList();
-  updateStatus();
-  updateNearestPoint();
-  renderFloatingPoints();
-  if (saved) {
-    toast(`Banco sincronizado. ${state.points.length} ponto(s) no app.`);
-  } else if (loaded.ok && state.points.length !== before) {
-    toast(`Dados carregados do banco. ${state.points.length} ponto(s) no app.`);
-  } else if (!loaded.ok) {
+  if (loaded.ok) {
+    toast(`Banco oficial carregado. ${state.points.length} ponto(s) no app.`);
+  } else {
     toast(`Banco não sincronizado: ${loaded.error || 'verifique as variáveis no Vercel.'}`);
   }
 }
@@ -535,7 +533,7 @@ async function init() {
   await loadRemotePoints({ silent: true });
   await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.10').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.11').catch(() => {});
   }
 }
 
@@ -1217,7 +1215,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v310_${Date.now()}.json`;
+  a.download = `geovendas_casa_v311_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');
