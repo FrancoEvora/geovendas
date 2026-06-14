@@ -16,6 +16,7 @@ const els = {
   activationCard: document.getElementById('activationCard'),
   activationStartBtn: document.getElementById('activationStartBtn'),
   showLocationsBtn: document.getElementById('showLocationsBtn'),
+  syncDbBtn: document.getElementById('syncDbBtn'),
   exportBtn: document.getElementById('exportBtn'),
   importInput: document.getElementById('importInput'),
   clearBtn: document.getElementById('clearBtn'),
@@ -178,7 +179,7 @@ function buildGoogleMapsRouteUrl(point) {
 }
 function buildAppPointUrl(point) {
   const url = new URL(window.location.href);
-  url.searchParams.set('v', '3.6');
+  url.searchParams.set('v', '3.7');
   url.searchParams.set('point', point.id);
   return url.toString();
 }
@@ -258,6 +259,12 @@ async function loadRemotePoints(options = {}) {
 async function saveRemotePoints(options = {}) {
   if (!state.remoteDb.enabled) return false;
   try {
+    // Para cadastro/atualização, puxa o banco remoto antes de salvar,
+    // evitando que um aparelho apague pontos criados em outro.
+    if (!options.replace) {
+      await loadRemotePoints({ silent: true });
+    }
+
     const payload = {
       points: state.points.map(serializePointForRemote)
     };
@@ -268,6 +275,7 @@ async function saveRemotePoints(options = {}) {
     });
     if (response.status === 501) {
       state.remoteDb.enabled = false;
+      if (!options.silent) toast('Banco GitHub não configurado no Vercel.');
       return false;
     }
     if (!response.ok) {
@@ -279,8 +287,22 @@ async function saveRemotePoints(options = {}) {
     return true;
   } catch (error) {
     console.warn('GitHub DB gravação indisponível', error);
-    if (!options.silent) toast('Salvo localmente. Banco GitHub indisponível.');
+    if (!options.silent) toast('Salvo apenas neste aparelho. Banco GitHub indisponível.');
     return false;
+  }
+}
+async function syncRemoteDatabase() {
+  const before = state.points.length;
+  await loadRemotePoints({ silent: false });
+  const saved = await saveRemotePoints({ silent: true });
+  renderPointList();
+  updateStatus();
+  updateNearestPoint();
+  renderFloatingPoints();
+  if (saved) {
+    toast(`Banco sincronizado. ${state.points.length} ponto(s) no app.`);
+  } else if (state.points.length !== before) {
+    toast(`Dados carregados do banco. ${state.points.length} ponto(s) no app.`);
   }
 }
 async function openSharedPointFromUrl() {
@@ -414,7 +436,7 @@ async function init() {
   await loadRemotePoints({ silent: true });
   await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.6').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.7').catch(() => {});
   }
 }
 
@@ -429,6 +451,10 @@ function bindEvents() {
     hide(els.menuDrawer);
     show(els.panel);
     document.querySelector('.list-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  els.syncDbBtn?.addEventListener('click', async () => {
+    hide(els.menuDrawer);
+    await syncRemoteDatabase();
   });
   els.refreshGpsBtn.addEventListener('click', refreshCurrentPosition);
   els.mediaInput.addEventListener('change', handleDraftMedia);
@@ -679,8 +705,8 @@ async function savePoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ silent: true });
-  toast('Local cadastrado com sucesso.');
+  const synced = await saveRemotePoints({ silent: false });
+  toast(synced ? 'Local cadastrado e sincronizado com sucesso.' : 'Local cadastrado apenas neste aparelho. Verifique o banco GitHub.');
   hide(els.panel);
 }
 function renderPointList() {
@@ -726,7 +752,7 @@ async function deletePoint(pointId) {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ silent: true });
+  await saveRemotePoints({ replace: true, silent: false });
   toast('Cadastro excluído.');
 }
 async function deleteMediaFromPoint(pointId, mediaId) {
@@ -742,7 +768,7 @@ async function deleteMediaFromPoint(pointId, mediaId) {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ silent: true });
+  await saveRemotePoints({ replace: true, silent: true });
   toast('Mídia excluída da galeria.');
 }
 function confirm(title, message, onAccept) {
@@ -761,7 +787,7 @@ async function clearAllPoints() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ silent: true });
+  await saveRemotePoints({ replace: true, silent: false });
   toast('Todos os cadastros foram removidos.');
 }
 function updateNearestPoint() {
@@ -866,7 +892,7 @@ function handleFloatingPointClick(event) {
   if (point) openDetails(point);
 }
 function pinSvg() {
-  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.69 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-3.69-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.79 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-3.79-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
 }
 async function openDetails(point) {
   hide(els.panel);
@@ -1083,7 +1109,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v36_${Date.now()}.json`;
+  a.download = `geovendas_casa_v37_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');
@@ -1112,7 +1138,7 @@ async function importJson(event) {
     updateStatus();
     updateNearestPoint();
     renderFloatingPoints();
-    await saveRemotePoints({ silent: true });
+    await saveRemotePoints({ replace: true, silent: false });
     toast('Importação concluída.');
   } catch (error) {
     console.error(error);

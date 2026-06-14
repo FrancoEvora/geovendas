@@ -1,34 +1,41 @@
-# GeoVendas_Casa v3.6
+# GeoVendas_Casa v3.7
 
 Versão com geração real de imagem por API e banco de dados real hospedado no GitHub.
 
-## Novidades da v3.6
+## Correção principal da v3.7
 
-- O botão **Compartilhar local** agora envia:
-  - link de rota no Google Maps;
-  - link do próprio GeoVendas para abrir o ponto no aplicativo.
-- O aplicativo reconhece links com `?point=<id>` e abre o ponto compartilhado.
-- Foi criado um banco de dados real via GitHub, usando uma função serverless:
-  - `api/db.js`
-- Pontos cadastrados são sincronizados em um arquivo JSON no GitHub.
-- Ao salvar/cadastrar/excluir, o app tenta sincronizar o banco remoto.
-- Mídias continuam no aparelho nesta etapa; o GitHub salva os dados dos pontos.
+A v3.7 corrige o problema dos pontos aparecerem apenas no aparelho onde foram cadastrados.
+
+O que mudou:
+
+- adiciona o botão **Sincronizar banco** no menu;
+- ao cadastrar um ponto, o app tenta sincronizar imediatamente com o GitHub;
+- se a sincronização falhar, a mensagem deixa claro que o ponto ficou salvo apenas no aparelho;
+- antes de salvar novos pontos no GitHub, o app carrega o banco remoto para evitar sobrescrever pontos criados em outro aparelho;
+- ao abrir o app, ele tenta carregar automaticamente os pontos do GitHub;
+- links compartilhados com `?point=<id>` tentam buscar o ponto no banco remoto.
+
+## Banco GitHub
+
+A função serverless é:
+
+```txt
+api/db.js
+```
+
+Ela grava os pontos em:
+
+```txt
+GITHUB_DB_PATH
+```
+
+Exemplo:
+
+```txt
+data/geovendas-db.json
+```
 
 ## Variáveis necessárias no Vercel
-
-Para geração de imagem:
-
-```txt
-OPENAI_API_KEY
-```
-
-Opcional:
-
-```txt
-OPENAI_IMAGE_MODEL=gpt-image-1
-```
-
-Para o banco de dados GitHub:
 
 ```txt
 GITHUB_TOKEN
@@ -40,43 +47,38 @@ GITHUB_DB_PATH
 Exemplo:
 
 ```txt
-GITHUB_REPO=seu-usuario/geovendas-db
-GITHUB_BRANCH=main
+GITHUB_REPO=FrancoEvora/geovendas
+GITHUB_BRANCH=principal
 GITHUB_DB_PATH=data/geovendas-db.json
 ```
 
-`GITHUB_TOKEN` deve ter permissão de leitura e escrita em Contents no repositório escolhido.
+O `GITHUB_TOKEN` precisa ter permissão **Contents: Read and write**.
 
-## Como funciona o banco GitHub
+## OpenAI
 
-A função `/api/db` lê e grava um arquivo JSON no GitHub.
+Para geração de imagem:
 
-Formato básico:
-
-```json
-{
-  "version": 1,
-  "updatedAt": "2026-06-13T00:00:00.000Z",
-  "points": []
-}
+```txt
+OPENAI_API_KEY
+OPENAI_IMAGE_MODEL=gpt-image-1
 ```
 
-Se o arquivo ainda não existir, a API cria automaticamente no primeiro salvamento.
+## Mídias
+
+Nesta etapa, o GitHub salva os dados dos pontos. Fotos, vídeos e imagens geradas continuam armazenados no aparelho.
 
 ## Publicação
 
 Suba a pasta:
 
 ```txt
-geovendas-casa-v3-6
+geovendas-casa-v3-7
 ```
 
 Depois abra:
 
 ```txt
-?v=3.6
+?v=3.7
 ```
 
-## Observação
-
-O GitHub funciona bem como banco inicial para protótipo e uso controlado. Em uma fase futura, o ideal será migrar para Supabase, Firebase, Neon ou outro banco com autenticação e storage de mídias.
+Se ainda aparecer outra versão no cabeçalho, limpe cache ou abra em aba privada.
