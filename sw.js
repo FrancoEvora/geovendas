@@ -1,10 +1,10 @@
-const CACHE = 'geovendas_casa_v37';
+const CACHE = 'geovendas_casa_v38';
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll([
     './',
     './index.html',
-    './styles.css?v=3.7',
-    './app.js?v=3.7',
+    './styles.css?v=3.8',
+    './app.js?v=3.8',
     './manifest.webmanifest',
     './icon-192.png',
     './icon-512.png',

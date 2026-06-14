@@ -17,6 +17,7 @@ const els = {
   activationStartBtn: document.getElementById('activationStartBtn'),
   showLocationsBtn: document.getElementById('showLocationsBtn'),
   syncDbBtn: document.getElementById('syncDbBtn'),
+  dbStatusBtn: document.getElementById('dbStatusBtn'),
   exportBtn: document.getElementById('exportBtn'),
   importInput: document.getElementById('importInput'),
   clearBtn: document.getElementById('clearBtn'),
@@ -179,7 +180,7 @@ function buildGoogleMapsRouteUrl(point) {
 }
 function buildAppPointUrl(point) {
   const url = new URL(window.location.href);
-  url.searchParams.set('v', '3.7');
+  url.searchParams.set('v', '3.8');
   url.searchParams.set('point', point.id);
   return url.toString();
 }
@@ -229,16 +230,22 @@ function mergeRemotePoints(remotePoints = []) {
   return changed;
 }
 async function loadRemotePoints(options = {}) {
-  if (!state.remoteDb.enabled) return false;
   try {
     state.remoteDb.loading = true;
-    const response = await fetch('/api/db', { method: 'GET', cache: 'no-store' });
+    const response = await fetch('/api/db?ts=' + Date.now(), { method: 'GET', cache: 'no-store' });
+    const data = await response.json().catch(() => ({}));
+
     if (response.status === 501) {
       state.remoteDb.enabled = false;
-      return false;
+      if (!options.silent) toast(data.error || 'Banco GitHub não configurado no Vercel.');
+      return { ok: false, configured: false, changed: false, count: state.points.length, error: data.error || 'Banco não configurado.' };
     }
-    if (!response.ok) throw new Error('Não foi possível carregar o banco de dados.');
-    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Não foi possível carregar o banco de dados.');
+    }
+
+    state.remoteDb.enabled = true;
     const changed = mergeRemotePoints(data.points || []);
     state.remoteDb.lastSyncAt = Date.now();
     if (changed) {
@@ -247,18 +254,18 @@ async function loadRemotePoints(options = {}) {
       updateNearestPoint();
       renderFloatingPoints();
     }
-    return changed;
+    return { ok: true, configured: true, changed, count: (data.points || []).length, updatedAt: data.updatedAt || null };
   } catch (error) {
     console.warn('GitHub DB leitura indisponível', error);
-    if (!options.silent) toast('Banco GitHub indisponível no momento.');
-    return false;
+    if (!options.silent) toast('Banco GitHub indisponível: ' + (error.message || 'erro desconhecido'));
+    return { ok: false, configured: true, changed: false, count: state.points.length, error: error.message || 'Erro desconhecido.' };
   } finally {
     state.remoteDb.loading = false;
   }
 }
 async function saveRemotePoints(options = {}) {
-  if (!state.remoteDb.enabled) return false;
   try {
+    state.remoteDb.loading = true;
     // Para cadastro/atualização, puxa o banco remoto antes de salvar,
     // evitando que um aparelho apague pontos criados em outro.
     if (!options.replace) {
@@ -266,6 +273,8 @@ async function saveRemotePoints(options = {}) {
     }
 
     const payload = {
+      action: options.replace ? 'replaceAll' : 'merge',
+      replace: !!options.replace,
       points: state.points.map(serializePointForRemote)
     };
     const response = await fetch('/api/db', {
@@ -273,27 +282,33 @@ async function saveRemotePoints(options = {}) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+    const data = await response.json().catch(() => ({}));
+
     if (response.status === 501) {
       state.remoteDb.enabled = false;
-      if (!options.silent) toast('Banco GitHub não configurado no Vercel.');
+      if (!options.silent) toast(data.error || 'Banco GitHub não configurado no Vercel.');
       return false;
     }
+
     if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
       throw new Error(data.error || 'Não foi possível salvar no banco GitHub.');
     }
+
+    state.remoteDb.enabled = true;
     state.remoteDb.lastSyncAt = Date.now();
-    if (!options.silent) toast('Banco GitHub sincronizado.');
+    if (!options.silent) toast(`Banco GitHub sincronizado com ${payload.points.length} ponto(s).`);
     return true;
   } catch (error) {
     console.warn('GitHub DB gravação indisponível', error);
-    if (!options.silent) toast('Salvo apenas neste aparelho. Banco GitHub indisponível.');
+    if (!options.silent) toast('Salvo apenas neste aparelho: ' + (error.message || 'banco indisponível'));
     return false;
+  } finally {
+    state.remoteDb.loading = false;
   }
 }
-async function syncRemoteDatabase() {
+async function syncRemoteDatabase(options = {}) {
   const before = state.points.length;
-  await loadRemotePoints({ silent: false });
+  const loaded = await loadRemotePoints({ silent: false });
   const saved = await saveRemotePoints({ silent: true });
   renderPointList();
   updateStatus();
@@ -301,8 +316,34 @@ async function syncRemoteDatabase() {
   renderFloatingPoints();
   if (saved) {
     toast(`Banco sincronizado. ${state.points.length} ponto(s) no app.`);
-  } else if (state.points.length !== before) {
+  } else if (loaded.ok && state.points.length !== before) {
     toast(`Dados carregados do banco. ${state.points.length} ponto(s) no app.`);
+  } else if (!loaded.ok) {
+    toast(`Banco não sincronizado: ${loaded.error || 'verifique as variáveis no Vercel.'}`);
+  }
+}
+async function showRemoteDatabaseStatus() {
+  try {
+    const response = await fetch('/api/db?debug=1&ts=' + Date.now(), { method: 'GET', cache: 'no-store' });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = data.error || 'Falha ao consultar banco.';
+      alert(`Status do banco GitHub:\n\nERRO: ${message}`);
+      return;
+    }
+    const lines = [
+      'Status do banco GitHub:',
+      '',
+      `Ativo: ${data.enabled ? 'sim' : 'não'}`,
+      `Repositório: ${data.repo || 'não informado'}`,
+      `Branch: ${data.branch || 'não informada'}`,
+      `Arquivo: ${data.path || 'não informado'}`,
+      `Pontos no banco: ${Array.isArray(data.points) ? data.points.length : 0}`,
+      `Atualizado em: ${data.updatedAt || 'sem registro'}`
+    ];
+    alert(lines.join('\n'));
+  } catch (error) {
+    alert('Não foi possível consultar o banco GitHub: ' + (error.message || 'erro desconhecido'));
   }
 }
 async function openSharedPointFromUrl() {
@@ -436,7 +477,7 @@ async function init() {
   await loadRemotePoints({ silent: true });
   await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.7').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.8').catch(() => {});
   }
 }
 
@@ -454,7 +495,11 @@ function bindEvents() {
   });
   els.syncDbBtn?.addEventListener('click', async () => {
     hide(els.menuDrawer);
-    await syncRemoteDatabase();
+    await syncRemoteDatabase({ manual: true });
+  });
+  els.dbStatusBtn?.addEventListener('click', async () => {
+    hide(els.menuDrawer);
+    await showRemoteDatabaseStatus();
   });
   els.refreshGpsBtn.addEventListener('click', refreshCurrentPosition);
   els.mediaInput.addEventListener('change', handleDraftMedia);
@@ -892,7 +937,7 @@ function handleFloatingPointClick(event) {
   if (point) openDetails(point);
 }
 function pinSvg() {
-  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.79 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-3.79-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.89 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-3.89-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
 }
 async function openDetails(point) {
   hide(els.panel);
@@ -1109,7 +1154,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v37_${Date.now()}.json`;
+  a.download = `geovendas_casa_v38_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');

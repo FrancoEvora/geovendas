@@ -14,6 +14,11 @@ function missingConfig(config) {
   return missing;
 }
 
+function contentsUrl(config) {
+  const filePath = encodeURIComponent(config.path).replace(/%2F/g, '/');
+  return `https://api.github.com/repos/${config.repo}/contents/${filePath}`;
+}
+
 async function githubRequest(url, options = {}) {
   const config = githubConfig();
   const response = await fetch(url, {
@@ -36,13 +41,35 @@ function decodeBase64Content(content) {
   return Buffer.from(normalized, 'base64').toString('utf8');
 }
 
+function normalizePoints(points) {
+  return Array.isArray(points) ? points.filter((point) => point && point.id) : [];
+}
+
+function mergePoints(existing = [], incoming = []) {
+  const byId = new Map();
+  for (const point of normalizePoints(existing)) byId.set(point.id, point);
+  for (const point of normalizePoints(incoming)) {
+    const current = byId.get(point.id);
+    if (!current) {
+      byId.set(point.id, point);
+      continue;
+    }
+    const currentTime = Number(current.updatedAt || current.createdAt || 0);
+    const incomingTime = Number(point.updatedAt || point.createdAt || 0);
+    if (incomingTime >= currentTime) {
+      byId.set(point.id, { ...current, ...point });
+    }
+  }
+  return Array.from(byId.values()).sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+}
+
 async function readDb() {
   const config = githubConfig();
-  const url = `https://api.github.com/repos/${config.repo}/contents/${encodeURIComponent(config.path).replace(/%2F/g, '/')}?ref=${encodeURIComponent(config.branch)}`;
+  const url = `${contentsUrl(config)}?ref=${encodeURIComponent(config.branch)}`;
   const { response, data } = await githubRequest(url);
 
   if (response.status === 404) {
-    return { points: [], sha: null, exists: false };
+    return { points: [], sha: null, exists: false, updatedAt: null };
   }
 
   if (!response.ok) {
@@ -54,7 +81,7 @@ async function readDb() {
   try { parsed = JSON.parse(jsonText); } catch { parsed = {}; }
 
   return {
-    points: Array.isArray(parsed.points) ? parsed.points : [],
+    points: normalizePoints(parsed.points),
     updatedAt: parsed.updatedAt || null,
     sha: data.sha,
     exists: true
@@ -67,7 +94,7 @@ async function writeDb(points) {
   const payload = {
     version: 1,
     updatedAt: new Date().toISOString(),
-    points: Array.isArray(points) ? points : []
+    points: normalizePoints(points)
   };
 
   const body = {
@@ -78,8 +105,7 @@ async function writeDb(points) {
 
   if (current.sha) body.sha = current.sha;
 
-  const url = `https://api.github.com/repos/${config.repo}/contents/${encodeURIComponent(config.path).replace(/%2F/g, '/')}`;
-  const { response, data } = await githubRequest(url, {
+  const { response, data } = await githubRequest(contentsUrl(config), {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
@@ -89,7 +115,7 @@ async function writeDb(points) {
     throw new Error(data?.message || 'Falha ao gravar banco no GitHub.');
   }
 
-  return { ok: true, sha: data?.content?.sha || null, updatedAt: payload.updatedAt };
+  return { ok: true, sha: data?.content?.sha || null, updatedAt: payload.updatedAt, points: payload.points };
 }
 
 module.exports = async function handler(req, res) {
@@ -106,14 +132,39 @@ module.exports = async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       const db = await readDb();
-      return res.status(200).json({ enabled: true, points: db.points, updatedAt: db.updatedAt || null });
+      return res.status(200).json({
+        enabled: true,
+        repo: config.repo,
+        branch: config.branch,
+        path: config.path,
+        points: db.points,
+        count: db.points.length,
+        updatedAt: db.updatedAt || null,
+        exists: db.exists
+      });
     }
 
     if (req.method === 'POST') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-      const points = Array.isArray(body.points) ? body.points : [];
-      const result = await writeDb(points);
-      return res.status(200).json({ enabled: true, ...result });
+      const incoming = normalizePoints(body.points);
+      const action = body.action || (body.replace ? 'replaceAll' : 'merge');
+
+      const current = await readDb();
+      let nextPoints;
+
+      if (action === 'replaceAll') {
+        nextPoints = incoming;
+      } else if (action === 'deletePoint') {
+        const pointId = String(body.pointId || '');
+        nextPoints = current.points.filter((point) => point.id !== pointId);
+      } else if (action === 'upsertPoint') {
+        nextPoints = mergePoints(current.points, body.point ? [body.point] : incoming);
+      } else {
+        nextPoints = mergePoints(current.points, incoming);
+      }
+
+      const result = await writeDb(nextPoints);
+      return res.status(200).json({ enabled: true, action, count: result.points.length, ...result });
     }
 
     res.setHeader('Allow', 'GET, POST');

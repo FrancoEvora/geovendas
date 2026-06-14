@@ -1,39 +1,21 @@
-# GeoVendas_Casa v3.7
+# GeoVendas_Casa v3.8
 
-Versão com geração real de imagem por API e banco de dados real hospedado no GitHub.
+Versão focada em diagnóstico e correção da sincronização com GitHub.
 
-## Correção principal da v3.7
+## Correção principal
 
-A v3.7 corrige o problema dos pontos aparecerem apenas no aparelho onde foram cadastrados.
+A v3.8 melhora a sincronização dos pontos entre aparelhos.
 
-O que mudou:
+## Novidades
 
-- adiciona o botão **Sincronizar banco** no menu;
-- ao cadastrar um ponto, o app tenta sincronizar imediatamente com o GitHub;
-- se a sincronização falhar, a mensagem deixa claro que o ponto ficou salvo apenas no aparelho;
-- antes de salvar novos pontos no GitHub, o app carrega o banco remoto para evitar sobrescrever pontos criados em outro aparelho;
-- ao abrir o app, ele tenta carregar automaticamente os pontos do GitHub;
-- links compartilhados com `?point=<id>` tentam buscar o ponto no banco remoto.
-
-## Banco GitHub
-
-A função serverless é:
-
-```txt
-api/db.js
-```
-
-Ela grava os pontos em:
-
-```txt
-GITHUB_DB_PATH
-```
-
-Exemplo:
-
-```txt
-data/geovendas-db.json
-```
+- adiciona botão **Status do banco** no menu;
+- mostra repositório, branch, arquivo e quantidade de pontos no GitHub;
+- adiciona mensagens mais claras quando a sincronização falha;
+- remove o bloqueio permanente do banco quando uma leitura falha;
+- o botão **Sincronizar banco** agora carrega e salva explicitamente;
+- o app envia `replace=true` quando precisa substituir o banco remoto, como em exclusões;
+- mantém compartilhamento do local com link Google Maps e link do app;
+- mantém `?point=<id>` para abrir ponto compartilhado.
 
 ## Variáveis necessárias no Vercel
 
@@ -42,9 +24,11 @@ GITHUB_TOKEN
 GITHUB_REPO
 GITHUB_BRANCH
 GITHUB_DB_PATH
+OPENAI_API_KEY
+OPENAI_IMAGE_MODEL
 ```
 
-Exemplo:
+Exemplo do banco:
 
 ```txt
 GITHUB_REPO=FrancoEvora/geovendas
@@ -52,33 +36,25 @@ GITHUB_BRANCH=principal
 GITHUB_DB_PATH=data/geovendas-db.json
 ```
 
-O `GITHUB_TOKEN` precisa ter permissão **Contents: Read and write**.
-
-## OpenAI
-
-Para geração de imagem:
-
-```txt
-OPENAI_API_KEY
-OPENAI_IMAGE_MODEL=gpt-image-1
-```
-
-## Mídias
-
-Nesta etapa, o GitHub salva os dados dos pontos. Fotos, vídeos e imagens geradas continuam armazenados no aparelho.
-
 ## Publicação
 
 Suba a pasta:
 
 ```txt
-geovendas-casa-v3-7
+geovendas-casa-v3-8
 ```
 
 Depois abra:
 
 ```txt
-?v=3.7
+?v=3.8
 ```
 
-Se ainda aparecer outra versão no cabeçalho, limpe cache ou abra em aba privada.
+## Teste
+
+1. Abra o menu.
+2. Toque em **Status do banco**.
+3. Confirme se mostra o repositório e a quantidade de pontos.
+4. Cadastre um ponto.
+5. Toque em **Sincronizar banco**.
+6. Abra outro aparelho e toque em **Sincronizar banco**.
