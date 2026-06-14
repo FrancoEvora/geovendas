@@ -5,6 +5,11 @@ const MEDIA_STORE = 'media';
 const DUPLICATE_NORMALIZER = (value) => String(value || '').trim().toLocaleLowerCase('pt-BR');
 
 const els = {
+  futuraHome: document.getElementById('futuraHome'),
+  fcOpenFieldTop: document.getElementById('fcOpenFieldTop'),
+  fcOpenField: document.getElementById('fcOpenField'),
+  fcStartSim: document.getElementById('fcStartSim'),
+  fcShowLots: document.getElementById('fcShowLots'),
   cameraVideo: document.getElementById('cameraVideo'),
   menuToggle: document.getElementById('menuToggle'),
   menuDrawer: document.getElementById('menuDrawer'),
@@ -178,7 +183,7 @@ function buildGoogleMapsRouteUrl(point) {
 }
 function buildAppPointUrl(point) {
   const url = new URL(window.location.href);
-  url.searchParams.set('v', '3.6');
+  url.searchParams.set('v', '4.0');
   url.searchParams.set('point', point.id);
   return url.toString();
 }
@@ -283,6 +288,33 @@ async function saveRemotePoints(options = {}) {
     return false;
   }
 }
+function hideFuturaHome() {
+  if (els.futuraHome) {
+    els.futuraHome.classList.add('hidden');
+    els.futuraHome.setAttribute('aria-hidden', 'true');
+  }
+}
+function showFuturaView(viewName = 'inicio') {
+  const ids = ['inicio', 'lotes', 'casas', 'simulador', 'jornada'];
+  ids.forEach((name) => {
+    const section = document.getElementById(`fcView${name.charAt(0).toUpperCase()}${name.slice(1)}`);
+    section?.classList.toggle('active', name === viewName);
+  });
+  document.querySelectorAll('[data-fc-view]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.fcView === viewName);
+  });
+}
+async function openGeoVendasCampo(options = {}) {
+  hideFuturaHome();
+  if (options.activate) {
+    await activateApp();
+  }
+}
+function openGeoVendasPanel() {
+  hideFuturaHome();
+  show(els.panel);
+  document.querySelector('.list-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 async function openSharedPointFromUrl() {
   const pointId = new URLSearchParams(window.location.search).get('point');
   if (!pointId) return;
@@ -292,6 +324,7 @@ async function openSharedPointFromUrl() {
     point = state.points.find((item) => item.id === pointId);
   }
   if (point) {
+    hideFuturaHome();
     await openDetails(point);
     toast(`Local aberto: ${point.name}`);
   } else {
@@ -414,11 +447,34 @@ async function init() {
   await loadRemotePoints({ silent: true });
   await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.6').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=4.0').catch(() => {});
   }
 }
 
 function bindEvents() {
+  document.querySelectorAll('[data-fc-view]').forEach((button) => {
+    button.addEventListener('click', () => showFuturaView(button.dataset.fcView || 'inicio'));
+  });
+  document.querySelectorAll('.fc-journey-option').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const choice = button.dataset.fcChoice;
+      if (choice === 'visita' || choice === 'lote') {
+        await openGeoVendasCampo({ activate: choice === 'visita' });
+        if (choice === 'lote') show(els.panel);
+        return;
+      }
+      if (choice === 'lote-casa') {
+        showFuturaView('simulador');
+        return;
+      }
+      showFuturaView('casas');
+    });
+  });
+  els.fcOpenField?.addEventListener('click', () => openGeoVendasCampo({ activate: true }));
+  els.fcOpenFieldTop?.addEventListener('click', () => openGeoVendasCampo({ activate: true }));
+  els.fcStartSim?.addEventListener('click', () => showFuturaView('simulador'));
+  els.fcShowLots?.addEventListener('click', openGeoVendasPanel);
+  showFuturaView('inicio');
   els.menuToggle.addEventListener('click', () => toggle(els.menuDrawer));
   els.closeMenu.addEventListener('click', () => hide(els.menuDrawer));
   els.panelToggle.addEventListener('click', () => toggle(els.panel));
@@ -866,7 +922,7 @@ function handleFloatingPointClick(event) {
   if (point) openDetails(point);
 }
 function pinSvg() {
-  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.69 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-3.69-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-4.09 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-4.09-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
 }
 async function openDetails(point) {
   hide(els.panel);
@@ -1083,7 +1139,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v36_${Date.now()}.json`;
+  a.download = `futura_casa_geovendas_v40_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');
