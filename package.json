@@ -1,8 +1,8 @@
 {
-  "name": "futura-casa-geovendas-v4-0",
+  "name": "geovendas-casa-v3-6",
   "private": true,
-  "version": "4.0.0",
-  "description": "Futura Casa integrada ao GeoVendas Campo",
+  "version": "3.6.0",
+  "description": "GeoVendas_Casa com geração real de imagens por OpenAI",
   "engines": {
     "node": "24.x"
   }

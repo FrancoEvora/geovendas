@@ -3,105 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Futura Casa + GeoVendas Campo v4.0</title>
+  <title>GeoVendas_Casa 3.6</title>
   <meta name="theme-color" content="#071523" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="stylesheet" href="./styles.css?v=4.0" />
+  <link rel="stylesheet" href="./styles.css?v=3.6" />
 </head>
 <body>
-
-  <section id="futuraHome" class="fc-home" aria-live="polite">
-    <header class="fc-header">
-      <div class="fc-brand">
-        <div class="fc-logo-text"><span>futura</span><strong>Casa</strong></div>
-        <small>Onde tudo começa</small>
-      </div>
-      <nav class="fc-nav" aria-label="Navegação Futura Casa">
-        <button type="button" data-fc-view="inicio" class="active">Início</button>
-        <button type="button" data-fc-view="lotes">Lotes</button>
-        <button type="button" data-fc-view="casas">Casas</button>
-        <button type="button" data-fc-view="simulador">Simulador</button>
-        <button type="button" data-fc-view="jornada">Jornada</button>
-      </nav>
-      <button id="fcOpenFieldTop" class="fc-btn ghost" type="button">GeoVendas Campo</button>
-    </header>
-
-    <main class="fc-main">
-      <section class="fc-hero active" id="fcViewInicio">
-        <div class="fc-hero-copy">
-          <p class="fc-eyebrow">Experiência do comprador</p>
-          <h1>Seu lote, sua casa, sua jornada.</h1>
-          <p>Comece pela Futura Casa, escolha o caminho ideal e, quando chegar ao loteamento, use o GeoVendas Campo para localizar, registrar e simular no lote real.</p>
-          <div class="fc-actions">
-            <button id="fcOpenField" class="fc-btn primary" type="button">Abrir GeoVendas Campo</button>
-            <button id="fcStartSim" class="fc-btn" type="button">Simular casa no lote</button>
-            <button id="fcShowLots" class="fc-btn ghost" type="button">Ver lotes cadastrados</button>
-          </div>
-        </div>
-        <aside class="fc-journey-card">
-          <p class="fc-eyebrow">Escolha a sua jornada</p>
-          <button type="button" class="fc-journey-option" data-fc-choice="casa"><span>Comprar casa</span><small>Partir de modelos, padrão e orçamento.</small><b>→</b></button>
-          <button type="button" class="fc-journey-option" data-fc-choice="lote"><span>Comprar lote</span><small>Travar localização, vista e valorização.</small><b>→</b></button>
-          <button type="button" class="fc-journey-option" data-fc-choice="lote-casa"><span>Lote + casa</span><small>Simular o futuro antes da decisão.</small><b>→</b></button>
-          <button type="button" class="fc-journey-option" data-fc-choice="visita"><span>Visitar loteamento</span><small>Abrir câmera, GPS e pontos próximos.</small><b>→</b></button>
-        </aside>
-      </section>
-
-      <section class="fc-section" id="fcViewLotes">
-        <div>
-          <p class="fc-eyebrow">GeoVendas Campo</p>
-          <h2>Lotes no empreendimento</h2>
-          <p>Quando o cliente chega ao loteamento, o GeoVendas mostra pontos próximos, detalhes, fotos, vídeos, rota e simulação por IA.</p>
-        </div>
-        <div class="fc-card-grid">
-          <article><strong>Pontos próximos</strong><span>Câmera, GPS, bússola e locais flutuantes.</span></article>
-          <article><strong>Detalhes do lote</strong><span>Galeria, rota, compartilhamento e link direto.</span></article>
-          <article><strong>Banco GitHub</strong><span>Dados reais dos pontos sincronizados em JSON.</span></article>
-        </div>
-      </section>
-
-      <section class="fc-section" id="fcViewCasas">
-        <div>
-          <p class="fc-eyebrow">Modelos de casas</p>
-          <h2>Escolha o lote com a casa em mente.</h2>
-          <p>Modelos de referência ajudam o comprador a comparar tamanho, estilo, padrão e investimento antes da decisão.</p>
-        </div>
-        <div class="fc-model-grid">
-          <article><small>Térrea</small><strong>Casa Essencial</strong><span>140–180 m²</span></article>
-          <article><small>Sobrado</small><strong>Sobrado Premium</strong><span>190–260 m²</span></article>
-          <article><small>Resort</small><strong>Casa Resort</strong><span>220–320 m²</span></article>
-          <article><small>Premium</small><strong>Casa Cleoni</strong><span>Referência visual</span></article>
-        </div>
-      </section>
-
-      <section class="fc-section" id="fcViewSimulador">
-        <div>
-          <p class="fc-eyebrow">Simulações ilustrativas</p>
-          <h2>Planeje seu investimento.</h2>
-          <p>Use uma foto real do lote para gerar uma imagem de casa possível, salvar a simulação e compartilhar com a família.</p>
-        </div>
-        <div class="fc-card-grid">
-          <article><strong>Foto do lote</strong><span>Escolha foto existente ou capture em campo.</span></article>
-          <article><strong>Casa modelo</strong><span>Selecione estilo, padrão e preferências.</span></article>
-          <article><strong>Imagem gerada</strong><span>Salve na galeria do lote e compartilhe.</span></article>
-        </div>
-      </section>
-
-      <section class="fc-section" id="fcViewJornada">
-        <div>
-          <p class="fc-eyebrow">Minha jornada</p>
-          <h2>Do interesse à decisão.</h2>
-          <p>A Futura Casa organiza a jornada: escolha, simulação, visita, proposta, projeto, obra e pós-entrega.</p>
-        </div>
-        <div class="fc-steps">
-          <span>1 Escolha</span><span>2 Simule</span><span>3 Visite</span><span>4 Proposta</span><span>5 Obra</span>
-        </div>
-      </section>
-    </main>
-  </section>
-
   <div id="app" class="app-shell">
     <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
     <div class="camera-overlay"></div>
@@ -114,8 +23,8 @@
           <span></span><span></span><span></span>
         </div>
         <div>
-          <p class="eyebrow">Futura Casa</p>
-          <h1>GeoVendas Campo <small>v4.0</small></h1>
+          <p class="eyebrow">Évora Urbanismo</p>
+          <h1>GeoVendas_Casa <small>v3.6</small></h1>
         </div>
       </div>
       <button id="panelToggle" class="cta-btn ghost" type="button">Painel</button>
@@ -139,7 +48,7 @@
 
     <section id="activationCard" class="activation-card glass" aria-live="polite">
       <p class="eyebrow">Permissões</p>
-      <h2>Ativar GeoVendas Campo</h2>
+      <h2>Ativar GeoVendas_Casa</h2>
       <p>Toque para liberar câmera, localização e bússola.</p>
       <button id="activationStartBtn" class="cta-btn" type="button">Ativar aplicativo</button>
     </section>
@@ -387,8 +296,8 @@
             </div>
             <span class="sim-divider"></span>
             <div class="sim-brand-right">
-              <strong>GeoVendas Campo</strong>
-              <small>v4.0</small>
+              <strong>GeoVendas_Casa</strong>
+              <small>v3.6</small>
             </div>
           </div>
         </div>
@@ -505,6 +414,6 @@
     </section>
   </div>
 
-  <script src="./app.js?v=4.0"></script>
+  <script src="./app.js?v=3.6"></script>
 </body>
 </html>

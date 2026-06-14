@@ -1,10 +1,10 @@
 {
-  "name": "Futura Casa + GeoVendas Campo",
-  "short_name": "Futura Casa",
-  "start_url": "./?v=4.0",
+  "name": "GeoVendas_Casa 3.6",
+  "short_name": "GeoVendas_Casa",
+  "start_url": "./?v=3.6",
   "display": "standalone",
-  "background_color": "#f4efe6",
-  "theme_color": "#153d3a",
+  "background_color": "#071523",
+  "theme_color": "#071523",
   "icons": [
     { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" }
