@@ -1,5 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-14T18:02:01.512Z",
-  "points": []
+  "updatedAt": "2026-06-14T18:02:51.386Z",
+  "points": [
+    {
+      "id": "point_9a2vq1uymqe3e3f1",
+      "name": "Portaria",
+      "description": "",
+      "lat": -18.945237989054327,
+      "lng": -48.27367477780909,
+      "accuracy": 120,
+      "createdAt": 1781460173773,
+      "updatedAt": 1781460173773,
+      "houseSimulation": null,
+      "media": []
+    }
+  ]
 }
