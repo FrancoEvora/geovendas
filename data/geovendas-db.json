@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-14T18:03:49.228Z",
+  "updatedAt": "2026-06-14T18:05:21.070Z",
   "points": [
+    {
+      "id": "point_xk15z48zmqe3h8qi",
+      "name": "Lazer",
+      "description": "",
+      "lat": -18.945725339704914,
+      "lng": -48.27337974579979,
+      "accuracy": 4,
+      "createdAt": 1781460320634,
+      "updatedAt": 1781460320634,
+      "houseSimulation": null,
+      "media": []
+    },
     {
       "id": "point_yv5trpmqmqe3fcd9",
       "name": "Garagem",
