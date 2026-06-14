@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-14T16:02:35.404Z",
+  "points": [
+    {
+      "id": "point_d8pc3qbnmqdyfozz",
+      "name": "Lote 01",
+      "description": "",
+      "lat": -18.945515207705533,
+      "lng": -48.27331524211988,
+      "accuracy": 6,
+      "createdAt": 1781451850319,
+      "updatedAt": 1781451850319,
+      "houseSimulation": null,
+      "media": []
+    }
+  ]
+}
