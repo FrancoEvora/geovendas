@@ -1,25 +1,27 @@
-# GeoVendas_Casa v3.11
+# GeoVendas_Casa v3.12
 
-Versão focada em corrigir a sensação de “um banco por sessão/usuário”.
+Versão focada em resolver divergência entre aparelhos.
 
 ## O que mudou
 
 - O GitHub passa a ser tratado como **banco oficial**.
-- Ao abrir o app, ele tenta carregar o banco oficial do GitHub.
-- Ao tocar em **Sincronizar banco**, o app carrega o banco oficial, em vez de regravar a cópia local por cima.
-- O botão **Enviar locais e mídias** continua existindo para enviar dados que ficaram apenas neste aparelho.
-- Depois de enviar dados ao GitHub, o app atualiza a tela com o retorno oficial do banco.
-- Se o banco oficial estiver vazio e o aparelho tiver pontos locais, o app não apaga automaticamente esses pontos; ele orienta a enviar os dados locais.
-- Mídias em Base64 no JSON continuam disponíveis para desenvolvimento e teste.
+- O app usa uma nova chave de cache local, separada das versões antigas.
+- Ao abrir o app, ele tenta baixar o banco oficial do GitHub.
+- O botão **Sincronizar banco** baixa o banco oficial.
+- O botão **Baixar banco oficial** limpa o cache local atual e baixa novamente o banco central.
+- O botão **Enviar locais e mídias** envia para o GitHub os pontos que estão no aparelho.
+- O botão **Importar cache antigo** tenta recuperar pontos salvos localmente por versões anteriores.
+- Depois de cadastrar um ponto, o app tenta salvar somente aquele ponto no banco oficial.
+- Depois de excluir um ponto, o app tenta excluir o ponto no banco oficial.
 
 ## Como testar
 
-1. Cadastre um ponto no aparelho A.
-2. Toque em **Enviar locais e mídias**.
-3. Verifique se o GitHub mostra o ponto no arquivo JSON.
-4. Abra o app no aparelho B.
-5. Toque em **Sincronizar banco**.
-6. O ponto deve aparecer no aparelho B.
+1. Publique a pasta `geovendas-casa-v3-12`.
+2. Abra com `?v=3.12`.
+3. Em um aparelho que já tenha pontos antigos, toque em **Importar cache antigo**.
+4. Depois toque em **Enviar locais e mídias**.
+5. Em outro aparelho, toque em **Baixar banco oficial** ou **Sincronizar banco**.
+6. Os aparelhos devem ficar iguais.
 
 ## Variáveis Vercel
 
@@ -32,16 +34,6 @@ OPENAI_API_KEY
 OPENAI_IMAGE_MODEL=gpt-image-1
 ```
 
-## Publicação
+## Observação
 
-Suba a pasta:
-
-```txt
-geovendas-casa-v3-11
-```
-
-Depois abra:
-
-```txt
-?v=3.11
-```
+A partir desta versão, o objetivo é parar de depender de caches antigos de cada celular. O GitHub passa a ser a referência principal.

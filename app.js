@@ -1,5 +1,5 @@
-const STORAGE_KEY = 'geovendas_casa_v25_points';
-const DB_NAME = 'geovendas_casa_v25_media';
+const STORAGE_KEY = 'geovendas_casa_v312_official_cache';
+const DB_NAME = 'geovendas_casa_v312_media_cache';
 const DB_VERSION = 1;
 const MEDIA_STORE = 'media';
 const DUPLICATE_NORMALIZER = (value) => String(value || '').trim().toLocaleLowerCase('pt-BR');
@@ -17,6 +17,8 @@ const els = {
   activationStartBtn: document.getElementById('activationStartBtn'),
   showLocationsBtn: document.getElementById('showLocationsBtn'),
   syncDbBtn: document.getElementById('syncDbBtn'),
+  pullOfficialDbBtn: document.getElementById('pullOfficialDbBtn'),
+  importLegacyBtn: document.getElementById('importLegacyBtn'),
   pushDbBtn: document.getElementById('forcePushDbBtn'),
   dbStatusBtn: document.getElementById('dbStatusBtn'),
   exportBtn: document.getElementById('exportBtn'),
@@ -181,7 +183,7 @@ function buildGoogleMapsRouteUrl(point) {
 }
 function buildAppPointUrl(point) {
   const url = new URL(window.location.href);
-  url.searchParams.set('v', '3.11');
+  url.searchParams.set('v', '3.12');
   url.searchParams.set('point', point.id);
   return url.toString();
 }
@@ -251,7 +253,7 @@ function setLocalPointsFromRemote(remotePoints = []) {
   return changed;
 }
 function mergeRemotePoints(remotePoints = []) {
-  // Mantido para compatibilidade, mas a v3.11 usa o GitHub como fonte oficial.
+  // Mantido para compatibilidade, mas a v3.12 usa o GitHub como fonte oficial.
   return setLocalPointsFromRemote(remotePoints);
 }
 async function loadRemotePoints(options = {}) {
@@ -333,6 +335,65 @@ async function saveRemotePoints(options = {}) {
     state.remoteDb.loading = false;
   }
 }
+async function saveRemotePoint(point, options = {}) {
+  try {
+    const serializedPoint = await serializePointForRemote(point);
+    const response = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'upsertPoint', point: serializedPoint })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Não foi possível salvar o ponto no GitHub.');
+    if (Array.isArray(data.points)) setLocalPointsFromRemote(data.points);
+    else await loadRemotePoints({ silent: true, forceReplace: true });
+    if (!options.silent) toast('Ponto salvo no banco oficial.');
+    return true;
+  } catch (error) {
+    console.warn('Falha ao salvar ponto no banco oficial', error);
+    if (!options.silent) toast('Salvo apenas neste aparelho: ' + (error.message || 'banco indisponível'));
+    return false;
+  }
+}
+async function deleteRemotePoint(pointId, options = {}) {
+  try {
+    const response = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'deletePoint', pointId })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Não foi possível excluir o ponto no GitHub.');
+    if (Array.isArray(data.points)) setLocalPointsFromRemote(data.points);
+    else await loadRemotePoints({ silent: true, forceReplace: true });
+    if (!options.silent) toast('Ponto excluído do banco oficial.');
+    return true;
+  } catch (error) {
+    console.warn('Falha ao excluir ponto no banco oficial', error);
+    if (!options.silent) toast('Excluído apenas neste aparelho: ' + (error.message || 'banco indisponível'));
+    return false;
+  }
+}
+async function replaceRemoteDatabase(points = [], options = {}) {
+  try {
+    const serializedPoints = await Promise.all(points.map(serializePointForRemote));
+    const response = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'replaceAll', points: serializedPoints })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Não foi possível substituir o banco oficial.');
+    if (Array.isArray(data.points)) setLocalPointsFromRemote(data.points);
+    else await loadRemotePoints({ silent: true, forceReplace: true });
+    if (!options.silent) toast('Banco oficial substituído.');
+    return true;
+  } catch (error) {
+    console.warn('Falha ao substituir banco oficial', error);
+    if (!options.silent) toast('Falha no banco oficial: ' + (error.message || 'erro desconhecido'));
+    return false;
+  }
+}
 async function pushLocalPointsToGitHub(options = {}) {
   try {
     const localCount = state.points.length;
@@ -369,12 +430,47 @@ async function pushLocalPointsToGitHub(options = {}) {
   }
 }
 async function syncRemoteDatabase(options = {}) {
-  const loaded = await loadRemotePoints({ silent: false });
+  const loaded = await loadRemotePoints({ silent: false, forceReplace: true });
   if (loaded.ok) {
     toast(`Banco oficial carregado. ${state.points.length} ponto(s) no app.`);
   } else {
     toast(`Banco não sincronizado: ${loaded.error || 'verifique as variáveis no Vercel.'}`);
   }
+}
+async function importLegacyLocalPoints() {
+  const legacyKeys = ['geovendas_casa_v25_points', 'geovendas_casa_v30_points', 'geovendas_casa_v35_points'];
+  const existingIds = new Set(state.points.map((point) => point.id));
+  let imported = 0;
+  for (const key of legacyKeys) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const legacyPoints = JSON.parse(raw);
+      if (!Array.isArray(legacyPoints)) continue;
+      for (const point of legacyPoints) {
+        if (!point?.id || existingIds.has(point.id)) continue;
+        state.points.push({ ...point, media: Array.isArray(point.media) ? point.media : [] });
+        existingIds.add(point.id);
+        imported += 1;
+      }
+    } catch (error) {
+      console.warn('Falha ao importar cache antigo', key, error);
+    }
+  }
+  state.points.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+  savePoints();
+  renderPointList();
+  updateStatus();
+  updateNearestPoint();
+  renderFloatingPoints();
+  toast(imported ? `${imported} ponto(s) importado(s) do cache antigo. Use Enviar locais e mídias.` : 'Nenhum ponto antigo encontrado neste aparelho.');
+}
+async function resetLocalAndPullOfficial() {
+  state.points = [];
+  savePoints();
+  renderPointList();
+  const loaded = await loadRemotePoints({ silent: false, forceReplace: true });
+  toast(loaded.ok ? `Cache local substituído pelo banco oficial: ${state.points.length} ponto(s).` : `Falha ao baixar banco oficial: ${loaded.error || 'erro desconhecido'}`);
 }
 async function showRemoteDatabaseStatus() {
   try {
@@ -392,6 +488,7 @@ async function showRemoteDatabaseStatus() {
       `Repositório: ${data.repo || 'não informado'}`,
       `Branch: ${data.branch || 'não informada'}`,
       `Arquivo: ${data.path || 'não informado'}`,
+      `Fonte local: cache v3.12`,
       `Pontos neste aparelho: ${state.points.length}`,
       `Pontos no banco: ${Array.isArray(data.points) ? data.points.length : 0}`,
       `Mídias no banco: ${Array.isArray(data.points) ? data.points.reduce((total, point) => total + (Array.isArray(point.media) ? point.media.length : 0), 0) : 0}`,
@@ -530,10 +627,11 @@ async function init() {
   bindEvents();
   updateStatus();
   renderPointList();
-  await loadRemotePoints({ silent: true });
+  // v3.12: o GitHub é a fonte oficial. O cache local só é usado se o banco remoto não responder.
+  await loadRemotePoints({ silent: true, forceReplace: true });
   await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.11').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.12').catch(() => {});
   }
 }
 
@@ -552,6 +650,14 @@ function bindEvents() {
   els.syncDbBtn?.addEventListener('click', async () => {
     hide(els.menuDrawer);
     await syncRemoteDatabase({ manual: true });
+  });
+  els.pullOfficialDbBtn?.addEventListener('click', async () => {
+    hide(els.menuDrawer);
+    await resetLocalAndPullOfficial();
+  });
+  els.importLegacyBtn?.addEventListener('click', async () => {
+    hide(els.menuDrawer);
+    await importLegacyLocalPoints();
   });
   els.pushDbBtn?.addEventListener('click', async () => {
     hide(els.menuDrawer);
@@ -810,8 +916,8 @@ async function savePoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  const synced = await pushLocalPointsToGitHub();
-  toast(synced ? 'Local cadastrado e enviado ao GitHub com sucesso.' : 'Local cadastrado apenas neste aparelho. Use Enviar locais e mídias para ver o erro.');
+  const synced = await saveRemotePoint(point, { silent: true });
+  toast(synced ? 'Local cadastrado no banco oficial com sucesso.' : 'Local cadastrado apenas neste aparelho. Use Enviar locais e mídias para ver o erro.');
   hide(els.panel);
 }
 function renderPointList() {
@@ -857,8 +963,7 @@ async function deletePoint(pointId) {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ replace: true, silent: false });
-  toast('Cadastro excluído.');
+  await deleteRemotePoint(pointId, { silent: false });
 }
 async function deleteMediaFromPoint(pointId, mediaId) {
   const point = state.points.find((item) => item.id === pointId);
@@ -873,7 +978,7 @@ async function deleteMediaFromPoint(pointId, mediaId) {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ replace: true, silent: true });
+  await saveRemotePoint(point, { silent: true });
   toast('Mídia excluída da galeria.');
 }
 function confirm(title, message, onAccept) {
@@ -892,7 +997,7 @@ async function clearAllPoints() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ replace: true, silent: false });
+  await replaceRemoteDatabase([], { silent: false });
   toast('Todos os cadastros foram removidos.');
 }
 function updateNearestPoint() {
@@ -1166,7 +1271,7 @@ async function shareMediaFromPoint(point, media) {
 async function sharePoint(point) {
   const mapsUrl = buildGoogleMapsRouteUrl(point);
   const appUrl = buildAppPointUrl(point);
-  await saveRemotePoints({ silent: true });
+  await saveRemotePoint(point, { silent: true });
   const text = [
     `Local: ${point.name}`,
     point.description ? `Descrição: ${point.description}` : '',
@@ -1215,7 +1320,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v311_${Date.now()}.json`;
+  a.download = `geovendas_casa_v312_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');
@@ -1244,7 +1349,7 @@ async function importJson(event) {
     updateStatus();
     updateNearestPoint();
     renderFloatingPoints();
-    await saveRemotePoints({ replace: true, silent: false });
+    await replaceRemoteDatabase(state.points, { silent: false });
     toast('Importação concluída.');
   } catch (error) {
     console.error(error);
@@ -1482,7 +1587,7 @@ async function saveAiResultToPoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ silent: true });
+  await saveRemotePoint(point, { silent: true });
 
   els.aiResult.querySelector('.ai-save-confirmation')?.remove();
   const confirmation = document.createElement('div');

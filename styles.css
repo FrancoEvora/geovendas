@@ -382,7 +382,7 @@ button { cursor: pointer; }
   .tool-btn small { font-size: .68rem; }
 }
 
-/* v3.11 simulator without house overlay */
+/* v3.12 simulator without house overlay */
 .guide-plane {
   background: linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(145deg, rgba(188,230,50,.12), rgba(12,44,30,.24));
 }
@@ -427,7 +427,7 @@ button { cursor: pointer; }
 .save-btn { box-shadow: 0 16px 30px rgba(188,230,50,.16); }
 .model-card.active { background: rgba(25,41,60,.74); }
 
-/* v3.11 corrections: activation, spacing, details, list visibility */
+/* v3.12 corrections: activation, spacing, details, list visibility */
 .activation-card {
   position: fixed;
   z-index: 32;
@@ -518,7 +518,7 @@ button { cursor: pointer; }
   }
 }
 
-/* v3.11 floating point refinements */
+/* v3.12 floating point refinements */
 .floating-point.is-edge .floating-bubble {
   border-color: rgba(188,230,50,.28);
 }
@@ -555,7 +555,7 @@ button { cursor: pointer; }
 }
 
 
-/* v3.11 — Simulação por IA */
+/* v3.12 — Simulação por IA */
 .ai-studio-card {
   width: min(920px, 100%);
 }
@@ -707,7 +707,7 @@ button { cursor: pointer; }
 }
 
 
-/* v3.11 — Galeria com ampliar e excluir mídia */
+/* v3.12 — Galeria com ampliar e excluir mídia */
 .detail-hero {
   width: 100%;
   border: 1px solid var(--line2);
@@ -813,7 +813,7 @@ button { cursor: pointer; }
 }
 
 
-/* v3.11 — detalhes sem sobreposição e confirmação de salvamento */
+/* v3.12 — detalhes sem sobreposição e confirmação de salvamento */
 .details-card {
   display: flex;
   flex-direction: column;
@@ -857,7 +857,7 @@ button { cursor: pointer; }
 }
 
 
-/* v3.11 — compartilhamento de mídia e local */
+/* v3.12 — compartilhamento de mídia e local */
 .media-card-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
