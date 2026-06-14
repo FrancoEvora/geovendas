@@ -113,6 +113,11 @@ const state = {
   watchId: null,
   activated: false,
   points: [],
+  remoteDb: {
+    enabled: true,
+    loading: false,
+    lastSyncAt: null
+  },
   currentCoords: null,
   accuracy: null,
   heading: null,
@@ -170,6 +175,128 @@ function buildGoogleMapsRouteUrl(point) {
   // Para evitar "com alfinete", enviamos nome + coordenadas no campo de destino.
   const destination = `${point.name} ${lat},${lng}`;
   return `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${encodeURIComponent(destination)}&travelmode=driving&dir_action=navigate`;
+}
+function buildAppPointUrl(point) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('v', '3.6');
+  url.searchParams.set('point', point.id);
+  return url.toString();
+}
+function serializePointForRemote(point) {
+  return {
+    id: point.id,
+    name: point.name,
+    description: point.description || '',
+    lat: point.lat,
+    lng: point.lng,
+    accuracy: point.accuracy || null,
+    createdAt: point.createdAt || Date.now(),
+    updatedAt: point.updatedAt || point.createdAt || Date.now(),
+    houseSimulation: point.houseSimulation || null,
+    // Por enquanto o GitHub funciona como banco de dados de pontos.
+    // Mídias ficam no aparelho até criarmos storage próprio.
+    media: []
+  };
+}
+function mergeRemotePoints(remotePoints = []) {
+  if (!Array.isArray(remotePoints) || !remotePoints.length) return false;
+  const localById = new Map(state.points.map((point) => [point.id, point]));
+  let changed = false;
+
+  for (const remotePoint of remotePoints) {
+    if (!remotePoint?.id) continue;
+    const localPoint = localById.get(remotePoint.id);
+    if (!localPoint) {
+      state.points.push({ ...remotePoint, media: remotePoint.media || [] });
+      changed = true;
+      continue;
+    }
+
+    const localTime = Number(localPoint.updatedAt || localPoint.createdAt || 0);
+    const remoteTime = Number(remotePoint.updatedAt || remotePoint.createdAt || 0);
+    if (remoteTime > localTime) {
+      const localMedia = Array.isArray(localPoint.media) && localPoint.media.length ? localPoint.media : (remotePoint.media || []);
+      Object.assign(localPoint, remotePoint, { media: localMedia });
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    state.points.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    savePoints();
+  }
+  return changed;
+}
+async function loadRemotePoints(options = {}) {
+  if (!state.remoteDb.enabled) return false;
+  try {
+    state.remoteDb.loading = true;
+    const response = await fetch('/api/db', { method: 'GET', cache: 'no-store' });
+    if (response.status === 501) {
+      state.remoteDb.enabled = false;
+      return false;
+    }
+    if (!response.ok) throw new Error('Não foi possível carregar o banco de dados.');
+    const data = await response.json();
+    const changed = mergeRemotePoints(data.points || []);
+    state.remoteDb.lastSyncAt = Date.now();
+    if (changed) {
+      renderPointList();
+      updateStatus();
+      updateNearestPoint();
+      renderFloatingPoints();
+    }
+    return changed;
+  } catch (error) {
+    console.warn('GitHub DB leitura indisponível', error);
+    if (!options.silent) toast('Banco GitHub indisponível no momento.');
+    return false;
+  } finally {
+    state.remoteDb.loading = false;
+  }
+}
+async function saveRemotePoints(options = {}) {
+  if (!state.remoteDb.enabled) return false;
+  try {
+    const payload = {
+      points: state.points.map(serializePointForRemote)
+    };
+    const response = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (response.status === 501) {
+      state.remoteDb.enabled = false;
+      return false;
+    }
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Não foi possível salvar no banco GitHub.');
+    }
+    state.remoteDb.lastSyncAt = Date.now();
+    if (!options.silent) toast('Banco GitHub sincronizado.');
+    return true;
+  } catch (error) {
+    console.warn('GitHub DB gravação indisponível', error);
+    if (!options.silent) toast('Salvo localmente. Banco GitHub indisponível.');
+    return false;
+  }
+}
+async function openSharedPointFromUrl() {
+  const pointId = new URLSearchParams(window.location.search).get('point');
+  if (!pointId) return;
+  let point = state.points.find((item) => item.id === pointId);
+  if (!point) {
+    await loadRemotePoints({ silent: true });
+    point = state.points.find((item) => item.id === pointId);
+  }
+  if (point) {
+    await openDetails(point);
+    toast(`Local aberto: ${point.name}`);
+  } else {
+    toast('Ponto compartilhado não encontrado no banco.');
+  }
 }
 function toast(message) {
   els.toast.textContent = message;
@@ -284,8 +411,10 @@ async function init() {
   bindEvents();
   updateStatus();
   renderPointList();
+  await loadRemotePoints({ silent: true });
+  await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=3.5').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.6').catch(() => {});
   }
 }
 
@@ -534,6 +663,7 @@ async function savePoint() {
     lng: coords.lng,
     accuracy,
     createdAt: Date.now(),
+    updatedAt: Date.now(),
     media: [],
     houseSimulation: null
   };
@@ -549,6 +679,7 @@ async function savePoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
+  await saveRemotePoints({ silent: true });
   toast('Local cadastrado com sucesso.');
   hide(els.panel);
 }
@@ -595,6 +726,7 @@ async function deletePoint(pointId) {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
+  await saveRemotePoints({ silent: true });
   toast('Cadastro excluído.');
 }
 async function deleteMediaFromPoint(pointId, mediaId) {
@@ -604,11 +736,13 @@ async function deleteMediaFromPoint(pointId, mediaId) {
   if (!media) return;
   await deleteMedia(mediaId);
   point.media = point.media.filter((item) => item.id !== mediaId);
+  point.updatedAt = Date.now();
   savePoints();
   renderPointList();
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
+  await saveRemotePoints({ silent: true });
   toast('Mídia excluída da galeria.');
 }
 function confirm(title, message, onAccept) {
@@ -627,6 +761,7 @@ async function clearAllPoints() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
+  await saveRemotePoints({ silent: true });
   toast('Todos os cadastros foram removidos.');
 }
 function updateNearestPoint() {
@@ -731,7 +866,7 @@ function handleFloatingPointClick(event) {
   if (point) openDetails(point);
 }
 function pinSvg() {
-  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.59 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-3.59-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c-3.69 0-6.5 2.91-6.5 6.5 0 4.8 6.5 12.5 6.5 12.5S18.5 13.8 18.5 9c0-3.69-2.91-6.5-6.5-6.5Zm0 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" fill="currentColor"/></svg>';
 }
 async function openDetails(point) {
   hide(els.panel);
@@ -898,15 +1033,18 @@ async function shareMediaFromPoint(point, media) {
 }
 async function sharePoint(point) {
   const mapsUrl = buildGoogleMapsRouteUrl(point);
+  const appUrl = buildAppPointUrl(point);
+  await saveRemotePoints({ silent: true });
   const text = [
     `Local: ${point.name}`,
     point.description ? `Descrição: ${point.description}` : '',
     `Coordenadas: ${formatLatLng(point.lat)}, ${formatLatLng(point.lng)}`,
-    `Rota: ${mapsUrl}`
+    `Rota no Google Maps: ${mapsUrl}`,
+    `Abrir no GeoVendas: ${appUrl}`
   ].filter(Boolean).join('\n');
   if (navigator.share) {
     try {
-      await navigator.share({ title: point.name, text });
+      await navigator.share({ title: point.name, text, url: appUrl });
       toast('Compartilhamento do local aberto.');
       return;
     } catch (error) {
@@ -916,7 +1054,7 @@ async function sharePoint(point) {
   }
   try {
     await navigator.clipboard.writeText(text);
-    toast('Dados do local copiados.');
+    toast('Dados e links do local copiados.');
   } catch {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }
@@ -945,7 +1083,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `geovendas_casa_v35_${Date.now()}.json`;
+  a.download = `geovendas_casa_v36_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');
@@ -974,6 +1112,7 @@ async function importJson(event) {
     updateStatus();
     updateNearestPoint();
     renderFloatingPoints();
+    await saveRemotePoints({ silent: true });
     toast('Importação concluída.');
   } catch (error) {
     console.error(error);
@@ -1195,6 +1334,7 @@ async function saveAiResultToPoint() {
   const blob = dataUrlToBlob(state.aiStudio.resultDataUrl);
   await putMedia(id, blob);
 
+  point.updatedAt = Date.now();
   point.media.unshift({
     id,
     name: `Simulação IA - ${point.name} - ${new Date().toLocaleDateString('pt-BR')}.png`,
@@ -1210,6 +1350,7 @@ async function saveAiResultToPoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
+  await saveRemotePoints({ silent: true });
 
   els.aiResult.querySelector('.ai-save-confirmation')?.remove();
   const confirmation = document.createElement('div');

@@ -1,33 +1,82 @@
-# GeoVendas_Casa v3.5
+# GeoVendas_Casa v3.6
 
-Versão com integração real da OpenAI para gerar imagens do lote com uma casa simulada.
+Versão com geração real de imagem por API e banco de dados real hospedado no GitHub.
 
-## Novidades da v3.5
+## Novidades da v3.6
 
-- impede que uma imagem gerada por IA vire automaticamente a próxima foto-base;
-- usa apenas fotos originais do lote como base automática;
-- permite compartilhar a imagem gerada com o Web Share API;
-- permite compartilhar mídias salvas na galeria;
-- permite compartilhar os dados do local cadastrado;
-- exibe confirmação quando a imagem gerada é salva;
-- confirma o cadastro do local com mensagem visível;
-- mantém exclusão individual de imagens e vídeos;
-- mantém ampliação de imagens e vídeos.
+- O botão **Compartilhar local** agora envia:
+  - link de rota no Google Maps;
+  - link do próprio GeoVendas para abrir o ponto no aplicativo.
+- O aplicativo reconhece links com `?point=<id>` e abre o ponto compartilhado.
+- Foi criado um banco de dados real via GitHub, usando uma função serverless:
+  - `api/db.js`
+- Pontos cadastrados são sincronizados em um arquivo JSON no GitHub.
+- Ao salvar/cadastrar/excluir, o app tenta sincronizar o banco remoto.
+- Mídias continuam no aparelho nesta etapa; o GitHub salva os dados dos pontos.
 
-## Configuração no Vercel
+## Variáveis necessárias no Vercel
 
-Configure:
+Para geração de imagem:
 
-`OPENAI_API_KEY`
+```txt
+OPENAI_API_KEY
+```
 
 Opcional:
 
-`OPENAI_IMAGE_MODEL=gpt-image-1`
+```txt
+OPENAI_IMAGE_MODEL=gpt-image-1
+```
 
-Depois faça novo deploy e abra com:
+Para o banco de dados GitHub:
 
-`?v=3.5`
+```txt
+GITHUB_TOKEN
+GITHUB_REPO
+GITHUB_BRANCH
+GITHUB_DB_PATH
+```
+
+Exemplo:
+
+```txt
+GITHUB_REPO=seu-usuario/geovendas-db
+GITHUB_BRANCH=main
+GITHUB_DB_PATH=data/geovendas-db.json
+```
+
+`GITHUB_TOKEN` deve ter permissão de leitura e escrita em Contents no repositório escolhido.
+
+## Como funciona o banco GitHub
+
+A função `/api/db` lê e grava um arquivo JSON no GitHub.
+
+Formato básico:
+
+```json
+{
+  "version": 1,
+  "updatedAt": "2026-06-13T00:00:00.000Z",
+  "points": []
+}
+```
+
+Se o arquivo ainda não existir, a API cria automaticamente no primeiro salvamento.
+
+## Publicação
+
+Suba a pasta:
+
+```txt
+geovendas-casa-v3-6
+```
+
+Depois abra:
+
+```txt
+?v=3.6
+```
 
 ## Observação
 
-Se ainda aparecer outra versão no cabeçalho, limpe cache/abra em aba privada e confirme que a pasta publicada foi `geovendas-casa-v3-5`.
+O GitHub funciona bem como banco inicial para protótipo e uso controlado. Em uma fase futura, o ideal será migrar para Supabase, Firebase, Neon ou outro banco com autenticação e storage de mídias.

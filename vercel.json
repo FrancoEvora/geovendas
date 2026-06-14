@@ -2,6 +2,9 @@
   "functions": {
     "api/generate-house-image.js": {
       "maxDuration": 60
+    },
+    "api/db.js": {
+      "maxDuration": 30
     }
   }
 }
