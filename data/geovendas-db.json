@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-14T16:02:35.404Z",
+  "updatedAt": "2026-06-14T16:03:47.897Z",
   "points": [
+    {
+      "id": "point_s4pakdrgmqdz4zvi",
+      "name": "Portaria",
+      "description": "",
+      "lat": -18.945237989054327,
+      "lng": -48.27367477780909,
+      "accuracy": 120,
+      "createdAt": 1781453030814,
+      "updatedAt": 1781453030814,
+      "houseSimulation": null,
+      "media": []
+    },
     {
       "id": "point_d8pc3qbnmqdyfozz",
       "name": "Lote 01",
