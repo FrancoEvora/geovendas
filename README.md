@@ -1,39 +1,44 @@
-# GeoVendas_Casa v3.12
+# Futura Casa | Futura Vista v4.1
 
-Versão focada em resolver divergência entre aparelhos.
+Versão unificada e premium da plataforma.
 
-## O que mudou
+## Conceito
 
-- O GitHub passa a ser tratado como **banco oficial**.
-- O app usa uma nova chave de cache local, separada das versões antigas.
-- Ao abrir o app, ele tenta baixar o banco oficial do GitHub.
-- O botão **Sincronizar banco** baixa o banco oficial.
-- O botão **Baixar banco oficial** limpa o cache local atual e baixa novamente o banco central.
-- O botão **Enviar locais e mídias** envia para o GitHub os pontos que estão no aparelho.
-- O botão **Importar cache antigo** tenta recuperar pontos salvos localmente por versões anteriores.
-- Depois de cadastrar um ponto, o app tenta salvar somente aquele ponto no banco oficial.
-- Depois de excluir um ponto, o app tenta excluir o ponto no banco oficial.
+- **Futura Casa** é a plataforma principal da jornada.
+- **Futura Vista** é o módulo de campo, substituindo a marca GeoVendas na experiência do usuário.
+- O antigo GeoVendas continua como tecnologia interna de GPS, câmera, pontos flutuantes, rota e simulação no lote.
 
-## Como testar
+## O que entrou
 
-1. Publique a pasta `geovendas-casa-v3-12`.
-2. Abra com `?v=3.12`.
-3. Em um aparelho que já tenha pontos antigos, toque em **Importar cache antigo**.
-4. Depois toque em **Enviar locais e mídias**.
-5. Em outro aparelho, toque em **Baixar banco oficial** ou **Sincronizar banco**.
-6. Os aparelhos devem ficar iguais.
+- nova home premium com identidade Futura Casa;
+- cards de jornada: comprar casa, comprar lote, lote + casa e visitar em campo;
+- painel de indicadores com pontos sincronizados e simulações;
+- lista de últimos lotes sincronizados na tela principal;
+- botão **Abrir Futura Vista** para entrar no modo campo;
+- botão **Voltar à Futura Casa** no menu do modo campo;
+- preserva banco GitHub, geração de imagem via API, rotas, mídia, compartilhamento e link `?point=<id>`.
 
-## Variáveis Vercel
+## Publicação
+
+Suba a pasta:
 
 ```txt
+futura-casa-vista-v4-1
+```
+
+Abra com:
+
+```txt
+?v=4.1
+```
+
+## Variáveis mantidas
+
+```txt
+OPENAI_API_KEY
+OPENAI_IMAGE_MODEL=gpt-image-1
 GITHUB_TOKEN
 GITHUB_REPO
 GITHUB_BRANCH
 GITHUB_DB_PATH
-OPENAI_API_KEY
-OPENAI_IMAGE_MODEL=gpt-image-1
 ```
-
-## Observação
-
-A partir desta versão, o objetivo é parar de depender de caches antigos de cada celular. O GitHub passa a ser a referência principal.

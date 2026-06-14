@@ -3,18 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>GeoVendas_Casa 3.12</title>
+  <title>Futura Casa | Futura Vista 4.1</title>
   <meta name="theme-color" content="#071523" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="stylesheet" href="./styles.css?v=3.12" />
+  <link rel="stylesheet" href="./styles.css?v=4.1" />
 </head>
-<body>
+<body class="journey-mode">
   <div id="app" class="app-shell">
     <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
     <div class="camera-overlay"></div>
     <div id="floatingPointsLayer" class="floating-points-layer" aria-live="polite"></div>
+
+    <main id="futuraShell" class="futura-shell" aria-label="Futura Casa plataforma">
+      <header class="fc-appbar">
+        <div class="fc-brand">
+          <span class="fc-logo">futura<br><b>Casa</b></span>
+          <span class="fc-brand-line"></span>
+          <span class="fc-product">Plataforma de jornada imobiliária</span>
+        </div>
+        <button id="futuraOpenVistaBtn" class="fc-pill-btn" type="button">Abrir Futura Vista</button>
+      </header>
+
+      <section class="fc-hero">
+        <div class="fc-hero-copy">
+          <p class="fc-kicker">DO LOTE À CASA PRONTA</p>
+          <h1>Escolha o caminho antes de decidir.</h1>
+          <p>Uma jornada integrada para comprar lote, visualizar uma casa possível, registrar a visita em campo e avançar com segurança.</p>
+          <div class="fc-hero-actions">
+            <button id="futuraStartJourneyBtn" class="fc-primary" type="button">Iniciar jornada</button>
+            <button id="futuraSyncBtn" class="fc-secondary" type="button">Sincronizar dados</button>
+          </div>
+        </div>
+        <aside class="fc-hero-card">
+          <img src="./casa-cleoni-referencia.png" alt="Casa modelo Futura Casa" />
+          <div class="fc-hero-card-caption">
+            <span>Simulação assistida</span>
+            <strong>Lote + Casa</strong>
+          </div>
+        </aside>
+      </section>
+
+      <section class="fc-decision-grid" aria-label="Caminhos da jornada">
+        <button class="fc-path-card active" type="button" data-futura-tab="jornada">
+          <span>01</span><strong>Comprar casa</strong><small>Perfil, modelo e investimento.</small>
+        </button>
+        <button class="fc-path-card" type="button" data-futura-tab="lotes">
+          <span>02</span><strong>Comprar lote</strong><small>Empreendimento, localização e visita.</small>
+        </button>
+        <button class="fc-path-card" type="button" data-futura-tab="simulacoes">
+          <span>03</span><strong>Lote + casa</strong><small>Imagem gerada, comparação e proposta.</small>
+        </button>
+        <button class="fc-path-card" type="button" data-futura-tab="campo">
+          <span>04</span><strong>Visitar em campo</strong><small>Futura Vista no loteamento.</small>
+        </button>
+      </section>
+
+      <section class="fc-workspace">
+        <div class="fc-panel-main">
+          <p class="fc-kicker">JORNADA DO CLIENTE</p>
+          <h2 id="futuraPanelTitle">Sua casa, em movimento.</h2>
+          <p id="futuraPanelText">Comece pela intenção do cliente, registre o interesse e conecte lote, casa-modelo e visita em uma única experiência.</p>
+          <div id="futuraPanelCards" class="fc-panel-cards">
+            <article><span>Cliente</span><strong>Perfil e intenção</strong></article>
+            <article><span>Casa</span><strong>Modelo desejado</strong></article>
+            <article><span>Lote</span><strong>Visita e simulação</strong></article>
+          </div>
+        </div>
+        <aside class="fc-live-card">
+          <div class="fc-live-head">
+            <span>Banco oficial</span>
+            <strong id="futuraDbCount">—</strong>
+          </div>
+          <div class="fc-live-metrics">
+            <div><span>Lotes no app</span><b id="futuraLocalCount">0</b></div>
+            <div><span>Simulações</span><b id="futuraSimulationCount">0</b></div>
+          </div>
+          <button id="futuraShowLotsBtn" class="fc-secondary full" type="button">Ver lotes cadastrados</button>
+        </aside>
+      </section>
+
+      <section class="fc-lots-preview">
+        <div class="fc-section-title">
+          <p class="fc-kicker">LOTES E VISITAS</p>
+          <h2>Últimos pontos sincronizados</h2>
+        </div>
+        <div id="futuraLotsList" class="fc-lots-list empty">Nenhum lote sincronizado ainda.</div>
+      </section>
+    </main>
 
     <header class="topbar glass">
       <button id="menuToggle" class="icon-btn" type="button" aria-label="Abrir menu">☰</button>
@@ -23,8 +100,8 @@
           <span></span><span></span><span></span>
         </div>
         <div>
-          <p class="eyebrow">Évora Urbanismo</p>
-          <h1>GeoVendas_Casa <small>v3.12</small></h1>
+          <p class="eyebrow">Futura Casa</p>
+          <h1>Futura Vista <small>v4.1</small></h1>
         </div>
       </div>
       <button id="panelToggle" class="cta-btn ghost" type="button">Painel</button>
@@ -36,11 +113,10 @@
         <button id="closeMenu" class="icon-btn small" type="button" aria-label="Fechar menu">✕</button>
       </div>
       <div class="menu-actions">
-        <button id="activateBtn" class="cta-btn" type="button">Ativar aplicativo</button>
+        <button id="returnHomeBtn" class="cta-btn ghost" type="button">Voltar à Futura Casa</button>
+        <button id="activateBtn" class="cta-btn" type="button">Ativar Futura Vista</button>
         <button id="showLocationsBtn" class="cta-btn ghost" type="button">Locais cadastrados</button>
         <button id="syncDbBtn" class="cta-btn ghost" type="button">Sincronizar banco</button>
-        <button id="pullOfficialDbBtn" class="cta-btn ghost" type="button">Baixar banco oficial</button>
-        <button id="importLegacyBtn" class="cta-btn ghost" type="button">Importar cache antigo</button>
         <button id="forcePushDbBtn" class="cta-btn ghost" type="button">Enviar locais e mídias</button>
         <button id="dbStatusBtn" class="cta-btn ghost" type="button">Status do banco</button>
         <button id="exportBtn" class="cta-btn ghost" type="button">Exportar JSON</button>
@@ -53,7 +129,7 @@
 
     <section id="activationCard" class="activation-card glass" aria-live="polite">
       <p class="eyebrow">Permissões</p>
-      <h2>Ativar GeoVendas_Casa</h2>
+      <h2>Ativar Futura Vista</h2>
       <p>Toque para liberar câmera, localização e bússola.</p>
       <button id="activationStartBtn" class="cta-btn" type="button">Ativar aplicativo</button>
     </section>
@@ -87,8 +163,8 @@
     <section id="panel" class="panel glass hidden" aria-hidden="true">
       <div class="panel-head">
         <div>
-          <p class="eyebrow">Sistema de geolocalização comercial</p>
-          <h2>Cadastros e simulações</h2>
+          <p class="eyebrow">Futura Vista · Campo</p>
+          <h2>Lotes, visitas e simulações</h2>
         </div>
         <button id="closePanel" class="icon-btn small" type="button" aria-label="Fechar painel">✕</button>
       </div>
@@ -296,13 +372,13 @@
           <div class="evora-mark small-mark" aria-hidden="true"><span></span><span></span><span></span></div>
           <div class="sim-brand-copy">
             <div class="sim-brand-left">
-              <strong>ÉVORA</strong>
-              <span>URBANISMO</span>
+              <strong>FUTURA</strong>
+              <span>CASA</span>
             </div>
             <span class="sim-divider"></span>
             <div class="sim-brand-right">
-              <strong>GeoVendas_Casa</strong>
-              <small>v3.12</small>
+              <strong>Futura Vista</strong>
+              <small>v4.1</small>
             </div>
           </div>
         </div>
@@ -419,6 +495,6 @@
     </section>
   </div>
 
-  <script src="./app.js?v=3.12"></script>
+  <script src="./app.js?v=4.1"></script>
 </body>
 </html>
