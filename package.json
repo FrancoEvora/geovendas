@@ -1,8 +1,8 @@
 {
-  "name": "futura-casa-vista-v4-1",
+  "name": "geovendas-casa-v3-12",
   "private": true,
-  "version": "4.1.0",
-  "description": "Futura Casa com módulo Futura Vista integrado ao GeoVendas Campo",
+  "version": "3.12.0",
+  "description": "GeoVendas_Casa com geração real de imagens por OpenAI",
   "engines": {
     "node": "24.x"
   }

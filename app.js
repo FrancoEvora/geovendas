@@ -1,5 +1,5 @@
-const STORAGE_KEY = 'geovendas_casa_v25_points';
-const DB_NAME = 'geovendas_casa_v25_media';
+const STORAGE_KEY = 'geovendas_casa_v312_official_cache';
+const DB_NAME = 'geovendas_casa_v312_media_cache';
 const DB_VERSION = 1;
 const MEDIA_STORE = 'media';
 const DUPLICATE_NORMALIZER = (value) => String(value || '').trim().toLocaleLowerCase('pt-BR');
@@ -17,6 +17,8 @@ const els = {
   activationStartBtn: document.getElementById('activationStartBtn'),
   showLocationsBtn: document.getElementById('showLocationsBtn'),
   syncDbBtn: document.getElementById('syncDbBtn'),
+  pullOfficialDbBtn: document.getElementById('pullOfficialDbBtn'),
+  importLegacyBtn: document.getElementById('importLegacyBtn'),
   pushDbBtn: document.getElementById('forcePushDbBtn'),
   dbStatusBtn: document.getElementById('dbStatusBtn'),
   exportBtn: document.getElementById('exportBtn'),
@@ -29,18 +31,6 @@ const els = {
   headingValue: document.getElementById('headingValue'),
   compassNeedle: document.getElementById('compassNeedle'),
   floatingPointsLayer: document.getElementById('floatingPointsLayer'),
-  futuraShell: document.getElementById('futuraShell'),
-  futuraOpenVistaBtn: document.getElementById('futuraOpenVistaBtn'),
-  futuraStartJourneyBtn: document.getElementById('futuraStartJourneyBtn'),
-  futuraSyncBtn: document.getElementById('futuraSyncBtn'),
-  futuraShowLotsBtn: document.getElementById('futuraShowLotsBtn'),
-  futuraDbCount: document.getElementById('futuraDbCount'),
-  futuraLocalCount: document.getElementById('futuraLocalCount'),
-  futuraSimulationCount: document.getElementById('futuraSimulationCount'),
-  futuraLotsList: document.getElementById('futuraLotsList'),
-  futuraPanelTitle: document.getElementById('futuraPanelTitle'),
-  futuraPanelText: document.getElementById('futuraPanelText'),
-  futuraPanelCards: document.getElementById('futuraPanelCards'),
   pointName: document.getElementById('pointName'),
   markMode: document.getElementById('markMode'),
   pointDescription: document.getElementById('pointDescription'),
@@ -128,7 +118,6 @@ const state = {
   watchId: null,
   activated: false,
   points: [],
-  uiMode: 'journey',
   remoteDb: {
     enabled: true,
     loading: false,
@@ -194,7 +183,7 @@ function buildGoogleMapsRouteUrl(point) {
 }
 function buildAppPointUrl(point) {
   const url = new URL(window.location.href);
-  url.searchParams.set('v', '4.1');
+  url.searchParams.set('v', '3.12');
   url.searchParams.set('point', point.id);
   return url.toString();
 }
@@ -264,7 +253,7 @@ function setLocalPointsFromRemote(remotePoints = []) {
   return changed;
 }
 function mergeRemotePoints(remotePoints = []) {
-  // Mantido para compatibilidade, mas a v4.1 usa o GitHub como fonte oficial.
+  // Mantido para compatibilidade, mas a v3.12 usa o GitHub como fonte oficial.
   return setLocalPointsFromRemote(remotePoints);
 }
 async function loadRemotePoints(options = {}) {
@@ -346,6 +335,65 @@ async function saveRemotePoints(options = {}) {
     state.remoteDb.loading = false;
   }
 }
+async function saveRemotePoint(point, options = {}) {
+  try {
+    const serializedPoint = await serializePointForRemote(point);
+    const response = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'upsertPoint', point: serializedPoint })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Não foi possível salvar o ponto no GitHub.');
+    if (Array.isArray(data.points)) setLocalPointsFromRemote(data.points);
+    else await loadRemotePoints({ silent: true, forceReplace: true });
+    if (!options.silent) toast('Ponto salvo no banco oficial.');
+    return true;
+  } catch (error) {
+    console.warn('Falha ao salvar ponto no banco oficial', error);
+    if (!options.silent) toast('Salvo apenas neste aparelho: ' + (error.message || 'banco indisponível'));
+    return false;
+  }
+}
+async function deleteRemotePoint(pointId, options = {}) {
+  try {
+    const response = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'deletePoint', pointId })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Não foi possível excluir o ponto no GitHub.');
+    if (Array.isArray(data.points)) setLocalPointsFromRemote(data.points);
+    else await loadRemotePoints({ silent: true, forceReplace: true });
+    if (!options.silent) toast('Ponto excluído do banco oficial.');
+    return true;
+  } catch (error) {
+    console.warn('Falha ao excluir ponto no banco oficial', error);
+    if (!options.silent) toast('Excluído apenas neste aparelho: ' + (error.message || 'banco indisponível'));
+    return false;
+  }
+}
+async function replaceRemoteDatabase(points = [], options = {}) {
+  try {
+    const serializedPoints = await Promise.all(points.map(serializePointForRemote));
+    const response = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'replaceAll', points: serializedPoints })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Não foi possível substituir o banco oficial.');
+    if (Array.isArray(data.points)) setLocalPointsFromRemote(data.points);
+    else await loadRemotePoints({ silent: true, forceReplace: true });
+    if (!options.silent) toast('Banco oficial substituído.');
+    return true;
+  } catch (error) {
+    console.warn('Falha ao substituir banco oficial', error);
+    if (!options.silent) toast('Falha no banco oficial: ' + (error.message || 'erro desconhecido'));
+    return false;
+  }
+}
 async function pushLocalPointsToGitHub(options = {}) {
   try {
     const localCount = state.points.length;
@@ -382,12 +430,47 @@ async function pushLocalPointsToGitHub(options = {}) {
   }
 }
 async function syncRemoteDatabase(options = {}) {
-  const loaded = await loadRemotePoints({ silent: false });
+  const loaded = await loadRemotePoints({ silent: false, forceReplace: true });
   if (loaded.ok) {
     toast(`Banco oficial carregado. ${state.points.length} ponto(s) no app.`);
   } else {
     toast(`Banco não sincronizado: ${loaded.error || 'verifique as variáveis no Vercel.'}`);
   }
+}
+async function importLegacyLocalPoints() {
+  const legacyKeys = ['geovendas_casa_v25_points', 'geovendas_casa_v30_points', 'geovendas_casa_v35_points'];
+  const existingIds = new Set(state.points.map((point) => point.id));
+  let imported = 0;
+  for (const key of legacyKeys) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const legacyPoints = JSON.parse(raw);
+      if (!Array.isArray(legacyPoints)) continue;
+      for (const point of legacyPoints) {
+        if (!point?.id || existingIds.has(point.id)) continue;
+        state.points.push({ ...point, media: Array.isArray(point.media) ? point.media : [] });
+        existingIds.add(point.id);
+        imported += 1;
+      }
+    } catch (error) {
+      console.warn('Falha ao importar cache antigo', key, error);
+    }
+  }
+  state.points.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+  savePoints();
+  renderPointList();
+  updateStatus();
+  updateNearestPoint();
+  renderFloatingPoints();
+  toast(imported ? `${imported} ponto(s) importado(s) do cache antigo. Use Enviar locais e mídias.` : 'Nenhum ponto antigo encontrado neste aparelho.');
+}
+async function resetLocalAndPullOfficial() {
+  state.points = [];
+  savePoints();
+  renderPointList();
+  const loaded = await loadRemotePoints({ silent: false, forceReplace: true });
+  toast(loaded.ok ? `Cache local substituído pelo banco oficial: ${state.points.length} ponto(s).` : `Falha ao baixar banco oficial: ${loaded.error || 'erro desconhecido'}`);
 }
 async function showRemoteDatabaseStatus() {
   try {
@@ -405,6 +488,7 @@ async function showRemoteDatabaseStatus() {
       `Repositório: ${data.repo || 'não informado'}`,
       `Branch: ${data.branch || 'não informada'}`,
       `Arquivo: ${data.path || 'não informado'}`,
+      `Fonte local: cache v3.12`,
       `Pontos neste aparelho: ${state.points.length}`,
       `Pontos no banco: ${Array.isArray(data.points) ? data.points.length : 0}`,
       `Mídias no banco: ${Array.isArray(data.points) ? data.points.reduce((total, point) => total + (Array.isArray(point.media) ? point.media.length : 0), 0) : 0}`,
@@ -424,93 +508,11 @@ async function openSharedPointFromUrl() {
     point = state.points.find((item) => item.id === pointId);
   }
   if (point) {
-    enterFieldMode();
     await openDetails(point);
     toast(`Local aberto: ${point.name}`);
   } else {
     toast('Ponto compartilhado não encontrado no banco.');
   }
-}
-function enterFieldMode() {
-  state.uiMode = 'field';
-  document.body.classList.remove('journey-mode');
-  document.body.classList.add('field-mode');
-  hide(els.futuraShell);
-  updateFuturaDashboard();
-}
-function enterJourneyMode() {
-  state.uiMode = 'journey';
-  document.body.classList.add('journey-mode');
-  document.body.classList.remove('field-mode');
-  show(els.futuraShell);
-  hide(els.panel);
-  hide(els.menuDrawer);
-  hide(els.detailsModal);
-  hide(els.aiStudioModal);
-  updateFuturaDashboard();
-}
-function setFuturaTab(tab = 'jornada') {
-  document.querySelectorAll('[data-futura-tab]').forEach((button) => {
-    button.classList.toggle('active', button.dataset.futuraTab === tab);
-  });
-  const tabContent = {
-    jornada: {
-      title: 'Sua casa, em movimento.',
-      text: 'Comece pela intenção do cliente, registre o interesse e conecte lote, casa-modelo e visita em uma única experiência.',
-      cards: [['Cliente', 'Perfil e intenção'], ['Casa', 'Modelo desejado'], ['Lote', 'Visita e simulação']]
-    },
-    lotes: {
-      title: 'O lote deixa de ser abstrato.',
-      text: 'Organize empreendimentos, pontos, fotos, rotas e visitas. Em campo, a Futura Vista transforma localização em argumento comercial.',
-      cards: [['Localização', 'Rota e proximidade'], ['Cadastro', 'Fotos e observações'], ['Compartilhar', 'Link do ponto no app']]
-    },
-    simulacoes: {
-      title: 'A decisão ganha imagem.',
-      text: 'A foto real do lote vira uma simulação ilustrativa com casa, pronta para salvar, compartilhar e retomar no follow-up.',
-      cards: [['IA', 'Imagem gerada'], ['Histórico', 'Simulações salvas'], ['Família', 'Compartilhamento rápido']]
-    },
-    campo: {
-      title: 'Futura Vista: o loteamento em contexto.',
-      text: 'Abra o modo campo para usar câmera, GPS, bússola, pontos flutuantes, rota, galeria e simulação no local.',
-      cards: [['GPS', 'Você está no lote'], ['AR leve', 'Pontos flutuantes'], ['Visita', 'Registro comercial']]
-    }
-  };
-  const content = tabContent[tab] || tabContent.jornada;
-  els.futuraPanelTitle.textContent = content.title;
-  els.futuraPanelText.textContent = content.text;
-  els.futuraPanelCards.innerHTML = content.cards.map(([label, value]) => `<article><span>${label}</span><strong>${value}</strong></article>`).join('');
-  if (tab === 'campo') {
-    setTimeout(() => els.futuraOpenVistaBtn?.focus(), 120);
-  }
-}
-async function updateFuturaDashboard() {
-  if (!els.futuraLocalCount) return;
-  const points = Array.isArray(state.points) ? state.points : [];
-  const simCount = points.reduce((total, point) => total + ((point.media || []).filter((media) => media.aiGenerated).length), 0);
-  els.futuraLocalCount.textContent = String(points.length);
-  els.futuraSimulationCount.textContent = String(simCount);
-  els.futuraDbCount.textContent = state.remoteDb?.lastSyncAt ? 'sincronizado' : 'local';
-  if (!els.futuraLotsList) return;
-  const recent = points.slice(0, 4);
-  if (!recent.length) {
-    els.futuraLotsList.className = 'fc-lots-list empty';
-    els.futuraLotsList.textContent = 'Nenhum lote sincronizado ainda.';
-    return;
-  }
-  els.futuraLotsList.className = 'fc-lots-list';
-  els.futuraLotsList.innerHTML = recent.map((point) => {
-    const distance = state.currentCoords ? formatDistance(haversine(state.currentCoords.lat, state.currentCoords.lng, point.lat, point.lng)) : '—';
-    return `<button type="button" class="fc-lot-row" data-home-point="${point.id}"><span>${escapeHtml(point.name)}</span><small>${distance} · ${(point.media || []).length} mídia(s)</small></button>`;
-  }).join('');
-  els.futuraLotsList.querySelectorAll('[data-home-point]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const point = state.points.find((item) => item.id === button.dataset.homePoint);
-      if (point) {
-        enterFieldMode();
-        openDetails(point);
-      }
-    });
-  });
 }
 function toast(message) {
   els.toast.textContent = message;
@@ -625,41 +627,20 @@ async function init() {
   bindEvents();
   updateStatus();
   renderPointList();
-  await loadRemotePoints({ silent: true });
-  await updateFuturaDashboard();
-  if (new URLSearchParams(window.location.search).get('field') === '1' || new URLSearchParams(window.location.search).get('point')) {
-    enterFieldMode();
-  } else {
-    enterJourneyMode();
-  }
+  // v3.12: o GitHub é a fonte oficial. O cache local só é usado se o banco remoto não responder.
+  await loadRemotePoints({ silent: true, forceReplace: true });
   await openSharedPointFromUrl();
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=4.1').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3.12').catch(() => {});
   }
 }
 
 function bindEvents() {
   els.menuToggle.addEventListener('click', () => toggle(els.menuDrawer));
   els.closeMenu.addEventListener('click', () => hide(els.menuDrawer));
-  els.futuraOpenVistaBtn?.addEventListener('click', enterFieldMode);
-  els.futuraStartJourneyBtn?.addEventListener('click', () => setFuturaTab('jornada'));
-  els.futuraSyncBtn?.addEventListener('click', async () => {
-    await syncRemoteDatabase({ silent: true });
-    await updateFuturaDashboard();
-    toast('Dados da Futura Casa sincronizados.');
-  });
-  els.futuraShowLotsBtn?.addEventListener('click', () => {
-    enterFieldMode();
-    show(els.panel);
-    document.querySelector('.list-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-  document.querySelectorAll('[data-futura-tab]').forEach((button) => {
-    button.addEventListener('click', () => setFuturaTab(button.dataset.futuraTab));
-  });
   els.panelToggle.addEventListener('click', () => toggle(els.panel));
   els.closePanel.addEventListener('click', () => hide(els.panel));
   els.activateBtn.addEventListener('click', activateApp);
-  els.returnHomeBtn?.addEventListener('click', enterJourneyMode);
   els.activationStartBtn.addEventListener('click', activateApp);
   els.showLocationsBtn.addEventListener('click', () => {
     hide(els.menuDrawer);
@@ -669,6 +650,14 @@ function bindEvents() {
   els.syncDbBtn?.addEventListener('click', async () => {
     hide(els.menuDrawer);
     await syncRemoteDatabase({ manual: true });
+  });
+  els.pullOfficialDbBtn?.addEventListener('click', async () => {
+    hide(els.menuDrawer);
+    await resetLocalAndPullOfficial();
+  });
+  els.importLegacyBtn?.addEventListener('click', async () => {
+    hide(els.menuDrawer);
+    await importLegacyLocalPoints();
   });
   els.pushDbBtn?.addEventListener('click', async () => {
     hide(els.menuDrawer);
@@ -927,15 +916,14 @@ async function savePoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  const synced = await pushLocalPointsToGitHub();
-  toast(synced ? 'Local cadastrado e enviado ao GitHub com sucesso.' : 'Local cadastrado apenas neste aparelho. Use Enviar locais e mídias para ver o erro.');
+  const synced = await saveRemotePoint(point, { silent: true });
+  toast(synced ? 'Local cadastrado no banco oficial com sucesso.' : 'Local cadastrado apenas neste aparelho. Use Enviar locais e mídias para ver o erro.');
   hide(els.panel);
 }
 function renderPointList() {
   if (!state.points.length) {
     els.pointList.className = 'point-list empty';
     els.pointList.textContent = 'Nenhum ponto cadastrado ainda.';
-    updateFuturaDashboard();
     return;
   }
   els.pointList.className = 'point-list';
@@ -955,7 +943,6 @@ function renderPointList() {
       </article>
     `;
   }).join('');
-  updateFuturaDashboard();
 }
 function handlePointListClick(event) {
   const btn = event.target.closest('button[data-action]');
@@ -976,8 +963,7 @@ async function deletePoint(pointId) {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ replace: true, silent: false });
-  toast('Cadastro excluído.');
+  await deleteRemotePoint(pointId, { silent: false });
 }
 async function deleteMediaFromPoint(pointId, mediaId) {
   const point = state.points.find((item) => item.id === pointId);
@@ -992,7 +978,7 @@ async function deleteMediaFromPoint(pointId, mediaId) {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ replace: true, silent: true });
+  await saveRemotePoint(point, { silent: true });
   toast('Mídia excluída da galeria.');
 }
 function confirm(title, message, onAccept) {
@@ -1011,7 +997,7 @@ async function clearAllPoints() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ replace: true, silent: false });
+  await replaceRemoteDatabase([], { silent: false });
   toast('Todos os cadastros foram removidos.');
 }
 function updateNearestPoint() {
@@ -1285,7 +1271,7 @@ async function shareMediaFromPoint(point, media) {
 async function sharePoint(point) {
   const mapsUrl = buildGoogleMapsRouteUrl(point);
   const appUrl = buildAppPointUrl(point);
-  await saveRemotePoints({ silent: true });
+  await saveRemotePoint(point, { silent: true });
   const text = [
     `Local: ${point.name}`,
     point.description ? `Descrição: ${point.description}` : '',
@@ -1334,7 +1320,7 @@ async function exportJson() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `futura_casa_vista_v41_${Date.now()}.json`;
+  a.download = `geovendas_casa_v312_${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exportação concluída.');
@@ -1363,7 +1349,7 @@ async function importJson(event) {
     updateStatus();
     updateNearestPoint();
     renderFloatingPoints();
-    await saveRemotePoints({ replace: true, silent: false });
+    await replaceRemoteDatabase(state.points, { silent: false });
     toast('Importação concluída.');
   } catch (error) {
     console.error(error);
@@ -1601,7 +1587,7 @@ async function saveAiResultToPoint() {
   updateStatus();
   updateNearestPoint();
   renderFloatingPoints();
-  await saveRemotePoints({ silent: true });
+  await saveRemotePoint(point, { silent: true });
 
   els.aiResult.querySelector('.ai-save-confirmation')?.remove();
   const confirmation = document.createElement('div');
