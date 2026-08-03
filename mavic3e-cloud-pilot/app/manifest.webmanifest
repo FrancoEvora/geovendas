@@ -1,0 +1,9 @@
+{
+  "name": "Évora Mavic 3E Cloud Pilot",
+  "short_name": "Évora Cloud",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07100d",
+  "theme_color": "#07100d",
+  "lang": "pt-BR"
+}

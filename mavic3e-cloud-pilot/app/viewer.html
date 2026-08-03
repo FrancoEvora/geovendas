@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#010302">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <title>Ao vivo · Évora Mavic 3E</title>
+</head>
+<body>
+<main class="viewer" id="stage">
+  <video id="video" muted playsinline controls></video>
+  <div class="shade"></div>
+  <div class="overlay" id="overlay"></div>
+  <div class="vtop"><div class="code"><b>ÉVORA SPATIAL</b><br><span id="sceneName">Mavic 3E · sem cabo</span></div><span class="pill" id="statusPill">Aguardando</span></div>
+  <div class="tele" style="top:82px">
+    <div class="chip"><small>Fonte</small><strong id="source">Pilot 2 / RTMP</strong></div>
+    <div class="chip"><small>Rumo</small><strong id="heading">0°</strong></div>
+    <div class="chip"><small>Gimbal</small><strong id="gimbal">0°</strong></div>
+    <div class="chip"><small>Bateria</small><strong id="battery">—</strong></div>
+  </div>
+  <section class="vmsg" id="messageLayer">
+    <div class="card">
+      <span class="eyebrow">TRANSMISSÃO SEM CABO</span>
+      <h2 id="messageTitle">Aguardando o operador</h2>
+      <p id="messageText">A câmera aparecerá assim que o DJI Pilot 2 iniciar o envio RTMP e o gateway estiver disponível.</p>
+      <button class="btn primary" id="startBtn">Iniciar conexão</button>
+      <button class="btn" id="retryBtn" hidden>Tentar novamente</button>
+    </div>
+  </section>
+  <article class="detail" id="detail" hidden><span class="eyebrow" id="detailCategory">REFERÊNCIA</span><h3 id="detailName"></h3><p id="detailDescription"></p></article>
+  <nav class="vbottom"><button class="btn" id="labelsBtn">◎ Ocultar pontos</button><button class="btn" id="reloadBtn">↻ Recarregar</button><button class="btn" id="fullBtn">⛶ Tela cheia</button></nav>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.16/dist/hls.min.js"></script>
+<script type="module" src="/assets/viewer.js"></script>
+</body>
+</html>
