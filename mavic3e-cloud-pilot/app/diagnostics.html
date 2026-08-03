@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07100d">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <title>Diagnóstico · Évora Mavic 3E Cloud</title>
+</head>
+<body>
+<header class="top"><a class="brand" href="/"><span class="logo">É</span><span><strong>ÉVORA SPATIAL</strong><small>Diagnóstico sem cabo</small></span></a><span class="pill" id="summaryPill">Verificando</span></header>
+<main class="page">
+  <section class="diag">
+    <article class="card">
+      <span class="eyebrow">PRÉ-TESTE</span><h1 style="font-size:52px">Diagnóstico do enlace.</h1><p>Verifica navegador, Supabase, HLS e disponibilidade da transmissão. O teste do vídeo exige que o gateway e o RTMP do Pilot 2 já estejam ativos.</p>
+      <div id="checks"></div>
+      <button class="btn primary" id="runBtn" style="width:100%;margin-top:14px">Executar novamente</button>
+    </article>
+    <article class="card">
+      <span class="eyebrow">TESTE DE VÍDEO</span><h2>URL HLS</h2>
+      <div class="field"><label>Endereço da transmissão</label><input class="input" id="playbackInput" placeholder="https://.../mavic3e/index.m3u8"></div>
+      <div class="row"><button class="btn" id="fetchBtn">Testar playlist</button><button class="btn primary" id="playBtn">Reproduzir</button></div>
+      <video class="preview" id="preview" muted playsinline controls></video>
+      <p id="videoResult">Aguardando URL.</p>
+      <div class="actions"><a class="btn" href="/gateway">Configurar gateway</a><a class="btn" href="/operador">Abrir operador</a></div>
+    </article>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.16/dist/hls.min.js"></script>
+<script type="module" src="/assets/diagnostics.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07100d">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <title>Gateway · Évora Mavic 3E</title>
+</head>
+<body>
+<header class="top"><a class="brand" href="/"><span class="logo">É</span><span><strong>ÉVORA SPATIAL</strong><small>Gateway RTMP → LL-HLS</small></span></a><span class="pill" data-state="ok">Sem HDMI</span></header>
+<main class="page">
+  <section class="hero">
+    <article class="card">
+      <span class="eyebrow">NOTEBOOK DA OPERAÇÃO</span><h1>Transforme o RTMP do Pilot 2 em vídeo para o iPhone.</h1>
+      <p class="lead">O pacote Windows instala automaticamente MediaMTX e cloudflared, detecta o IP local, cria um túnel HTTPS e registra os endereços no Supabase. O controle se conecta apenas por Wi‑Fi.</p>
+      <div class="actions"><a class="btn primary" href="/docs/TESTE-SEM-CABO.md">Abrir roteiro técnico</a><a class="btn" href="/">Voltar ao início</a></div>
+      <div class="notice" style="margin-top:18px"><b>Pacote público:</b> contém apenas um arquivo de configuração de exemplo. Para o teste real, use o kit privado fornecido à operação Évora.</div>
+    </article>
+    <aside class="card">
+      <span class="eyebrow">WINDOWS · SEM DOCKER</span><h2>Execução automática</h2>
+      <div class="step"><span class="num">1</span><div><b>Extraia o ZIP privado</b><p>O arquivo já contém a configuração segura da sala.</p></div></div>
+      <div class="step"><span class="num">2</span><div><b>Execute INICIAR-GATEWAY.bat</b><p>Na primeira abertura, confirme o download e permita rede privada se o Windows solicitar.</p></div></div>
+      <div class="step"><span class="num">3</span><div><b>Copie o RTMP para o Pilot 2</b><p>O painel do operador e o iPhone recebem a URL HLS automaticamente.</p></div></div>
+      <div class="notice green">O gateway mantém um heartbeat seguro no Supabase e informa quando o RTMP começou a chegar.</div>
+    </aside>
+  </section>
+  <section class="section grid2">
+    <article class="card"><span class="eyebrow">ENTRADA LOCAL</span><h2>RTMP</h2><div class="code">rtmp://IP_DO_NOTEBOOK:1935/m3e-codigo-seguro</div><p>Controle e notebook devem estar na mesma rede Wi‑Fi. Não é necessário cabo entre eles.</p></article>
+    <article class="card"><span class="eyebrow">SAÍDA SEGURA</span><h2>Low-Latency HLS</h2><div class="code">https://URL-TEMPORARIA.trycloudflare.com/m3e-codigo-seguro/index.m3u8</div><p>A URL é publicada automaticamente para o player do comprador.</p></article>
+  </section>
+  <section class="section card">
+    <span class="eyebrow">LIMITES DO PILOTO</span>
+    <p>O Quick Tunnel não possui SLA e é destinado a teste e desenvolvimento. Na versão comercial, o gateway deverá usar domínio permanente e infraestrutura de mídia gerenciada.</p>
+    <div class="actions"><a class="btn" href="/diagnostico">Executar diagnóstico</a><a class="btn orange" href="/operador">Abrir operação</a></div>
+  </section>
+</main>
+</body>
+</html>
