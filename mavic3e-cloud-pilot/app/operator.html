@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07100d">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <title>Operador · Évora Mavic 3E Cloud</title>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/"><span class="logo">É</span><span><strong>ÉVORA SPATIAL</strong><small>Operador · Mavic 3E sem cabo</small></span></a>
+  <div class="row"><span class="pill" id="signalPill">Supabase</span><span class="pill" id="gatewayPill">Gateway offline</span><span class="pill" id="pilotPill">Pilot 2 offline</span><span class="pill" id="livePill">Fora do ar</span><button class="btn" id="menu">☰</button></div>
+</header>
+<main class="console">
+  <section class="stage" id="stage">
+    <video id="video" muted playsinline controls></video>
+    <div class="empty" id="empty"><div><span class="eyebrow">PRÉVIA HLS</span><h2>Configure o gateway e carregue a transmissão</h2><p>O vídeo virá do controle DJI pela rede. Não existe cabo entre o controle e o notebook.</p></div></div>
+    <div class="shade"></div>
+    <div class="tele">
+      <div class="chip"><small>Fonte</small><strong id="source">HLS / RTMP</strong></div>
+      <div class="chip"><small>Rumo</small><strong id="heading">0°</strong></div>
+      <div class="chip"><small>Gimbal</small><strong id="gimbal">0°</strong></div>
+      <div class="chip"><small>Bateria</small><strong id="battery">—</strong></div>
+      <div class="chip"><small>Compradores</small><strong id="viewers">0</strong></div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <div class="hint hidden" id="hint">Clique no ponto exato da imagem</div>
+    <nav class="stagebar">
+      <button class="btn" id="markBtn">＋ Marcar ponto</button>
+      <button class="btn primary" id="liveBtn">● Declarar ao vivo</button>
+      <button class="btn" id="reloadBtn">↻ Recarregar vídeo</button>
+      <button class="btn" id="fullBtn">⛶ Tela cheia</button>
+    </nav>
+  </section>
+  <aside class="side open" id="side">
+    <section class="panel">
+      <span class="eyebrow">1. GATEWAY SEM CABO</span>
+      <h3>Endereços automáticos</h3>
+      <p id="gatewayDetail">Execute o pacote privado no notebook. As URLs aparecerão aqui automaticamente.</p>
+      <div class="field"><label>IP do notebook na rede local</label><input class="input" id="lanIp" placeholder="Publicado pelo gateway"></div>
+      <div class="field"><label>Nome seguro do stream</label><input class="input" id="streamPath" value="m3e-t564btidzyvoq1jy"></div>
+      <div class="field"><label>URL pública do túnel</label><input class="input" id="tunnelUrl" placeholder="Publicada automaticamente"></div>
+      <div class="field"><label>RTMP para colar no Pilot 2</label><div class="code" id="rtmpUrl">Informe o IP do notebook.</div></div>
+      <div class="row"><button class="btn" id="copyRtmp">Copiar RTMP</button><button class="btn" id="refreshCloud">Atualizar</button><a class="btn" href="/gateway">Abrir guia</a></div>
+    </section>
+    <section class="panel">
+      <span class="eyebrow">2. REPRODUÇÃO</span>
+      <h3>Prévia da câmera</h3>
+      <div class="field"><label>URL HLS completa</label><input class="input" id="playbackUrl" placeholder="Publicada automaticamente pelo gateway"></div>
+      <div class="row"><button class="btn primary" id="loadBtn">▶ Carregar vídeo</button><button class="btn" id="testBtn">Testar URL</button></div>
+      <p id="videoMessage">No iPhone, o Safari reproduz HLS nativamente.</p>
+    </section>
+    <section class="panel">
+      <span class="eyebrow">3. DJI PILOT 2</span>
+      <h3>Módulo do controle</h3>
+      <div class="code" id="pilotLink">Preparando…</div>
+      <div class="row"><button class="btn" id="copyPilot">Copiar URL</button><a class="btn orange" id="openPilot" target="_blank">Abrir módulo</a></div>
+      <p>Use esta página no Open Platforms para a integração Cloud API. Quando disponível, o RTMP nativo também pode receber o endereço acima.</p>
+    </section>
+    <section class="panel">
+      <span class="eyebrow">4. COMPRADOR</span>
+      <h3>Link estável e compartilhável</h3>
+      <div class="code" id="viewerLink">Preparando…</div>
+      <div class="row"><button class="btn" id="copyViewer">Copiar</button><button class="btn orange" id="shareViewer">Compartilhar</button><a class="btn" id="openViewer" target="_blank">Abrir</a></div>
+      <p>O link do comprador não contém a URL temporária do túnel. O player consulta o endereço atual no Supabase.</p>
+    </section>
+    <section class="panel">
+      <div class="row" style="justify-content:space-between"><h3>Pontos e referências</h3><button class="btn" id="deleteMarker" disabled>Excluir</button></div>
+      <div class="list" id="markerList"></div>
+    </section>
+    <section class="panel">
+      <span class="eyebrow">TELEMETRIA DO PILOTO</span>
+      <div class="grid2">
+        <div class="field"><label>Rumo °</label><input class="input" id="headingInput" type="number" value="0"></div>
+        <div class="field"><label>Gimbal °</label><input class="input" id="gimbalInput" type="number" value="0"></div>
+        <div class="field"><label>Bateria %</label><input class="input" id="batteryInput" type="number" value="87"></div>
+        <div class="field"><label>Satélites</label><input class="input" id="satelliteInput" type="number" value="0"></div>
+      </div>
+      <button class="btn" id="telemetryBtn" style="width:100%;margin-top:10px">Atualizar comprador</button>
+    </section>
+    <section class="panel">
+      <span class="eyebrow">SALA SUPABASE</span>
+      <div class="field"><label>Chave privada do operador</label><input class="input" id="operatorKey" type="password" placeholder="Cole a chave privada"></div>
+      <button class="btn" id="validateKey" style="width:100%;margin-top:9px">Validar e sincronizar</button>
+      <p>A chave não é incluída no link do comprador nem no código público.</p>
+    </section>
+  </aside>
+</main>
+<div class="modal" id="markerModal" hidden>
+  <form class="card" id="markerForm">
+    <span class="eyebrow">NOVA REFERÊNCIA</span><h2>Identificar ponto</h2>
+    <div class="field"><label>Nome</label><input class="input" id="markerName" required></div>
+    <div class="field"><label>Categoria</label><input class="input" id="markerCategory" value="Referência"></div>
+    <div class="field"><label>Status</label><select class="select" id="markerStatus"><option value="active">Ativo</option><option value="attention">Atenção</option><option value="available">Disponível</option><option value="reserved">Reservado</option><option value="sold">Vendido</option></select></div>
+    <div class="field"><label>Descrição</label><textarea class="textarea" id="markerDescription"></textarea></div>
+    <div class="actions"><button class="btn" type="button" id="cancelMarker">Cancelar</button><button class="btn primary">Salvar</button></div>
+  </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.16/dist/hls.min.js"></script>
+<script type="module" src="/assets/operator.js"></script>
+</body>
+</html>
