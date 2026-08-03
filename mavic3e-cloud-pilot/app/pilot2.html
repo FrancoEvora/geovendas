@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07100d">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <title>Pilot 2 · Évora Spatial</title>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/"><span class="logo">É</span><span><strong>ÉVORA SPATIAL</strong><small>Módulo H5 para DJI Pilot 2</small></span></a>
+  <div class="row"><span class="pill" id="gatewayPill">Gateway offline</span><span class="pill" id="bridgePill">Fora do Pilot 2</span><span class="pill" id="streamPill">Parado</span></div>
+</header>
+<main class="page">
+  <section class="card">
+    <span class="eyebrow">SEM CABO · DJI PILOT 2 → RTMP → IPHONE</span>
+    <h1 style="max-width:18ch">Envie a câmera pelo próprio controle.</h1>
+    <p class="lead">A página carrega automaticamente o endereço publicado pelo gateway. Se o seu Pilot 2 disponibilizar transmissão RTMP personalizada, basta copiá-lo. A área Cloud API automatiza o envio dentro do Open Platforms quando as credenciais oficiais DJI estiverem disponíveis.</p>
+    <div class="grid2 section" style="margin-top:18px">
+      <div>
+        <div class="field"><label>Chave privada da operação</label><input class="input" id="pilotOperatorKey" type="password" autocomplete="off" placeholder="Cole a chave do kit privado"></div>
+        <div class="row"><button class="btn primary" id="validatePilotKey">Validar e carregar URLs</button><button class="btn" id="refreshPilotCloud">Atualizar</button></div>
+      </div>
+      <div class="status-card">
+        <div class="status-row"><span>Gateway</span><b id="gatewayStatus">Offline</b></div>
+        <div class="status-row"><span>Último sinal</span><b id="gatewayHeartbeat">—</b></div>
+        <p>A chave fica somente nesta sessão do navegador e não é enviada ao comprador.</p>
+      </div>
+    </div>
+    <div class="tabs" role="tablist"><button class="tab active" data-tab="quick">RTMP do Pilot 2</button><button class="tab" data-tab="cloud">Cloud API / JSBridge</button></div>
+  </section>
+
+  <section class="section" id="quickTab">
+    <div class="grid2">
+      <article class="card">
+        <span class="eyebrow">CAMINHO DE VALIDAÇÃO</span>
+        <h2>Transmissão personalizada</h2>
+        <div class="step"><span class="num">1</span><div><b>Conecte o controle ao Wi‑Fi</b><p>Controle e notebook precisam alcançar a mesma rede local.</p></div></div>
+        <div class="step"><span class="num">2</span><div><b>Procure o recurso Livestream/RTMP</b><p>O nome e a posição podem variar conforme a versão do Pilot 2. Se o menu não estiver disponível, use a aba Cloud API.</p></div></div>
+        <div class="step"><span class="num">3</span><div><b>Cole o endereço do gateway</b><p>Ao iniciar, a imagem principal mostrada no Pilot 2 será encaminhada ao servidor.</p></div></div>
+        <div class="notice green">Nenhum cabo HDMI é usado. O gateway apenas recebe o RTMP pela rede e publica HLS seguro para o iPhone.</div>
+      </article>
+      <article class="card">
+        <span class="eyebrow">ENDEREÇOS AUTOMÁTICOS</span>
+        <div class="field"><label>RTMP do gateway</label><input class="input" id="quickRtmp" placeholder="Aguardando gateway"></div>
+        <div class="row"><button class="btn primary" id="copyQuickRtmp">Copiar RTMP</button><a class="btn" href="/gateway">Preparar gateway</a></div>
+        <div class="field"><label>HLS público</label><input class="input" id="quickPlayback" placeholder="Aguardando túnel HTTPS"></div>
+        <div class="field"><label>Link estável do comprador</label><div class="code" id="quickViewer">Preparando…</div></div>
+        <div class="row"><button class="btn" id="copyQuickViewer">Copiar link</button><a class="btn orange" id="openQuickViewer" target="_blank">Abrir comprador</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section hidden" id="cloudTab">
+    <div class="grid2">
+      <article class="card">
+        <span class="eyebrow">STATUS DO AMBIENTE DJI</span>
+        <h2>JSBridge</h2>
+        <div class="status-row"><span>WebView DJI Pilot 2</span><b id="bridgeStatus">Não detectado</b></div>
+        <div class="status-row"><span>Licença Cloud API</span><b id="licenseStatus">Não verificada</b></div>
+        <div class="status-row"><span>Módulo liveshare</span><b id="moduleStatus">Não carregado</b></div>
+        <div class="status-row"><span>Configuração RTMP</span><b id="configStatus">Pendente</b></div>
+        <div class="status-row"><span>Transmissão</span><b id="liveStatus">Parada</b></div>
+        <div class="notice" style="margin-top:14px">Abra esta URL em <b>DJI Pilot 2 → Cloud Service → Open Platforms</b>. Em navegador comum, os controles apenas demonstram a interface.</div>
+      </article>
+      <article class="card">
+        <span class="eyebrow">CREDENCIAIS OFICIAIS DJI</span>
+        <h2>Verificação da aplicação</h2>
+        <div class="field"><label>App ID</label><input class="input" id="appId" autocomplete="off"></div>
+        <div class="field"><label>App Key</label><input class="input" id="appKey" type="password" autocomplete="off"></div>
+        <div class="field"><label>App License</label><textarea class="textarea" id="appLicense" autocomplete="off"></textarea></div>
+        <label class="notice" style="display:block"><input type="checkbox" id="rememberSession"> Guardar somente nesta sessão do Pilot 2. As credenciais não são enviadas ao Supabase.</label>
+        <button class="btn primary" id="verifyLicense" style="width:100%;margin-top:10px">1. Verificar licença</button>
+      </article>
+    </div>
+    <div class="grid2 section">
+      <article class="card">
+        <span class="eyebrow">WORKSPACE E MÓDULO</span>
+        <div class="field"><label>Nome do workspace</label><input class="input" id="workspaceName" value="Évora Mavic 3E Pilot"></div>
+        <div class="field"><label>Descrição</label><input class="input" id="workspaceDescription" value="Apresentação comercial ao vivo sem cabo HDMI"></div>
+        <div class="bridge-grid" style="margin-top:12px"><button class="btn" id="setWorkspace">2. Definir workspace</button><button class="btn" id="loadLiveModule">3. Carregar liveshare</button></div>
+      </article>
+      <article class="card">
+        <span class="eyebrow">TRANSMISSÃO RTMP</span>
+        <div class="field"><label>URL RTMP</label><input class="input" id="cloudRtmp" placeholder="Carregada pelo gateway"></div>
+        <div class="field"><label>URL HLS pública</label><input class="input" id="cloudPlayback" placeholder="Carregada pelo gateway"></div>
+        <div class="bridge-grid" style="margin-top:12px"><button class="btn" id="configureLive">4. Configurar RTMP</button><button class="btn primary" id="startLive">5. Iniciar</button><button class="btn danger" id="stopLive">Parar</button><button class="btn" id="getLiveStatus">Ler status</button></div>
+      </article>
+    </div>
+    <article class="card section">
+      <span class="eyebrow">LOG DE INTEGRAÇÃO</span>
+      <pre class="log" id="bridgeLog">Aguardando ação…</pre>
+    </article>
+  </section>
+</main>
+<script type="module" src="/assets/pilot2.js"></script>
+</body>
+</html>
