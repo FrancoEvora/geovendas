@@ -1,6 +1,15 @@
 # Évora Mavic 3E Pilot v4
 
-Reconstrução integral do piloto estacionário para transmitir a câmera do DJI Mavic 3E ao navegador do comprador sem cabo HDMI.
+Reconstrução integral do piloto **estacionário** para transmitir a câmera do DJI Mavic 3E ao navegador do comprador sem cabo HDMI.
+
+## Produção
+
+- aplicação: `https://evora-mavic3e-pilot-v4.vercel.app`
+- branch: `agent/mavic3e-pilot-v4`
+- pacote-fonte validado: `EVORA-MAVIC3E-PILOT-V4-FONTE.zip`
+- SHA-256 do pacote-fonte: `d59bc05cd6fa32cfb896fa99f7ee77558da23e8d04d4b73e24f0454fd059b3bc`
+
+O pacote-fonte integral e o kit privado de operação foram entregues separadamente. Esta branch mantém a documentação e os componentes críticos que demonstram a mudança arquitetural, sem versionar a chave privada.
 
 ## Mudança central da v4
 
@@ -15,7 +24,7 @@ O FFmpeg recebe o RTMP, normaliza o vídeo em H.264 e produz HLS para o navegado
 ## Fluxo
 
 ```text
-Mavic 3E parado e sem hélices
+Mavic 3E imóvel e sem hélices
   → RC Pro Enterprise / DJI Pilot 2
   → RTMP por Wi-Fi: rtmp://IP:1935/live
   → FFmpeg listener no notebook
@@ -46,32 +55,25 @@ Execute `gateway/INICIAR-TUDO.bat`. O processo:
 15. abre o visualizador local e o console do operador;
 16. monitora e reinicia os componentes enquanto a janela permanece aberta.
 
-## Arquivos principais
-
-- `gateway/INICIAR-TUDO.bat` — operação completa;
-- `gateway/DIAGNOSTICO-COMPLETO.bat` — validação sem iniciar a operação real;
-- `gateway/PARAR-TUDO.bat` — encerramento limpo;
-- `gateway/scripts/RTMP-LISTENER.ps1` — receptor FFmpeg e geração HLS;
-- `gateway/scripts/HTTP-SERVER.ps1` — servidor local do player e segmentos;
-- `app/` — portal do operador, comprador e diagnóstico;
-- `supabase/migration.sql` — backend isolado da v4 com RLS e RPCs autenticadas por token.
-
-## Segurança
+## Segurança e segredos
 
 O piloto é exclusivamente estacionário. Remova todas as hélices, retire o protetor do gimbal antes de ligar, mantenha o equipamento em superfície firme e não acione os motores. A aplicação não pilota o drone nem envia comandos à aeronave.
 
-O arquivo `evora-gateway.private.json` não deve ser versionado. O repositório contém somente `evora-gateway.example.json`.
+O arquivo `evora-gateway.private.json` não deve ser versionado. A branch contém apenas `evora-gateway.example.json`.
 
 ## Validações realizadas
 
 - sintaxe JavaScript aprovada;
-- parsing dos documentos HTML aprovado;
+- documentos HTML e seletores conferidos;
 - balanceamento estático dos scripts PowerShell aprovado;
 - ausência de padrões ambíguos de variável PowerShell validada;
-- pipeline FFmpeg em modo servidor testado com publicação RTMP sintética e geração real de playlist e segmentos HLS;
+- pipeline FFmpeg em modo servidor testado com publicação RTMP sintética;
+- playlist e cinco segmentos HLS gerados;
+- playlist entregue por HTTP 200;
 - migração Supabase aplicada e RPCs testadas;
 - acesso direto anônimo às tabelas bloqueado;
-- ZIP privado e ZIP público testados quanto à integridade;
-- segredo privado ausente do pacote público.
+- Vercel em estado `READY`, com rotas principais respondendo 200;
+- ZIP privado e pacote-fonte testados quanto à integridade;
+- chave privada ausente do pacote público.
 
 A etapa que exige o hardware permanece a prova física no Windows com o DJI Pilot 2, usando exatamente `/live`.
