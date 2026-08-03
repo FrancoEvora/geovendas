@@ -1,0 +1,10 @@
+-- A migração foi aplicada no projeto evora-gestao.
+-- Tabelas: spatial_pilot_rooms e spatial_pilot_signals.
+-- RPCs públicas, com acesso restrito por token:
+-- spatial_pilot_public_context(uuid)
+-- spatial_pilot_post_signal(uuid,text,text,text,text,text,jsonb)
+-- spatial_pilot_read_signals(uuid,text,text,text,bigint)
+-- spatial_pilot_set_status(uuid,text,text)
+--
+-- O acesso direto às tabelas foi revogado para anon/authenticated e o RLS permanece ativo.
+-- As mensagens de sinalização expiram em cinco minutos e possuem limite por remetente.
