@@ -1,0 +1,11 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1.18.2
+    restart: unless-stopped
+    ports:
+      - "1935:1935"
+      - "8888:8888"
+      - "8889:8889"
+      - "8189:8189/udp"
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
