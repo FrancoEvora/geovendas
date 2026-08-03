@@ -1,0 +1,2 @@
+301c1d510a304281dc6cabdb9809957ee80161da521fdaf01731f603a2e6d71a  runtime/dist-archive.json.gz
+0459bb9eec97d26b361cc526374cd9a997af1dab704cc94daaf103b661f7fc3b  release/evora-mavic3e-cloud-pilot-source.zip
