@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07100d">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <title>Évora Spatial · Mavic 3E Cloud</title>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/"><span class="logo">É</span><span><strong>ÉVORA SPATIAL</strong><small>Mavic 3E · transmissão sem cabo</small></span></a>
+  <span class="pill" data-state="ok">Cloud Pilot 3.0</span>
+</header>
+<main class="page">
+  <section class="hero">
+    <article class="card">
+      <span class="eyebrow">DJI PILOT 2 → WI‑FI → IPHONE</span>
+      <h1>A câmera do Mavic, sem HDMI.</h1>
+      <p class="lead">O controle envia RTMP pela rede para um gateway local. O gateway publica Low‑Latency HLS em HTTPS, e o comprador recebe a imagem, os pontos e a telemetria no Safari.</p>
+      <div class="actions">
+        <a class="btn primary" href="/operador">Abrir operação</a>
+        <a class="btn orange" href="/pilot2">Abrir módulo Pilot 2</a>
+        <a class="btn" href="/comprador">Abrir comprador</a>
+      </div>
+    </article>
+    <aside class="card">
+      <span class="eyebrow">FLUXO AUTOMATIZADO</span>
+      <div class="step"><span class="num">1</span><div><b>Gateway no notebook</b><p>O pacote detecta o IP, inicia o servidor de mídia, cria o túnel e publica as URLs no Supabase.</p></div></div>
+      <div class="step"><span class="num">2</span><div><b>DJI Pilot 2</b><p>O operador copia o RTMP ou utiliza a integração Cloud API pelo Open Platforms.</p></div></div>
+      <div class="step"><span class="num">3</span><div><b>Comprador</b><p>O link é estável: o iPhone consulta automaticamente o endereço temporário atual do vídeo.</p></div></div>
+      <div class="notice green"><b>Sem cabo e sem placa de captura.</b> A plataforma não pilota o drone nem envia comandos de voo.</div>
+    </aside>
+  </section>
+
+  <section class="section grid3">
+    <article class="card"><span class="eyebrow">GATEWAY</span><h2>Um clique no Windows</h2><p>MediaMTX e Cloudflare Tunnel são baixados, iniciados e monitorados automaticamente.</p><a class="btn" href="/gateway">Preparar gateway</a></article>
+    <article class="card"><span class="eyebrow">COMERCIAL</span><h2>Pontos sobre o vídeo</h2><p>Identifique mesa, porta, árvore ou futura unidade e sincronize as referências com o iPhone.</p><a class="btn" href="/operador">Configurar apresentação</a></article>
+    <article class="card"><span class="eyebrow">DJI CLOUD API</span><h2>Módulo preparado</h2><p>Licença, workspace, liveshare, RTMP e comandos de início e parada via JSBridge.</p><a class="btn" href="/pilot2">Abrir integração</a></article>
+  </section>
+
+  <section class="section card">
+    <span class="eyebrow">ARQUITETURA DO PILOTO</span>
+    <div class="code" style="font-size:13px;line-height:1.8">Mavic 3E → AirLink DJI → RC Pro Enterprise / Pilot 2 → RTMP por Wi‑Fi → MediaMTX → LL‑HLS por HTTPS → Évora Spatial → Safari do comprador</div>
+    <div class="actions">
+      <a class="btn" href="/diagnostico">Executar diagnóstico</a>
+      <a class="btn" href="/gateway">Preparar gateway sem cabo</a>
+      <a class="btn" href="/docs/TESTE-SEM-CABO.md">Abrir roteiro técnico</a>
+    </div>
+  </section>
+
+  <section class="section notice red"><b>Segurança do piloto:</b> teste exclusivamente estacionário, com todas as hélices removidas, protetor do gimbal retirado antes de ligar e acompanhamento de adulto responsável ou operador qualificado. Não acione os motores.</section>
+</main>
+</body>
+</html>
