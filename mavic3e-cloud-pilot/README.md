@@ -2,6 +2,13 @@
 
 Versão sem cabo HDMI para transmitir a câmera do DJI Mavic 3E ao iPhone ou iPad do comprador.
 
+## Produção
+
+- Aplicação: `https://evora-mavic3e-cloud-pilot.vercel.app`
+- Estado do deploy: `READY`
+- Runtime: bundle verificado por SHA-256 e servido a partir do Supabase
+- Rotas verificadas: início, operador, Pilot 2, comprador, diagnóstico e gateway
+
 ## Arquitetura
 
 ```text
@@ -60,7 +67,8 @@ Esse modo depende de App ID, App Key e App License emitidos pela DJI. As credenc
 
 ## Artefatos
 
-- `runtime/dist-archive.json.gz` — bundle utilizado pela implantação Vercel;
+- `runtime/dist-archive.json.gz` — bundle da aplicação;
+- `vercel-function/` — função de produção que lê e verifica o bundle no Supabase;
 - `release/evora-mavic3e-cloud-pilot-source.zip` — código-fonte completo, sem segredos;
 - `docs/` — roteiro operacional e relatório técnico.
 
