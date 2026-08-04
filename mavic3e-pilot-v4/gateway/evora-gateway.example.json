@@ -1,0 +1,13 @@
+{
+  "version": "4.0.0",
+  "publicToken": "COLE_O_TOKEN_PUBLICO_AQUI",
+  "operatorKey": "COLE_A_CHAVE_PRIVADA_AQUI",
+  "supabaseUrl": "https://qsdffayasuzsmngteika.supabase.co",
+  "supabasePublishableKey": "sb_publishable_nMCXNDXMvU0EbMSSmnEfQg_0uE_lVOW",
+  "appBaseUrl": "https://evora-mavic3e-pilot-v4.vercel.app",
+  "rtmpPort": 1935,
+  "selfTestPort": 1936,
+  "httpPort": 8787,
+  "rtmpApp": "live",
+  "enableTunnel": true
+}
